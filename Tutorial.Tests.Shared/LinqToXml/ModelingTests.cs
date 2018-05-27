@@ -27,7 +27,7 @@
             Modeling.Namespace();
             Modeling.Element();
             Modeling.Attribute();
-            Modeling.Node();
+            Modeling.DeepEquals();
         }
 
         [TestMethod]
@@ -51,7 +51,8 @@
         [TestMethod]
         public void StreamingTest()
         {
-            Modeling.StreamingElement();
+            Modeling.StreamingElementWithChildElements();
+            Modeling.StreamingElementWithChildElementModification();
         }
     }
 }

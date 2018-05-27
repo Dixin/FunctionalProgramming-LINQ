@@ -12,10 +12,8 @@
     {
         private readonly Func<Exception, bool> isTransient;
 
-        public ExceptionDetection(Func<Exception, bool> isTransient = null)
-        {
+        public ExceptionDetection(Func<Exception, bool> isTransient = null) => 
             this.isTransient = isTransient ?? (_ => true);
-        }
 
         public bool IsTransient(Exception exception) => this.isTransient(exception);
     }
@@ -334,9 +332,7 @@
                     isTransient,
                     retryingHandler);
             }
-            catch (TException exception) when (@catch?.Invoke(exception) ?? true)
-            {
-            }
+            catch (TException exception) when (@catch?.Invoke(exception) ?? true) { }
 
             return results.Hide();
         }
@@ -348,7 +344,7 @@
         {
             if (retryCount < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(retryCount), $"{retryCount} must be 0 or greater than 0.");
+                throw new ArgumentOutOfRangeException(nameof(retryCount));
             }
 
             int count = 0;
@@ -411,7 +407,7 @@
         {
             if (retryCount < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(retryCount), $"{retryCount} must be 0 or greater than 0.");
+                throw new ArgumentOutOfRangeException(nameof(retryCount));
             }
 
             return source.Retry<TSource, Exception>(retryCount, @catch);

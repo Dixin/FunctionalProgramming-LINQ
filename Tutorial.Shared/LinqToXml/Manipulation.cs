@@ -1,19 +1,10 @@
 ﻿namespace Tutorial.LinqToXml
 {
-#if NETFX
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Xml.Linq;
     using System.Xml.Schema;
-#else
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Xml.Linq;
-#endif
-
-    using static Modeling;
 
     internal static class Manipulation
     {
@@ -25,7 +16,7 @@
             XText sourceText = new XText("text");
             XText clonedText = new XText(sourceText);
 
-            XDocument sourceDocument = LoadXDocument("https://weblogs.asp.net/dixin/rss");
+            XDocument sourceDocument = XDocument.Load("https://weblogs.asp.net/dixin/rss");
             XDocument clonedDocument = new XDocument(sourceDocument);
             object.ReferenceEquals(sourceDocument, clonedDocument).WriteLine(); // False
             object.Equals(sourceDocument, clonedDocument).WriteLine(); // False
@@ -137,23 +128,23 @@
         {
             XElement parent = new XElement("parent");
             parent.Changing += (sender, e) => 
-                $"Begin {e.ObjectChange}: {sender} => {parent.ToString(SaveOptions.DisableFormatting)}".WriteLine();
+                $"Before {e.ObjectChange}: {sender} => {parent.ToString(SaveOptions.DisableFormatting)}".WriteLine();
             parent.Changed += (sender, e) => 
-                $"End {e.ObjectChange}: {sender} => {parent.ToString(SaveOptions.DisableFormatting)}".WriteLine();
+                $"After {e.ObjectChange}: {sender} => {parent.ToString(SaveOptions.DisableFormatting)}".WriteLine();
 
             parent.SetElementValue("child", string.Empty); // Add child element.
-            // Begin Add: <child></child> => <parent />
-            // End Add: <child></child> => <parent><child></child></parent>
+            // Before Add: <child></child> => <parent />
+            // After Add: <child></child> => <parent><child></child></parent>
 
             parent.SetElementValue("child", "value"); // Update child element.
-            // Begin Value: <child></child> => <parent><child></child></parent>
-            // End Value: <child /> => <parent><child /></parent>
-            // Begin Add: value => <parent><child /></parent>
-            // End Add: value => <parent><child>value</child></parent>
+            // Before Value: <child></child> => <parent><child></child></parent>
+            // After Value: <child /> => <parent><child /></parent>
+            // Before Add: value => <parent><child /></parent>
+            // After Add: value => <parent><child>value</child></parent>
 
             parent.SetElementValue("child", null); // Remove child element.
-            // Begin Remove: <child>value</child> => <parent><child>value</child></parent>
-            // End Remove: <child>value</child> => <parent />
+            // Before Remove: <child>value</child> => <parent><child>value</child></parent>
+            // After Remove: <child>value</child> => <parent />
         }
 
         internal static void Annotation()
@@ -163,67 +154,55 @@
 
             Uri annotation = element.Annotation<Uri>();
             annotation.WriteLine(); // https://microsoft.com
-
             element.WriteLine(); // <element />
 
-            element.Add(element); // element is cloned.
-            element.Annotations<Uri>().Count().WriteLine(); // 1
-            element.Elements().Single().Annotations<object>().Count().WriteLine(); // 0
+            XElement clone = new XElement(element); // element is cloned.
+            clone.Annotations<Uri>().Any().WriteLine(); // False
 
             element.RemoveAnnotations<Uri>();
-            element.Annotations<Uri>().Count().WriteLine(); // 0
-            Uri removed = element.Annotation<Uri>();
-            (removed == null).WriteLine(); // True
+            (element.Annotation<Uri>() == null).WriteLine(); // True
         }
 
-#if NETFX
         internal static void InferSchemas()
         {
-            XDocument aspNetRss = LoadXDocument("https://www.flickr.com/services/feeds/photos_public.gne?id=64715861@N07&format=rss2");
+            XDocument aspNetRss = XDocument.Load("https://www.flickr.com/services/feeds/photos_public.gne?id=64715861@N07&format=rss2");
             XmlSchemaSet schemaSet = aspNetRss.InferSchema();
             schemaSet.Schemas().Cast<XmlSchema>().WriteLines(schema => schema.ToXDocument().ToString());
         }
-#endif
 
-#if NETFX
         internal static void Validate()
         {
-            XDocument aspNetRss = LoadXDocument("https://weblogs.asp.net/dixin/rss");
+            XDocument aspNetRss = XDocument.Load("https://weblogs.asp.net/dixin/rss");
             XmlSchemaSet schemaSet = aspNetRss.InferSchema();
 
-            XDocument flickrRss = LoadXDocument("https://www.flickr.com/services/feeds/photos_public.gne?id=64715861@N07&format=rss2");
+            XDocument flickrRss = XDocument.Load("https://www.flickr.com/services/feeds/photos_public.gne?id=64715861@N07&format=rss2");
             flickrRss.Validate(
                 schemaSet,
                 (sender, args) =>
                 {
                     $"{args.Severity}: ({sender.GetType().Name}) => {args.Message}".WriteLine();
                     // Error: (XElement) => The element 'channel' has invalid child element 'pubDate'. List of possible elements expected: 'item'.
-                    if (args.Exception != null)
-                    {
-                        args.Exception.WriteLine();
-                        // XmlSchemaValidationException: The element 'channel' has invalid child element 'pubDate'. List of possible elements expected: 'item'.
-                    }
+                    args.Exception?.WriteLine();
+                    // XmlSchemaValidationException: The element 'channel' has invalid child element 'pubDate'. List of possible elements expected: 'item'.
                 });
         }
-#endif
 
-#if NETFX
         internal static void GetSchemaInfo()
         {
-            XDocument aspNetRss = LoadXDocument("https://weblogs.asp.net/dixin/rss");
+            XDocument aspNetRss = XDocument.Load("https://weblogs.asp.net/dixin/rss");
             XmlSchemaSet schemaSet = aspNetRss.InferSchema();
 
-            XDocument flickrRss = LoadXDocument("https://www.flickr.com/services/feeds/photos_public.gne?id=64715861@N07&format=rss2");
+            XDocument flickrRss = XDocument.Load("https://www.flickr.com/services/feeds/photos_public.gne?id=64715861@N07&format=rss2");
             flickrRss.Validate(schemaSet, (sender, args) => { }, addSchemaInfo: true);
             flickrRss
                 .Root
                 .DescendantsAndSelf()
                 .ForEach(element =>
-                    {
-                        $"{element.XPath()} - {element.GetSchemaInfo()?.Validity}".WriteLine();
-                        element.Attributes().WriteLines(attribute => 
-                            $"{attribute.XPath()} - {attribute.GetSchemaInfo()?.Validity.ToString() ?? "null"}");
-                    });
+                {
+                    $"{element.XPath()} - {element.GetSchemaInfo()?.Validity}".WriteLine();
+                    element.Attributes().WriteLines(attribute => 
+                        $"{attribute.XPath()} - {attribute.GetSchemaInfo()?.Validity.ToString() ?? "null"}");
+                });
             // /rss - Invalid
             // /rss/@version - Valid
             // /rss/@xmlns:media - null
@@ -238,12 +217,10 @@
             // /rss/channel/lastBuildDate - NotKnown
             // ...
         }
-#endif
 
-#if NETFX
         internal static void XslTransform()
         {
-            XDocument rss = LoadXDocument("https://weblogs.asp.net/dixin/rss");
+            XDocument rss = XDocument.Load("https://weblogs.asp.net/dixin/rss");
             XDocument xsl = XDocument.Parse(@"
                 <xsl:stylesheet version='1.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>
                     <xsl:template match='/rss/channel'>
@@ -259,6 +236,7 @@
                     </ul>
                     </xsl:template>
                 </xsl:stylesheet>");
+#if !WINDOWS_UWP
             XDocument html = rss.XslTransform(xsl);
             html.WriteLine();
             // <ul>
@@ -278,28 +256,26 @@
             //    <a href="https://weblogs.asp.net:443/dixin/query-operating-system-processes-in-c">Query Operating System Processes in C#</a>
             //  </li>
             // </ul>
-        }
 #endif
+        }
 
-#if NETFX
         internal static void Transform()
         {
-            XDocument rss = LoadXDocument("https://weblogs.asp.net/dixin/rss");
+            XDocument rss = XDocument.Load("https://weblogs.asp.net/dixin/rss");
             XDocument html = rss
                 .Element("rss")
                 .Element("channel")
                 .Elements("item")
                 .Take(5)
                 .Select(item =>
-                    {
-                        string link = (string)item.Element("link");
-                        string title = (string)item.Element("title");
-                        return new XElement("li", new XElement("a", new XAttribute("href", link), title));
-                        // Equivalent to: return XElement.Parse($"<li><a href='{link}'>{title}</a></li>");
-                    })
+                {
+                    string link = (string)item.Element("link");
+                    string title = (string)item.Element("title");
+                    return new XElement("li", new XElement("a", new XAttribute("href", link), title));
+                    // Equivalent to: return XElement.Parse($"<li><a href='{link}'>{title}</a></li>");
+                })
                 .Aggregate(new XElement("ul"), (ul, li) => { ul.Add(li); return ul; }, ul => new XDocument(ul));
             html.WriteLine();
         }
-#endif
     }
 }

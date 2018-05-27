@@ -6,47 +6,16 @@
     using System.Linq;
     using System.Reflection;
 
-    internal partial class LinqToObjects
-    {
-        internal static void QueryExpression()
-        {
-            IEnumerable<int> source = new int[] { 4, 3, 2, 1, 0, -1 }; // Get source.
-            IEnumerable<double> query = from int32 in source
-                                        where int32 > 0
-                                        orderby int32
-                                        select Math.Sqrt(int32); // Define query.
-            foreach (double result in query) // Execute query.
-            {
-                Trace.WriteLine(result);
-            }
-        }
-    }
-
-    internal partial class LinqToObjects
-    {
-        internal static void QueryMethods()
-        {
-            IEnumerable<int> source = new int[] { 4, 3, 2, 1, 0, -1 }; // Get source.
-            IEnumerable<double> query = source
-                .Where(int32 => int32 > 0)
-                .OrderBy(int32 => int32)
-                .Select(int32 => Math.Sqrt(int32)); // Define query.
-            foreach (double result in query) // Execute query.
-            {
-                Trace.WriteLine(result);
-            }
-        }
-    }
-
-    internal static partial class LinqToObjects
+    internal static partial class Linq
     {
         internal static void Dynamic()
         {
             IEnumerable<int> source = new int[] { 4, 3, 2, 1, 0, -1 }; // Get source.
-            IEnumerable<dynamic> query = from dynamic value in source
-                                         where value.ByPass.Compiler.Check > 0
-                                         orderby value.ByPass().Compiler().Check()
-                                         select value & new object(); // Define query.
+            IEnumerable<dynamic> query =
+                from dynamic value in source
+                where value.ByPass.Compiler.Check > 0
+                orderby value.ByPass().Compiler().Check()
+                select value & new object(); // Define query.
             foreach (dynamic result in query) // Execute query.
             {
                 Trace.WriteLine(result);
@@ -54,14 +23,14 @@
         }
     }
 
-    internal static partial class LinqToObjects
+    internal static partial class Linq
     {
         internal static void DelegateTypesQueryExpression()
         {
-            Assembly coreLibrary = typeof(object).GetTypeInfo().Assembly;
+            Assembly coreLibrary = typeof(object).Assembly;
             IEnumerable<IGrouping<string, Type>> delegateTypes =
                 from type in coreLibrary.GetExportedTypes()
-                where type.GetTypeInfo().BaseType == typeof(MulticastDelegate)
+                where type.BaseType == typeof(MulticastDelegate)
                 group type by type.Namespace into namespaceTypes
                 orderby namespaceTypes.Count() descending, namespaceTypes.Key
                 select namespaceTypes;
@@ -77,13 +46,13 @@
         }
     }
 
-    internal static partial class LinqToObjects
+    internal static partial class Linq
     {
         internal static void DelegateTypesQueryMethods()
         {
-            Assembly coreLibrary = typeof(object).GetTypeInfo().Assembly;
+            Assembly coreLibrary = typeof(object).Assembly;
             IEnumerable<IGrouping<string, Type>> delegateTypes = coreLibrary.GetExportedTypes()
-                .Where(type => type.GetTypeInfo().BaseType == typeof(MulticastDelegate))
+                .Where(type => type.BaseType == typeof(MulticastDelegate))
                 .GroupBy(type => type.Namespace)
                 .OrderByDescending(namespaceTypes => namespaceTypes.Count())
                 .ThenBy(namespaceTypes => namespaceTypes.Key);
@@ -99,13 +68,13 @@
         }
     }
 
-    internal partial class LinqToObjects
+    internal partial class Linq
     {
         internal static void CompiledDelegateTypes()
         {
-            Assembly coreLibrary = typeof(object).GetTypeInfo().Assembly;
+            Assembly coreLibrary = typeof(object).Assembly;
 
-            Func<Type, bool> filterPredicateFunction = type => type.GetTypeInfo().BaseType == typeof(MulticastDelegate);
+            Func<Type, bool> filterPredicateFunction = type => type.BaseType == typeof(MulticastDelegate);
             IEnumerable<Type> filterQuery = Enumerable.Where(coreLibrary.GetExportedTypes(), filterPredicateFunction);
 
             Func<Type, string> groupKeySelectorFunction = type => type.Namespace;

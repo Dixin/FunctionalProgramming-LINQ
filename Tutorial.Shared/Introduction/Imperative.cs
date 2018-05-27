@@ -1,7 +1,6 @@
 ﻿namespace Tutorial.Introduction
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Data.Common;
     using System.Data.SqlClient;
@@ -12,10 +11,9 @@
 
     internal static partial class Imperative
     {
-        internal static void Sql()
+        internal static void Sql(string connectionString)
         {
-            using (DbConnection connection = new SqlConnection(
-                @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\AdventureWorks_Data.mdf;Integrated Security=True;Connect Timeout=30"))
+            using (DbConnection connection = new SqlConnection(connectionString))
             using (DbCommand command = connection.CreateCommand())
             {
                 command.CommandText =
@@ -52,7 +50,7 @@
             XPathNavigator navigator = feed.CreateNavigator();
             XPathExpression selectExpression = navigator.Compile("//item[guid/@isPermaLink='true']/title/text()");
             XPathExpression sortExpression = navigator.Compile("../../pubDate/text()");
-            selectExpression.AddSort(sortExpression, new DateTimeComparer());
+            selectExpression.AddSort(sortExpression, Comparer<DateTime>.Default);
             XPathNodeIterator nodes = navigator.Select(selectExpression);
             foreach (object node in nodes)
             {
@@ -61,23 +59,15 @@
         }
     }
 
-    public class DateTimeComparer : IComparer
-    {
-        public int Compare(object x, object y)
-        {
-            return Convert.ToDateTime(x).CompareTo(Convert.ToDateTime(y));
-        }
-    }
-
     internal static partial class Imperative
     {
         internal static void DelegateTypes()
         {
-            Assembly coreLibrary = typeof(object).GetTypeInfo().Assembly;
+            Assembly coreLibrary = typeof(object).Assembly;
             Dictionary<string, List<Type>> delegateTypes = new Dictionary<string, List<Type>>();
             foreach (Type type in coreLibrary.GetExportedTypes())
             {
-                if (type.GetTypeInfo().BaseType == typeof(MulticastDelegate))
+                if (type.BaseType == typeof(MulticastDelegate))
                 {
                     if (!delegateTypes.TryGetValue(type.Namespace, out List<Type> namespaceTypes))
                     {
@@ -98,7 +88,7 @@
                     int compare = before.Value.Count.CompareTo(after.Value.Count);
                     if (compare == 0)
                     {
-                        compare = after.Key.CompareTo(before.Key);
+                        compare = string.Compare(after.Key, before.Key, StringComparison.Ordinal);
                     }
                     if (compare >= 0)
                     {
@@ -132,7 +122,7 @@
     {
         internal FileInfo Download(Uri uri)
         {
-            return default(FileInfo);
+            return default;
         }
     }
 
@@ -147,15 +137,13 @@
 
         internal FileInfo ToWord(FileInfo htmlDocument)
         {
-            return default(FileInfo);
+            return default;
         }
     }
 
     internal class OneDriveClient
     {
-        internal void Upload(FileInfo file)
-        {
-        }
+        internal void Upload(FileInfo file) { }
     }
 
     internal class DocumentBuilder

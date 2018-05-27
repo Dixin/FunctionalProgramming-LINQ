@@ -6,17 +6,19 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Collections.Immutable;
-    using System.Configuration;
     using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
+    using System.IO;
     using System.Linq;
     using System.Reflection;
-    using System.Web.Profile;
+    using System.Resources;
 
     using Microsoft.TeamFoundation.Client;
     using Microsoft.TeamFoundation.WorkItemTracking.Client;
+    using Microsoft.VisualStudio.Services.Common;
 
     using Tutorial.Functional;
+    using Tutorial.Resources;
 #else
     using System;
     using System.Collections;
@@ -25,10 +27,13 @@
     using System.Collections.Immutable;
     using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
+    using System.IO;
     using System.Linq;
     using System.Reflection;
+    using System.Resources;
 
     using Tutorial.Functional;
+    using Tutorial.Resources;
 #endif
 
     internal class Person
@@ -47,13 +52,13 @@
     internal static partial class QueryMethods
     {
         internal static IEnumerable<Person> Persons() => new Person[]
-            {
-                new Person(name: "Robert Downey Jr.", placeOfBirth: "US"),
-                new Person(name:  "Tom Hiddleston", placeOfBirth: "UK"),
-                new Person(name: "Chris Hemsworth", placeOfBirth: "AU"),
-                new Person(name: "Chris Evans", placeOfBirth: "US"),
-                new Person(name: "Paul Bettany", placeOfBirth:  "UK")
-            };
+        {
+            new Person(name: "Robert Downey Jr.", placeOfBirth: "US"),
+            new Person(name:  "Tom Hiddleston", placeOfBirth: "UK"),
+            new Person(name: "Chris Hemsworth", placeOfBirth: "AU"),
+            new Person(name: "Chris Evans", placeOfBirth: "US"),
+            new Person(name: "Paul Bettany", placeOfBirth:  "UK")
+        };
     }
 
     internal partial class Character
@@ -75,13 +80,13 @@
     internal static partial class QueryMethods
     {
         internal static IEnumerable<Character> Characters() => new Character[]
-            {
-                new Character(name: "Tony Stark", placeOfBirth: "US", starring: "Robert Downey Jr."),
-                new Character(name:  "Thor", placeOfBirth:  "Asgard" , starring: "Chris Hemsworth"),
-                new Character(name:  "Steve Rogers", placeOfBirth:  "US", starring: "Chris Evans" ),
-                new Character(name:  "Vision", placeOfBirth:  "KR", starring: "Paul Bettany" ),
-                new Character(name:  "JARVIS", placeOfBirth: "US", starring: "Paul Bettany")
-            };
+        {
+            new Character(name: "Tony Stark", placeOfBirth: "US", starring: "Robert Downey Jr."),
+            new Character(name: "Thor", placeOfBirth: "Asgard", starring: "Chris Hemsworth"),
+            new Character(name: "Steve Rogers", placeOfBirth:  "US", starring: "Chris Evans"),
+            new Character(name: "Vision", placeOfBirth: "KR", starring: "Paul Bettany"),
+            new Character(name: "JARVIS", placeOfBirth: "US", starring: "Paul Bettany")
+        };
     }
 
     internal static partial class QueryMethods
@@ -109,7 +114,7 @@
             // Equivalent to:
             // foreach (int int32 in range)
             // {
-            //    int32.WriteLine();
+            //    Trace.WriteLine(int32);
             // }
         }
 
@@ -120,8 +125,8 @@
 
         internal static void Repeat()
         {
-            IEnumerable<string> repeat = Enumerable.Repeat("a", 5); // Define query.
-            repeat.WriteLines(); // Execute query. a a a a a
+            IEnumerable<string> repeat = Enumerable.Repeat("*", 5); // Define query.
+            repeat.WriteLines(); // Execute query. * * * * *
         }
 
         internal static void DefaultIfEmpty()
@@ -142,12 +147,12 @@
 
         #region Filtering
 
-        private static readonly Assembly CoreLibrary = typeof(object).GetTypeInfo().Assembly;
+        private static readonly Assembly CoreLibrary = typeof(object).Assembly;
 
         internal static void Where()
         {
             IEnumerable<Type> source = CoreLibrary.GetExportedTypes();
-            IEnumerable<Type> primitives = source.Where(type => type.GetTypeInfo().IsPrimitive); // Define query.
+            IEnumerable<Type> primitives = source.Where(type => type.IsPrimitive); // Define query.
             primitives.WriteLines(); // Execute query. System.Boolean System.Byte System.Char System.Double ...
         }
 
@@ -196,25 +201,30 @@
             IEnumerable<int> source = Enumerable.Range(-2, 5);
             IEnumerable<string> absoluteValues = source
                 .Select(int32 => new { int32 = int32, abs = Math.Abs(int32) })
-                .Where(values => values.abs > 0)
-                .Select(values => $"Math.Abs({values.int32}):{values.abs}"); // Define query.
+                .Where(anonymous => anonymous.abs > 0)
+                .Select(anonymous => $"Math.Abs({anonymous.int32}):{anonymous.abs}"); // Define query.
             absoluteValues.WriteLines(); // Execute query.
             // Math.Abs(-2):2 Math.Abs(-1):1 Math.Abs(1):1 Math.Abs(2):2
         }
 
-        internal static MemberInfo[] GetDeclaredMembers(this Type type) => 
-            type.GetTypeInfo().GetMembers(
+        internal static MemberInfo[] GetDeclaredMembers(this Type type) =>
+            type.GetMembers(
                 BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance | BindingFlags.DeclaredOnly);
 
-        internal static bool IsObsolete(this MemberInfo member) => 
+        internal static bool IsObsolete(this MemberInfo member) =>
             member.IsDefined(attributeType: typeof(ObsoleteAttribute), inherit: false);
 
         internal static void SelectMany()
         {
             IEnumerable<Type> source = CoreLibrary.GetExportedTypes();
-            IEnumerable<MemberInfo> mapped = source.SelectMany(type => type.GetDeclaredMembers()); // Define query.
-            IEnumerable<MemberInfo> filtered = mapped.Where(member => member.IsObsolete()); // Define query.
+            IEnumerable<MemberInfo> oneToManymapped = source.SelectMany(type => type.GetDeclaredMembers()); // Define query.
+            IEnumerable<MemberInfo> filtered = oneToManymapped.Where(member => member.IsObsolete()); // Define query.
             filtered.WriteLines(obsoleteMember => $"{obsoleteMember.DeclaringType}:{obsoleteMember}"); // Execute query.
+            // Equivalent to:
+            // foreach (MemberInfo obsoleteMember in filtered)
+            // {
+            //    Trace.WriteLine($"{obsoleteMember.DeclaringType}:{obsoleteMember}");
+            // }
             // ...
             // System.Enum:System.String ToString(System.String, System.IFormatProvider)
             // System.Enum:System.String ToString(System.IFormatProvider)
@@ -233,22 +243,21 @@
         internal static void SelectManyWithResultSelector()
         {
             IEnumerable<Type> source = CoreLibrary.GetExportedTypes();
+            IEnumerable<string> obsoleteMembers = source
+                .SelectMany(
+                    collectionSelector: type => type.GetDeclaredMembers(),
+                    resultSelector: (type, member) => new { Type = type, Member = member })
+                .Where(typeAndMember => typeAndMember.Member.IsObsolete())
+                .Select(typeAndMember => $"{typeAndMember.Type}:{typeAndMember.Member}");
+        }
+
+        internal static void SelectManyWithResultSelectorAndSubquery()
+        {
+            IEnumerable<Type> source = CoreLibrary.GetExportedTypes();
             IEnumerable<string> obsoleteMembers = source.SelectMany(
                 collectionSelector: type => type.GetDeclaredMembers().Where(member => member.IsObsolete()),
                 resultSelector: (type, obsoleteMember) => $"{type}:{obsoleteMember}"); // Define query.
             obsoleteMembers.WriteLines(); // Execute query.
-        }
-
-        internal static void CompiledSelectManyWithResultSelector()
-        {
-            IEnumerable<Type> source = CoreLibrary.GetExportedTypes();
-            IEnumerable<string> obsoleteMembers = CoreLibrary
-                .GetExportedTypes() // IEnumerable<Type>
-                .SelectMany(
-                    collectionSelector: type => type.GetDeclaredMembers(),
-                    resultSelector: (type, member) => new { Type = type, Member = member }) // IEnumerable<(Type Type, MemberInfo Member)>
-                .Where(member => member.Member.IsObsolete()) // IEnumerable<(Type Type, MemberInfo Member)>
-                .Select(member => $"{member.Type} - {member.Member}"); // IEnumerable<string>
         }
 
         #endregion
@@ -261,7 +270,7 @@
             IEnumerable<IGrouping<string, Person>> groups = source.GroupBy(person => person.PlaceOfBirth); // Define query.
             foreach (IGrouping<string, Person> group in groups) // Execute query.
             {
-                $"{group.Key}:".Write();
+                $"{group.Key}: ".Write();
                 foreach (Person person in group)
                 {
                     $"{person.Name}, ".Write();
@@ -355,7 +364,7 @@
             IEnumerable<string> innerJoin = outer.Join(
                 inner: inner,
                 outerKeySelector: person => person.Name,
-                innerKeySelector: character => character.Starring, // on person.Name equal character.Starring
+                innerKeySelector: character => character.Starring,
                 resultSelector: (person, character) => $"{person.Name} ({person.PlaceOfBirth}): {character.Name}"); // Define query.
             innerJoin.WriteLines(); // Execute query.
             // Robert Downey Jr. (US): Tony Stark
@@ -376,8 +385,7 @@
                 .Where(crossJoinValue => EqualityComparer<string>.Default.Equals(
                     crossJoinValue.Person.Name, crossJoinValue.Character.Starring))
                 .Select(innerJoinValue =>
-                    $"{innerJoinValue.Person.Name} ({innerJoinValue.Person.PlaceOfBirth}): {innerJoinValue.Character.Name}");
-            // Define query.
+                    $"{innerJoinValue.Person.Name} ({innerJoinValue.Person.PlaceOfBirth}): {innerJoinValue.Character.Name}"); // Define query.
             innerJoin.WriteLines(); // Execute query.
             // Robert Downey Jr. (US): Tony Stark
             // Chris Hemsworth (AU): Thor
@@ -414,7 +422,6 @@
                 inner: inner,
                 outerKeySelector: person => new { Starring = person.Name, PlaceOfBirth = person.PlaceOfBirth },
                 innerKeySelector: character => new { Starring = character.Starring, PlaceOfBirth = character.PlaceOfBirth },
-                // on new { Starring = person.Name, PlaceOfBirth = person.PlaceOfBirth } equal new { Starring = character.Starring, PlaceOfBirth = character.PlaceOfBirth }
                 resultSelector: (person, character) =>
                     $"{person.Name} ({person.PlaceOfBirth}): {character.Name} ({character.PlaceOfBirth})"); // Define query.
             innerJoin.WriteLines(); // Execute query.
@@ -429,8 +436,9 @@
             var leftOuterJoin = outer.GroupJoin(
                 inner: inner,
                 outerKeySelector: person => person.Name,
-                innerKeySelector: character => character.Starring, // on person.Name equal character.Starring
-                resultSelector: (person, charactersGroup) => new { Person = person, Characters = charactersGroup }); // Define query.
+                innerKeySelector: character => character.Starring,
+                resultSelector: (person, charactersGroup) =>
+                    new { Person = person, Characters = charactersGroup }); // Define query.
             foreach (var result in leftOuterJoin) // Execute query.
             {
                 $"{result.Person.Name} ({result.Person.PlaceOfBirth}): ".Write();
@@ -459,8 +467,7 @@
                     resultSelector: (person, charactersGroup) => new { Person = person, Characters = charactersGroup })
                 .SelectMany(
                     collectionSelector: group => group.Characters.DefaultIfEmpty(),
-                    resultSelector: (group, character) => new { Person = group.Person, Character = character });
-            // Define query.
+                    resultSelector: (group, character) => new { Person = group.Person, Character = character }); // Define query.
             leftOuterJoin.WriteLines(result => $"{result.Person.Name}: {result.Character?.Name}");
             // Robert Downey Jr.: Tony Stark
             // Tom Hiddleston:
@@ -525,7 +532,7 @@
             foreach (string cell in cells) // Execute query.
             {
                 $"{cell} ".Write();
-                if (cellIndex++ > 0 && cellIndex % columnCount == 0)
+                if (++cellIndex % columnCount == 0)
                 {
                     Environment.NewLine.Write();
                 }
@@ -535,19 +542,29 @@
             // A3 B3 C3 D3
         }
 
+        internal static IEnumerable<TResult> CrossJoin<TOuter, TInner, TResult>(
+            this IEnumerable<TOuter> outer,
+            IEnumerable<TInner> inner,
+            Func<TOuter, TInner, TResult> resultSelector) =>
+                outer.SelectMany(outerValue => inner, resultSelector);
+        // Equivalent to:
+        // from outerValue in outer
+        // from innerValue in inner
+        // select resultSelector(outerValue, innerValue);
+
         internal static void CrossJoinWithJoin()
         {
             IEnumerable<string> cells = rows.Join(
                 inner: columns,
                 outerKeySelector: row => true,
-                innerKeySelector: column => true, // on true equal true
+                innerKeySelector: column => true,
                 resultSelector: (row, column) => $"{column}{row}"); // Define query.
             int cellIndex = 0;
             int columnCount = columns.Length;
             foreach (string cell in cells) // Execute query.
             {
                 $"{cell} ".Write();
-                if (cellIndex++ > 0 && cellIndex % columnCount == 0)
+                if (++cellIndex % columnCount == 0)
                 {
                     Environment.NewLine.Write();
                 }
@@ -561,8 +578,12 @@
                 outer.Join(
                     inner: inner,
                     outerKeySelector: outerValue => true,
-                    innerKeySelector: innerValue => true, // on true equal true
-                    resultSelector: resultSelector);
+                    innerKeySelector: innerValue => true,
+                    resultSelector: resultSelector); // Equivalent to:
+                                                     // Equivalent to:
+                                                     // from outerValue in outer
+                                                     // join innerValue in inner on true equals true
+                                                     // select resultSelector(outerValue, innerValue);
 
         #endregion
 
@@ -578,6 +599,15 @@
             IEnumerable<int> second = Second();
             IEnumerable<int> concat = first.Concat(second); // Define query.
             concat.WriteLines(); // Execute query. 1 2 3 4 4 3 4 5 6
+        }
+
+        internal static void AppendPrepend()
+        {
+            IEnumerable<int> prepend = Enumerable.Range(0, 5).Prepend(-1); // Define query.
+            prepend.WriteLines(); // Execute query. -1 0 1 2 3 4
+
+            IEnumerable<int> append = Enumerable.Range(0, 5).Append(-1); // Define query.
+            append.WriteLines(); // Execute query. 0 1 2 3 4 -1
         }
 
         #endregion
@@ -618,8 +648,7 @@
         internal static void DistinctWithComparer()
         {
             IEnumerable<string> source = new string[] { "aa", "AA", "Aa", "aA", "bb" };
-            IEnumerable<string> distinctWithComparer = source.Distinct(StringComparer.OrdinalIgnoreCase);
-            // Define query.
+            IEnumerable<string> distinctWithComparer = source.Distinct(StringComparer.OrdinalIgnoreCase); // Define query.
             distinctWithComparer.WriteLines(); // Execute query. aa bb
         }
 
@@ -641,7 +670,7 @@
 
         internal static void SkipTake()
         {
-            IEnumerable<int> source = Enumerable.Range(0, 5); // Define query.
+            IEnumerable<int> source = Enumerable.Range(0, 5);
 
             IEnumerable<int> partition1 = source.Skip(2); // Define query.
             partition1.WriteLines(); // Execute query. 2 3 4
@@ -740,30 +769,39 @@
         #region Conversion
 
 #if NETFX
-        internal static void CastNonGenericIEnumerable(TfsClientCredentials credentials)
+        internal static void CastNonGeneric(VssCredentials credentials)
         {
             using (TfsTeamProjectCollection projectCollection = new TfsTeamProjectCollection(
                 new Uri("https://dixin.visualstudio.com/DefaultCollection"), credentials))
             {
-                const string wiql = "SELECT * FROM WorkItems WHERE [Work Item Type] = 'Bug' AND State != 'Closed'"; // WIQL does not support GROUP BY.
+                // WorkItemCollection implements IEnumerable.
+                const string Wiql = "SELECT * FROM WorkItems WHERE [Work Item Type] = 'Bug' AND State != 'Closed'"; // WIQL does not support GROUP BY.
                 WorkItemStore workItemStore = (WorkItemStore)projectCollection.GetService(typeof(WorkItemStore));
-                WorkItemCollection workItems = workItemStore.Query(wiql); // WorkItemCollection implements IEnumerable.
+                WorkItemCollection workItems = workItemStore.Query(Wiql);
 
                 IEnumerable<WorkItem> genericWorkItems = workItems.Cast<WorkItem>(); // Define query.
                 IEnumerable<IGrouping<string, WorkItem>> workItemGroups = genericWorkItems
-                    .GroupBy(workItem => workItem.CreatedBy); // Group work items in local memory.
+                    .GroupBy(workItem => workItem.CreatedBy); // Group work items locally.
                 // ...
             }
         }
 #endif
 
-#if NETFX
-        internal static void CastNonGenericIEnumerable2()
+        internal static void CastMoreNonGeneric()
         {
-            SettingsPropertyCollection properties = ProfileBase.Properties; // SettingsPropertyCollection implements IEnumerable.
-            IEnumerable<SettingsProperty> genericProperties = properties.Cast<SettingsProperty>();
+            // ResourceSet implements IEnumerable.
+            ResourceSet resourceSet = new ResourceManager(typeof(Resources))
+                .GetResourceSet(CultureInfo.CurrentCulture, createIfNotExists: true, tryParents: true);
+            IEnumerable<DictionaryEntry> entries1 = resourceSet.Cast<DictionaryEntry>();
+
+            // ResourceReader implements IEnumerable.
+            Assembly assembly = typeof(QueryMethods).Assembly;
+            using (Stream stream = assembly.GetManifestResourceStream(assembly.GetManifestResourceNames()[0]))
+            using (ResourceReader resourceReader = new ResourceReader(stream))
+            {
+                IEnumerable<DictionaryEntry> entries2 = resourceReader.Cast<DictionaryEntry>();
+            }
         }
-#endif
 
         internal static void CastGenericIEnumerable()
         {
@@ -795,7 +833,7 @@
         {
             List<int> list = new List<int>();
             list.Add(0);
-            IEnumerable<int> sequence = list.AsEnumerable(); // enumerable does not have Add method.
+            IEnumerable<int> sequence = list.AsEnumerable(); // Add method is no longer available.
         }
 
         internal static void AsEnumerableReverse()
@@ -839,11 +877,11 @@
             Dictionary<int, string> dictionary = Enumerable
                 .Range(0, 5) // Define query.
                 .ToDictionary(
-                    int32 => int32,
-                    int32 => Math.Sqrt(int32).ToString("F", CultureInfo.InvariantCulture)); // Execute query.
+                    keySelector: int32 => int32,
+                    elementSelector: int32 => Math.Sqrt(int32).ToString("F", CultureInfo.InvariantCulture)); // Execute query.
             foreach (KeyValuePair<int, string> squareRoot in dictionary)
             {
-                $"√{squareRoot.Key}: {squareRoot.Value}".WriteLine();
+                $"√{squareRoot.Key}:{squareRoot.Value}".WriteLine();
             }
             // √0: 0.00
             // √1: 1.00
@@ -851,9 +889,9 @@
             // √3: 1.73
             // √4: 2.00
 
-            ILookup<int, int> lookup = Enumerable.Range(-2, 5)
-                .Select(int32 => new { Int32 = int32, Square = int32 * int32 }) // Define query.
-                .ToLookup(pair => pair.Square, pair => pair.Int32); // Execute query.
+            ILookup<int, int> lookup = Enumerable
+                .Range(-2, 5) // Define query.
+                .ToLookup(int32 => int32 * int32); // Execute query.
             foreach (IGrouping<int, int> squareRoots in lookup)
             {
                 $"√{squareRoots.Key}: ".Write();
@@ -870,9 +908,9 @@
 
         internal static void ToDictionaryWithException()
         {
-            Dictionary<int, int> lookup = Enumerable.Range(-2, 5)
-                .Select(int32 => new { Int32 = int32, Square = int32 * int32 }) // Define query.
-                .ToDictionary(pair => pair.Square, pair => pair.Int32); // Execute query.
+            Dictionary<int, int> lookup = Enumerable
+                .Range(-2, 5) // Define query.
+                .ToDictionary(int32 => int32 * int32); // Execute query.
             // ArgumentException: An item with the same key has already been added.
         }
 
@@ -883,7 +921,7 @@
                 .ToLookup(int32 => int32); // Execute query.
             int count = 0;
             IEnumerable<int> group = lookup[10];
-            foreach (int _ in group)
+            foreach (int value in group)
             {
                 count++;
             }
@@ -892,7 +930,7 @@
             Dictionary<int, int> dictionary = Enumerable
                 .Range(0, 5) // Define query.
                 .ToDictionary(int32 => int32); // Execute query.
-            int value = dictionary[10];
+            int result = dictionary[10];
             // KeyNotFoundException: The given key was not present in the dictionary.
         }
 
@@ -901,14 +939,14 @@
             ILookup<string, string> lookup = new string[] { "a", "b", null }.ToLookup(@string => @string);
             int count = 0;
             IEnumerable<string> group = lookup[null];
-            foreach (string _ in group)
+            foreach (string value in group)
             {
                 count++;
             }
             count.WriteLine(); // 1
 
-            Dictionary<string, string> dictionary =
-                new string[] { "a", "b", null }.ToDictionary(@string => @string);
+            Dictionary<string, string> dictionary = new string[] { "a", "b", null }
+                .ToDictionary(@string => @string);
             // ArgumentNullException: Value cannot be null. Parameter name: key.
         }
 
@@ -918,10 +956,10 @@
                 .ToLookup(@string => @string, StringComparer.OrdinalIgnoreCase);
             foreach (IGrouping<string, string> group in lookup)
             {
-                $"{group.Key}: ".WriteLine();
+                $"{group.Key}: ".Write();
                 foreach (string @string in group)
                 {
-                    $"{@string}, ".WriteLine();
+                    $"{@string}, ".Write();
                 }
                 Environment.NewLine.Write();
                 // aa: aa, AA, Aa, aA,
@@ -1131,63 +1169,57 @@
 
         internal static void MaxWithSelector()
         {
-            decimal mostDeclaredMembers = CoreLibrary.GetExportedTypes()
+            int mostDeclaredMembers = CoreLibrary.GetExportedTypes()
                 .Max(type => type.GetDeclaredMembers().Length).WriteLine(); // 311
         }
 
         internal static void OrderByDescendingAndTakeWhile()
         {
-            int maxDeclaredMemberCount = 0;
-            var typesWithMaxDeclaredMemberCount = CoreLibrary.GetExportedTypes()
-                .Select(type => new { Type = type, Count = type.GetDeclaredMembers().Length })
-                .OrderByDescending(typeWithDeclaredMemberCount => typeWithDeclaredMemberCount.Count)
-                .TakeWhile(typeWithDeclaredMemberCount =>
+            int? maxMemberCount = null;
+            IEnumerable<(Type Type, int MemberCount)> maxTypes = CoreLibrary.GetExportedTypes()
+                .Select(type => (Type: type, MemberCount: type.GetDeclaredMembers().Length))
+                .OrderByDescending(typeAndMemberCount => typeAndMemberCount.MemberCount)
+                .TakeWhile(typeAndMemberCount =>
                 {
-                    if (maxDeclaredMemberCount == 0)
+                    if (maxMemberCount == null)
                     {
-                        // If maxDeclaredMemberCount is not initialized, initialize it.
-                        maxDeclaredMemberCount = typeWithDeclaredMemberCount.Count;
+                        maxMemberCount = typeAndMemberCount.MemberCount;
                     }
-                    return typeWithDeclaredMemberCount.Count == maxDeclaredMemberCount;
-                }); // If more multiple types have the same max declared member count, take all of those types.
-            typesWithMaxDeclaredMemberCount.WriteLines(type => $"{type.Type.FullName}:{type.Count}"); // Execute query. System.Convert:311
+                    return typeAndMemberCount.MemberCount == maxMemberCount;
+                }); // If multiple types have the same maximum member count, take all these types.
+            maxTypes.WriteLines(max => $"{max.Type.FullName}:{max.MemberCount}");
+            // Execute query. System.Convert:311
         }
 
         internal static void AggregateWithAnonymousTypeSeed()
         {
-            var typesWithMaxDeclaredMemberCount = CoreLibrary.GetExportedTypes().Aggregate(
-                seed: new
-                {
-                    Types = new List<Type>(),
-                    MemberCount = 0
-                },
+            (List<Type> Types, int MaxMemberCount) maxTypes = CoreLibrary.GetExportedTypes().Aggregate(
+                seed: (Types: new List<Type>(), MaxMemberCount: 0),
                 func: (currentMax, type) =>
                 {
                     List<Type> currentMaxTypes = currentMax.Types;
-                    int currentMaxDeclaredMemberCount = currentMax.MemberCount;
-                    int declaredMemberCount = type.GetDeclaredMembers().Length;
-                    if (declaredMemberCount > currentMaxDeclaredMemberCount)
+                    int currentMaxMemberCount = currentMax.MaxMemberCount;
+                    int memberCount = type.GetDeclaredMembers().Length;
+                    if (memberCount > currentMaxMemberCount)
                     {
-                        currentMaxTypes = new List<Type>() { type };
-                        currentMaxDeclaredMemberCount = declaredMemberCount;
+                        currentMaxTypes.Clear();
+                        currentMaxTypes.Add(type);
+                        currentMaxMemberCount = memberCount;
                     }
-                    else if (declaredMemberCount == currentMaxDeclaredMemberCount)
+                    else if (memberCount == currentMaxMemberCount)
                     {
+                        // If multiple types have the same maximum member count, take all these types.
                         currentMaxTypes.Add(type);
                     }
-                    return new
-                    {
-                        Types = currentMaxTypes,
-                        MemberCount = currentMaxDeclaredMemberCount
-                    };
+                    return (Types: currentMaxTypes, MaxMemberCount: currentMaxMemberCount);
                 }); // Define query.
-            typesWithMaxDeclaredMemberCount.Types.WriteLines(type =>
-                $"{type.FullName}:{typesWithMaxDeclaredMemberCount.MemberCount}"); // Execute query. System.Convert:311
+            maxTypes.Types.WriteLines(maxType => $"{maxType.FullName}:{maxTypes.MaxMemberCount}"); 
+            // Execute query. System.Convert:311
         }
 
         internal static void Except2()
         {
-            IEnumerable<MemberInfo> inheritedMembers = typeof(Convert).GetTypeInfo().GetMembers()
+            IEnumerable<MemberInfo> inheritedMembers = typeof(Convert).GetMembers()
                 .Except(typeof(Convert).GetDeclaredMembers()); // Define query.
             inheritedMembers.WriteLines(); // Execute query.
             // System.String ToString()
@@ -1196,10 +1228,16 @@
             // System.Type GetType()
         }
 
-        internal static void MinMaxGeneric()
+        internal static void MaxMinGeneric()
         {
-            Character min = Characters().Min().WriteLine(); // JAVIS
-            Character max = Characters().Max().WriteLine(); // Vision
+            Character maxCharacter = Characters().Max().WriteLine(); // Vision
+            Character minCharacter = Characters().Min().WriteLine(); // JAVIS
+        }
+
+        internal static void MaxMinGenericWithSelector()
+        {
+            string maxName = Characters().Max(character => character.Name).WriteLine(); // Vision
+            string minName = Characters().Min(character => character.Name).WriteLine(); // JAVIS
         }
 
         internal static void SumAverage()
@@ -1216,15 +1254,12 @@
 
         internal static void AverageWithSelector()
         {
-            IEnumerable<Type> publicTypes = CoreLibrary.GetExportedTypes();
-            decimal averagePublicMemberCount = publicTypes
-                .Average(type => type.GetTypeInfo().GetMembers(
-                    BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance).Length)
-                .WriteLine(); // 21.046618516086671
-            decimal averageDeclaredPublicMemberCount = publicTypes
-                .Average(type => type.GetTypeInfo().GetMembers(
-                    BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance | BindingFlags.DeclaredOnly).Length)
-                .WriteLine(); // 11.661851608667105
+            double averageMemberCount = CoreLibrary.GetExportedTypes()
+                .Average(type => type.GetMembers().Length)
+                .WriteLine(); // 22.0766378244747
+            double averageDeclaredMemberCount = CoreLibrary.GetExportedTypes()
+                .Average(type => type.GetDeclaredMembers().Length)
+                .WriteLine(); // 11.7527812113721
         }
 
         #endregion
@@ -1306,7 +1341,7 @@
 
     internal partial class Character
     {
-        public override bool Equals(object obj) => 
+        public override bool Equals(object obj) =>
             obj is Character other && other != null && string.Equals(this.Name, other.Name, StringComparison.Ordinal);
 
         public override int GetHashCode() => this.Name?.GetHashCode() ?? 0;

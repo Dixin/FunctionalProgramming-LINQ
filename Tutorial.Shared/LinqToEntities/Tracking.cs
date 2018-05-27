@@ -7,7 +7,6 @@ namespace Tutorial.LinqToEntities
     using System.Linq;
 
     using Microsoft.EntityFrameworkCore;
-    using Microsoft.EntityFrameworkCore.ChangeTracking;
 #endif
 
     internal static partial class Tracking
@@ -56,15 +55,15 @@ namespace Tutorial.LinqToEntities
 
         internal static void EntityChanges(AdventureWorks adventureWorks)
         {
-            Product toCreate = new Product() { Name = nameof(toCreate), ListPrice = 1 };
-            adventureWorks.Products.Add(toCreate); // Create entity.
-            Product read = adventureWorks.Products.Single(product => product.ProductID == 999); // Read entity.
-            IQueryable<Product> toUpdate = adventureWorks.Products
+            Product create = new Product() { Name = nameof(create), ListPrice = 1 };
+            adventureWorks.Products.Add(create); // Create locally.
+            Product read = adventureWorks.Products.Single(product => product.ProductID == 999); // Read from remote to local.
+            IQueryable<Product> update = adventureWorks.Products
                 .Where(product => product.Name.Contains("HL"));
-            toUpdate.ForEach(product => product.ListPrice += 100); // Update entities.
-            IQueryable<Product> toDelete = adventureWorks.Products
+            update.ForEach(product => product.ListPrice += 100); // Update locally.
+            IQueryable<Product> delete = adventureWorks.Products
                 .Where(product => product.Name.Contains("ML"));
-            adventureWorks.Products.RemoveRange(toDelete); // Track entity deletion.
+            adventureWorks.Products.RemoveRange(delete); // Delete locally.
 
             adventureWorks.ChangeTracker.HasChanges().WriteLine(); // True
             adventureWorks.ChangeTracker.Entries<Product>().ForEach(tracking =>
@@ -75,27 +74,21 @@ namespace Tutorial.LinqToEntities
                     case EntityState.Added:
                     case EntityState.Deleted:
                     case EntityState.Unchanged:
-                        $"{tracking.State}: ({changed.ProductID}, {changed.Name}, {changed.ListPrice})".WriteLine();
+                        $"{tracking.State}: {(changed.ProductID, changed.Name, changed.ListPrice)}".WriteLine();
                         break;
                     case EntityState.Modified:
-#if EF
                         Product original = (Product)tracking.OriginalValues.ToObject();
-#else
-                        PropertyValues originalValues = tracking.OriginalValues.Clone();
-                        originalValues.SetValues(tracking.OriginalValues);
-                        Product original = (Product)originalValues.ToObject();
-#endif
-                        $"{tracking.State}: ({original.ProductID}, {original.Name}, {original.ListPrice}) => ({changed.ProductID}, {changed.Name}, {changed.ListPrice})"
+                        $"{tracking.State}: {(original.ProductID, original.Name, original.ListPrice)} => {(changed.ProductID, changed.Name, changed.ListPrice)}"
                             .WriteLine();
                         break;
                 }
             });
-            // Added: (0, toCreate, 1)
+            // Added: (-2147482647, toCreate, 1)
+            // Unchanged: (999, Road-750 Black, 52, 539.9900)
             // Modified: (951, HL Crankset, 404.9900) => (951, HL Crankset, 504.9900)
             // Modified: (996, HL Bottom Bracket, 121.4900) => (996, HL Bottom Bracket, 221.4900)
             // Deleted: (950, ML Crankset, 256.4900)
             // Deleted: (995, ML Bottom Bracket, 101.2400)
-            // Unchanged: (999, Road-750 Black, 52, 539.9900)
         }
 
         internal static void Attach(AdventureWorks adventureWorks)
@@ -128,15 +121,9 @@ namespace Tutorial.LinqToEntities
                 .All(product => product.ProductSubcategory == null).WriteLine(); // True
             adventureWorks.ChangeTracker.Entries<Product>().ForEach(tracking =>
             {
-#if EF
                 Product original = (Product)tracking.OriginalValues.ToObject();
-#else
-                PropertyValues originalValues = tracking.OriginalValues.Clone();
-                originalValues.SetValues(tracking.OriginalValues);
-                Product original = (Product)originalValues.ToObject();
-#endif
                 Product changed = tracking.Entity;
-                $"{tracking.State}: ({original.ProductID}, {original.Name}, {original.ProductSubcategoryID}) => ({changed.ProductID}, {changed.Name}, {changed.ProductSubcategoryID})".WriteLine();
+                $"{tracking.State}: {(original.ProductID, original.Name, original.ProductSubcategoryID)} => {(changed.ProductID, changed.Name, changed.ProductSubcategoryID)}".WriteLine();
             });
             // Modified: (950, ML Crankset, 8) => (950, ML Crankset, )
             // Modified: (951, HL Crankset, 8) => (951, HL Crankset, )

@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
@@ -57,14 +56,12 @@
         {
             ParameterExpression parameterExpression = Expression.Parameter(typeof(int), "int32"); // int32 parameter.
             Expression<Func<int, bool>> isPositiveExpression = Expression.Lambda<Func<int, bool>>(
-                // ... => {
-                Expression.Block(
-                    // Trace.WriteLine(int32);
-                    Expression.Call(new Action<int>(Console.WriteLine).GetMethodInfo(), parameterExpression),
+                body: Expression.Block( // ... => {
+                    // Console.WriteLine(int32);
+                    Expression.Call(new Action<int>(Console.WriteLine).Method, parameterExpression),
                     // return int32 > 0;
-                    Expression.GreaterThan(parameterExpression, Expression.Constant(0, typeof(int)))),
-                // }
-                parameterExpression); // int32 => ...
+                    Expression.GreaterThan(parameterExpression, Expression.Constant(0, typeof(int)))), // }
+                parameters: parameterExpression); // int32 => ...
         }
 
         internal static void ArithmeticalExpression()
@@ -81,7 +78,7 @@
             IEnumerable<Product> query = source.Where(product => product.ListPrice > 0M); // Define query.
             foreach (Product result in query) // Execute query.
             {
-                Trace.WriteLine(result.Name);
+                result.Name.WriteLine();
             }
         }
 
@@ -90,7 +87,7 @@
             IQueryable<Product> query = source.Where(product => product.ListPrice > 0M); // Define query.
             foreach (Product result in query) // Execute query.
             {
-                Trace.WriteLine(result.Name);
+                result.Name.WriteLine();
             }
         }
     }
@@ -109,7 +106,7 @@
             IEnumerable<Product> query = Enumerable.Where(source, predicate);
             foreach (Product result in query) // Execute query.
             {
-                Trace.WriteLine(result.Name);
+                TraceExtensions.WriteLine(result.Name);
             }
         }
     }
@@ -128,7 +125,7 @@
             IQueryable<Product> query = Queryable.Where(source, predicateExpression); // Define query.
             foreach (Product result in query) // Execute query.
             {
-                Trace.WriteLine(result.Name);
+                TraceExtensions.WriteLine(result.Name);
             }
         }
     }

@@ -10,7 +10,7 @@
     using System.Data.SqlClient;
     using System.Threading;
     using System.Threading.Tasks;
-    
+
     using ModelBuilder = System.Data.Entity.DbModelBuilder;
     using DatabaseFacade = System.Data.Entity.Database;
     using ChangeTracker = System.Data.Entity.Infrastructure.DbChangeTracker;
@@ -26,17 +26,14 @@
 #endif
 
 #if EF
-    public partial class AdventureWorks : DbContext 
-    {
-    }
+    public partial class AdventureWorks : DbContext { }
 
     public partial class AdventureWorks
     {
         public AdventureWorks(DbConnection connection = null) : base(
             existingConnection: connection ?? new SqlConnection(ConnectionStrings.AdventureWorks),
             contextOwnsConnection: connection == null)
-        {
-        }
+        { }
     }
 
     public class RetryConfiguration : DbConfiguration
@@ -65,55 +62,30 @@
 
     public partial class ExecutionStrategy : IDbExecutionStrategy
     {
-        private IDbExecutionStrategy stratagy = Create();
+        private readonly IDbExecutionStrategy strategy = Create();
 
-        public bool RetriesOnFailure => this.stratagy.RetriesOnFailure;
+        public bool RetriesOnFailure => this.strategy.RetriesOnFailure;
 
-        public void Execute(Action operation)
+        public void Execute(Action operation) =>
+            ExecuteOperation(() => { this.strategy.Execute(operation); return (object)null; });
+
+        public TResult Execute<TResult>(Func<TResult> operation) =>
+            ExecuteOperation(() => this.strategy.Execute(operation));
+
+        public Task ExecuteAsync(
+            Func<Task> operation, CancellationToken cancellationToken = default) =>
+                ExecuteOperation(() => this.strategy.ExecuteAsync(operation, cancellationToken));
+
+        public Task<TResult> ExecuteAsync<TResult>(
+            Func<Task<TResult>> operation, CancellationToken cancellationToken = default) =>
+                ExecuteOperation(() => this.strategy.ExecuteAsync(operation, cancellationToken));
+
+        private static T ExecuteOperation<T>(Func<T> resultFactory)
         {
             DisableExecutionStrategy = true;
             try
             {
-                this.stratagy.Execute(operation);
-            }
-            finally
-            {
-                DisableExecutionStrategy = false;
-            }
-        }
-
-        public TResult Execute<TResult>(Func<TResult> operation)
-        {
-            DisableExecutionStrategy = true;
-            try
-            {
-                return this.stratagy.Execute(operation);
-            }
-            finally
-            {
-                DisableExecutionStrategy = false;
-            }
-        }
-
-        public Task ExecuteAsync(Func<Task> operation, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            DisableExecutionStrategy = true;
-            try
-            {
-                return this.stratagy.ExecuteAsync(operation, cancellationToken);
-            }
-            finally
-            {
-                DisableExecutionStrategy = false;
-            }
-        }
-
-        public Task<TResult> ExecuteAsync<TResult>(Func<Task<TResult>> operation, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            DisableExecutionStrategy = true;
-            try
-            {
-                return this.stratagy.ExecuteAsync(operation, cancellationToken);
+                return resultFactory();
             }
             finally
             {
@@ -124,12 +96,11 @@
 
     public static class DatabaseExtensions
     {
-        public static ExecutionStrategy CreateExecutionStrategy(this Database database) => new ExecutionStrategy();
+        public static ExecutionStrategy CreateExecutionStrategy(this DatabaseFacade database) => 
+            new ExecutionStrategy();
     }
 #else
-    public partial class AdventureWorks : DbContext
-    {
-    }
+    public partial class AdventureWorks : DbContext { }
 
     public partial class AdventureWorks
     {
@@ -137,9 +108,7 @@
             : base(new DbContextOptionsBuilder<AdventureWorks>().UseSqlServer(
                 connection: connection ?? new SqlConnection(ConnectionStrings.AdventureWorks),
                 sqlServerOptionsAction: options => options.EnableRetryOnFailure(
-                    maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null)).Options)
-        {
-        }
+                    maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null)).Options) { }
     }
 #endif
 
@@ -149,9 +118,9 @@
         {
             base.OnModelCreating(modelBuilder);
 
-            this.MapCompositePrimaryKey(modelBuilder);
-            this.MapManyToMany(modelBuilder);
-            this.MapDiscriminator(modelBuilder);
+            MapCompositePrimaryKey(modelBuilder);
+            MapManyToMany(modelBuilder);
+            MapDiscriminator(modelBuilder);
         }
     }
 
@@ -249,9 +218,7 @@ namespace System.Data.Entity.Infrastructure
     using System.Linq;
     using System.Linq.Expressions;
 
-    internal interface IInternalQueryAdapter
-    {
-    }
+    internal interface IInternalQueryAdapter { }
 
     public class DbQuery<TResult> : IOrderedQueryable<TResult>, IQueryable<TResult>,
         IOrderedQueryable, IQueryable, IEnumerable<TResult>, IEnumerable,
@@ -274,9 +241,7 @@ namespace System.Data.Entity
     using System.Data.Entity.Infrastructure;
     using System.Linq;
 
-    internal interface IInternalSetAdapter
-    {
-    }
+    internal interface IInternalSetAdapter { }
 
     public class DbSet<TEntity> : DbQuery<TEntity>, IDbSet<TEntity>, IQueryable<TEntity>, IQueryable,
         IEnumerable<TEntity>, IEnumerable, IInternalSetAdapter where TEntity : class
@@ -297,9 +262,7 @@ namespace System.Data.Entity
 {
     public class NullDatabaseInitializer<TContext> : IDatabaseInitializer<TContext> where TContext : DbContext
     {
-        public virtual void InitializeDatabase(TContext context)
-        {
-        }
+        public virtual void InitializeDatabase(TContext context) { }
     }
 }
 

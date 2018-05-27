@@ -4,7 +4,6 @@ namespace Tutorial.Tests.LinqToEntities
     using System.Data.Entity;
     using System.Linq;
     using System.Threading.Tasks;
-    using System.Transactions;
 
     using Tutorial.LinqToEntities;
     using Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling;
@@ -1473,8 +1472,6 @@ namespace Tutorial.Tests.LinqToEntities
     }
 #else
     using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
 
     using Tutorial.LinqToEntities;
 
@@ -2527,7 +2524,7 @@ namespace Tutorial.Tests.LinqToEntities
     //                        ([Name], [ProductNumber], [MakeFlag], [FinishedGoodsFlag], [SafetyStockLevel], [ReorderPoint], [StandardCost], [ListPrice], [DaysToManufacture], [SellStartDate], [rowguid], [ModifiedDate])
     //                    VALUES
     //                        ({0}, N'ProductNumber', 1, 1, 100, 100, 1000, {1}, 1, GETDATE(), NEWID(), GETDATE())",
-    //                default(CancellationToken),
+    //                default,
     //                nameof(Product.Name),
     //                InitialListPrice));
     //            return await context0.Products.OrderByDescending(product => product.ProductID).FirstAsync();

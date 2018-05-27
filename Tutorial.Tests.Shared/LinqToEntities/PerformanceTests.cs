@@ -1,13 +1,20 @@
 ﻿namespace Tutorial.Tests.LinqToEntities
 {
+#if NETFX
     using System.Linq;
     using System.Threading.Tasks;
 
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+
     using Tutorial.LinqToEntities;
+    using Tutorial.Tests.LinqToObjects;
+#else
+    using System.Threading.Tasks;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using EnumerableAssert = Tutorial.LinqToObjects.EnumerableAssert;
+    using Tutorial.LinqToEntities;
+#endif
 
     [TestClass]
     public class PerformanceTests

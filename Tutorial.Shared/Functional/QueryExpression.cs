@@ -3,12 +3,11 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Reflection;
 
-#if DEMO
     internal static partial class Int32Extensions
     {
-        internal static TResult Select<TResult>(this int int32, Func<int, TResult> selector) => selector(int32);
+        internal static TResult Select<TResult>(this int int32, Func<int, TResult> selector) => 
+            selector(int32);
     }
 
     internal static partial class QueryExpression
@@ -17,7 +16,6 @@
         {
             int mapped1 = from zero in default(int) // 0
                           select zero; // 0
-
             double mapped2 = from three in 1 + 2 // 3
                              select Math.Sqrt(three + 1); // 2
         }
@@ -27,14 +25,16 @@
     {
         internal static void CompiledSelectInt32()
         {
-            int mapped1 = default(int).Select(zero => zero); // 0
-            double mapped2 = (1 + 2).Select(three => Math.Sqrt(three + 1)); // 2
+            int mapped1 = Int32Extensions.Select(default, zero => zero); // 0
+            double mapped2 = Int32Extensions.Select(1 + 2, three => Math.Sqrt(three + 1)); // 2
         }
     }
 
+#if DEMO
     internal static partial class ObjectExtensions
     {
-        internal static TResult Select<TSource, TResult>(this TSource value, Func<TSource, TResult> selector) => selector(value);
+        internal static TResult Select<TSource, TResult>(this TSource value, Func<TSource, TResult> selector) => 
+            selector(value);
     }
 
     internal static partial class QueryExpression
@@ -47,7 +47,7 @@
 
         internal static void CompiledSelectGuid()
         {
-            string mapped = Guid.NewGuid().Select(newGuid => newGuid.ToString());
+            string mapped = ObjectExtensions.Select(Guid.NewGuid(), newGuid => newGuid.ToString());
         }
     }
 #endif
@@ -96,7 +96,7 @@
         {
             IEnumerable<IGrouping<string, Type>> query =
                 from type in types
-                where type.GetTypeInfo().BaseType == typeof(MulticastDelegate) // Enumerbale.Where and anonymous method.
+                where type.BaseType == typeof(MulticastDelegate) // Enumerbale.Where and anonymous method.
                 group type by type.Namespace into namespaceTypes // Enumerbale.GroupBy and anonymous method.
                 orderby namespaceTypes.Count() descending, namespaceTypes.Key // Enumerbale.OrderByDescending, Enumerbale.ThenBy and anonymous method.
                 select namespaceTypes; // Omitted.
@@ -106,7 +106,7 @@
         {
             ParallelQuery<IGrouping<string, Type>> query =
                 from type in types
-                where type.GetTypeInfo().BaseType == typeof(MulticastDelegate) // ParallelEnumerbale.Where and anonymous method.
+                where type.BaseType == typeof(MulticastDelegate) // ParallelEnumerbale.Where and anonymous method.
                 group type by type.Namespace into namespaceTypes // ParallelEnumerbale.GroupBy and anonymous method.
                 orderby namespaceTypes.Count() descending, namespaceTypes.Key // ParallelEnumerbale.OrderByDescending, ParallelEnumerbale.ThenBy and anonymous method.
                 select namespaceTypes; // Omitted.
@@ -125,7 +125,7 @@
         internal static void CompiledLinqToObjects(IEnumerable<Type> types)
         {
             IEnumerable<IGrouping<string, Type>> query = types
-                .Where(type => type.GetTypeInfo().BaseType == typeof(MulticastDelegate)) // Enumerbale.Where and anonymous method.
+                .Where(type => type.BaseType == typeof(MulticastDelegate)) // Enumerbale.Where and anonymous method.
                 .GroupBy(type => type.Namespace) // Enumerbale.GroupBy and anonymous method.
                 .OrderByDescending(namespaceTypes => namespaceTypes.Count()) // Enumerbale.OrderByDescending and anonymous method.
                 .ThenBy(namespaceTypes => namespaceTypes.Key); // Enumerbale.ThenBy and anonymous method.
@@ -135,7 +135,7 @@
         internal static void CompiledParallelLinq(ParallelQuery<Type> types)
         {
             ParallelQuery<IGrouping<string, Type>> query = types
-                .Where(type => type.GetTypeInfo().BaseType == typeof(MulticastDelegate)) // ParallelEnumerbale.Where and anonymous method.
+                .Where(type => type.BaseType == typeof(MulticastDelegate)) // ParallelEnumerbale.Where and anonymous method.
                 .GroupBy(type => type.Namespace) // ParallelEnumerbale.GroupBy and anonymous method.
                 .OrderByDescending(namespaceTypes => namespaceTypes.Count()) // ParallelEnumerbale.OrderByDescending and anonymous method.
                 .ThenBy(namespaceTypes => namespaceTypes.Key); // ParallelEnumerbale.ThenBy and anonymous method.

@@ -22,7 +22,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)CategoryTheory\Monad.Reader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CategoryTheory\Monad.SelectMany.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CategoryTheory\Monad.State.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)CategoryTheory\Monad.Try.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CategoryTheory\Monad.Exception.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CategoryTheory\Monad.Writer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CategoryTheory\Monoid.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CategoryTheory\MonoidalCategory.cs" />
@@ -40,7 +40,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Functional\ExpressionTreeVisitor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\FluentApi.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\FunctionType.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Functional\HigherOrder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Functional\HigherOrderFunction.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\Immutability.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\LocalFunction.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\NamedFunction.cs" />
@@ -50,7 +50,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Functional\QueryExpression.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\QueryExpressionPattern.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\Fundamentals.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Functional\Variance.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Functional\Variances.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Introduction\Linq.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Relationship.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Changes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Concurrency.cs" />
@@ -59,7 +60,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Functions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Inheritance.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Loading.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Log.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Tracing.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Performance.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\QueryExpressions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\QueryMethods.cs" />
@@ -78,15 +79,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Introduction\Functional.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Introduction\Functions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Introduction\Imperative.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Introduction\LinqToDataSets.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Introduction\LinqToDocumentDB.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Introduction\LinqToEntities.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Introduction\LinqToJson.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Introduction\LinqToNoSql.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Introduction\LinqToObjects.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Introduction\LinqToSql.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Introduction\LinqToTwitter.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Introduction\LinqToXml.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Introduction\ParallelLinq.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LambdaCalculus\ChurchAggregateList.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LambdaCalculus\ChurchAggregateList.Generic.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LambdaCalculus\ChurchBoolean.cs" />
@@ -133,12 +128,12 @@
     <Compile Include="$(MSBuildThisFileDirectory)ParallelLinq\QueryMethods.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ParallelLinq\QueryMethods.Ordering.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ParallelLinq\Visualizer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)LinqToObjects\EnumerableAssert.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TraceExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToXml\XExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="$(MSBuildThisFileDirectory)Blog.htm" />
+    <Content Include="$(MSBuildThisFileDirectory)BlogOriginal.htm" />
     <Content Include="$(MSBuildThisFileDirectory)Functional\AnonymousFunction.js" />
     <Content Include="$(MSBuildThisFileDirectory)Functional\Composition.hs" />
     <Content Include="$(MSBuildThisFileDirectory)Functional\Data.il" />
@@ -146,12 +141,15 @@
     <Content Include="$(MSBuildThisFileDirectory)Functional\HigherOrder.hs" />
     <Content Include="$(MSBuildThisFileDirectory)Functional\LambdaExpression.txt" />
     <Content Include="$(MSBuildThisFileDirectory)Functional\Optional.il" />
+    <Content Include="$(MSBuildThisFileDirectory)Introduction\Core.xml" />
+    <Content Include="$(MSBuildThisFileDirectory)Introduction\DotNet.txt" />
+    <Content Include="$(MSBuildThisFileDirectory)Introduction\LinqToNoSql.All.json" />
     <Content Include="$(MSBuildThisFileDirectory)LinqToEntities\AdventureWorks.Trim.sql" />
     <Content Include="$(MSBuildThisFileDirectory)LinqToEntities\Inheritance.sql" />
-    <Content Include="$(MSBuildThisFileDirectory)LinqToEntities\Log.sql" />
+    <Content Include="$(MSBuildThisFileDirectory)LinqToEntities\Tracing.sql" />
     <Content Include="$(MSBuildThisFileDirectory)LinqToEntities\Translation.txt" />
-    <Content Include="$(MSBuildThisFileDirectory)Introduction\LinqToDocumentDB.json" />
-    <Content Include="$(MSBuildThisFileDirectory)Introduction\LinqToDocumentDB.sql" />
+    <Content Include="$(MSBuildThisFileDirectory)Introduction\LinqToNoSql.json" />
+    <Content Include="$(MSBuildThisFileDirectory)Introduction\LinqToNoSql.sql" />
     <Content Include="$(MSBuildThisFileDirectory)Introduction\LinqToJson.json" />
     <Content Include="$(MSBuildThisFileDirectory)Introduction\LinqToXml.xml" />
     <Content Include="$(MSBuildThisFileDirectory)LambdaCalculus\Lambda.txt" />
@@ -162,7 +160,7 @@
     <Content Include="$(MSBuildThisFileDirectory)LinqToXml\FlickrRss.media.xsd" />
     <Content Include="$(MSBuildThisFileDirectory)LinqToXml\FlickrRss.xml" />
     <Content Include="$(MSBuildThisFileDirectory)LinqToXml\FlickrRss.xsd" />
-    <Content Include="$(MSBuildThisFileDirectory)Text.txt" />
+    <Content Include="$(MSBuildThisFileDirectory)ParallelLinq\Partitioning.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)LinqToEntities\Changes.sql" />

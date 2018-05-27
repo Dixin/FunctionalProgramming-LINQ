@@ -54,9 +54,7 @@
         private ObjectSet<Product> products;
 
         public LegacyAdventureWorks()
-            : base((EntityConnection)new AdventureWorks().ObjectContext().Connection)
-        {
-        }
+            : base((EntityConnection)new AdventureWorks().ObjectContext().Connection) { }
 
         public ObjectSet<Product> Products => this.products ?? (this.products = this.CreateObjectSet<Product>());
     }
@@ -301,18 +299,18 @@
         }
 
         [CompilerGenerated]
-        private sealed class DisplayClass { public int minLength; }
+        private sealed class DisplayClass { public int MinLength; }
 
         internal static void CompiledReusedTranslationCache(AdventureWorks adventureWorks)
         {
-            DisplayClass displayClass = new DisplayClass() { minLength = 1 };
+            DisplayClass displayClass = new DisplayClass() { MinLength = 1 };
             IQueryable<Product> queryWithClosure1 = adventureWorks.Products
-                .Where(product => product.Name.Length >= displayClass.minLength);
+                .Where(product => product.Name.Length >= displayClass.MinLength);
             queryWithClosure1.Load();
 
-            displayClass.minLength = 10;
+            displayClass.MinLength = 10;
             IQueryable<Product> queryWithClosure2 = adventureWorks.Products
-                .Where(product => product.Name.Length >= displayClass.minLength);
+                .Where(product => product.Name.Length >= displayClass.MinLength);
             queryWithClosure2.Load();
         }
 
@@ -451,12 +449,9 @@
                     else
                     {
                         PropertyValues originalValues = tracking.OriginalValues.Clone();
-#if !EF
-                        originalValues.SetValues(tracking.OriginalValues);
-#endif
                         tracking.OriginalValues.SetValues(databaseValues);
 #if EF
-                            databaseValues.PropertyNames
+                        databaseValues.PropertyNames
                             .Where(property => !object.Equals(originalValues[property], databaseValues[property]))
                             .ForEach(property => tracking.Property(property).IsModified = false);
 #else
@@ -479,7 +474,7 @@
         {
             if (retryCount <= 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(retryCount), $"{retryCount} must be greater than 0.");
+                throw new ArgumentOutOfRangeException(nameof(retryCount));
             }
 
             for (int retry = 1; retry < retryCount; retry++)
@@ -514,7 +509,7 @@
         {
             if (retryCount <= 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(retryCount), $"{retryCount} must be greater than 0.");
+                throw new ArgumentOutOfRangeException(nameof(retryCount));
             }
 
             return await context.SaveChangesAsync(

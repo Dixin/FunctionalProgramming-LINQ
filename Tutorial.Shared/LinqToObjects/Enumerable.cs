@@ -1,12 +1,16 @@
 ﻿#if DEMO
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.Serialization;
-
 namespace System.Linq
 {
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Runtime.Serialization;
+
     public static class EnumerableEx
     {
+        public static IEnumerable<TSource> Prepend<TSource>(this IEnumerable<TSource> source, TSource element);
+
+        public static IEnumerable<TSource> Append<TSource>(this IEnumerable<TSource> source, TSource element);
+
         public static IEnumerable<TSource> DistinctUntilChanged<TSource>(this IEnumerable<TSource> source);
 
         public static IEnumerable<TSource> DistinctUntilChanged<TSource>(
@@ -262,9 +266,13 @@ namespace System.Linq
 
         public static long LongCount<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate);
 
+        public static int Max(this IEnumerable<int> source);
+
         public static int Min(this IEnumerable<int> source);
 
-        public static int Max(this IEnumerable<int> source);
+        public static TResult Max<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, TResult> selector);
+
+        public static TResult Min<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, TResult> selector);
 
         public static int Min<TSource>(this IEnumerable<TSource> source, Func<TSource, int> selector);
 
@@ -272,9 +280,9 @@ namespace System.Linq
 
         // int?, long, long?, double, double?, float, float?, decimal, decimal?.
 
-        public static TSource Min<TSource>(this IEnumerable<TSource> source);
-
         public static TSource Max<TSource>(this IEnumerable<TSource> source);
+
+        public static TSource Min<TSource>(this IEnumerable<TSource> source);
 
         public static int Sum(this IEnumerable<int> source);
 
@@ -307,12 +315,11 @@ namespace System.Linq
 
 namespace System.Collections.Generic
 {
-    public class Dictionary<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TValue>>, IEnumerable, 
-        IDictionary<TKey, TValue>, IDictionary, ICollection<KeyValuePair<TKey, TValue>>, ICollection, 
+    public class Dictionary<TKey, TValue> : IDictionary<TKey, TValue>, IDictionary, 
+        ICollection<KeyValuePair<TKey, TValue>>, ICollection, 
+        IEnumerable<KeyValuePair<TKey, TValue>>, IEnumerable, 
         IReadOnlyDictionary<TKey, TValue>, IReadOnlyCollection<KeyValuePair<TKey, TValue>>, 
-        ISerializable, IDeserializationCallback
-    {
-    }
+        ISerializable, IDeserializationCallback { }
 }
 
 namespace System.Linq

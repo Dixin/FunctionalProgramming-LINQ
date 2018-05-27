@@ -3,7 +3,9 @@
     using System;
     using System.Diagnostics;
     using System.IO;
+    using System.Net;
     using System.Reflection;
+    using System.Threading;
     using System.Threading.Tasks;
 
     // () -> void
@@ -73,21 +75,13 @@
 #if DEMO
     public sealed class CompiledFunc<in T1, in T2, out TResult> : MulticastDelegate
     {
-        public CompiledFunc(object @object, IntPtr method)
-        {
-        }
+        public CompiledFunc(object @object, IntPtr method);
 
-        public virtual TResult Invoke(T1 arg1, T2 arg2)
-        {
-        }
+        public virtual TResult Invoke(T1 arg1, T2 arg2);
 
-        public virtual IAsyncResult BeginInvoke(T1 arg1, T2 arg2, AsyncCallback callback, object @object)
-        {
-        }
+        public virtual IAsyncResult BeginInvoke(T1 arg1, T2 arg2, AsyncCallback callback, object @object);
 
-        public virtual void EndInvoke(IAsyncResult result)
-        {
-        }
+        public virtual void EndInvoke(IAsyncResult result);
     }
 
     internal static partial class Functions
@@ -145,7 +139,7 @@
             object object1 = new object();
             Func<object, bool> func1 = object1.Equals; // new Func<object, bool>(object1.Equals);
             Trace.WriteLine(ReferenceEquals(func1.Target, object1)); // True
-            MethodInfo method2 = func1.GetMethodInfo();
+            MethodInfo method2 = func1.Method;
             Trace.WriteLine($"{method2.DeclaringType}: {method2}"); // System.Object: Boolean Equals(System.Object)
 
             object object2 = new object();
@@ -254,18 +248,144 @@
             Func<string> functionGroup1 = (Func<string>)Delegate.Combine(a, b); // = A + B;
             functionGroup1 = (Func<string>)Delegate.Combine(functionGroup1, new Func<string>(C)); // += C;
             functionGroup1 = (Func<string>)Delegate.Combine(functionGroup1, new Func<string>(D)); // += D;
-            string lastResult1 = functionGroup1.Invoke(); // A B C D
+            string lastResult1 = functionGroup1.Invoke(); // A(); B(); C(); D();
             Trace.WriteLine(lastResult1); // D
 
             Func<string> functionGroup2 = (Func<string>)Delegate.Remove(functionGroup1, a); // = functionGroup1 - A;
             functionGroup2 = (Func<string>)Delegate.Remove(functionGroup2, new Func<string>(D)); // -= D;
-            string lastResult2 = functionGroup2.Invoke(); // B C
+            string lastResult2 = functionGroup2.Invoke(); // B(); C();
             Trace.WriteLine(lastResult2); // C
 
             Func<string> functionGroup3 = (Func<string>)Delegate.Combine( // = functionGroup1 - functionGroup2 + A;
                 (Func<string>)Delegate.Remove(functionGroup1, functionGroup2), a);
-            string lastResult3 = functionGroup3(); // A D A
+            string lastResult3 = functionGroup3(); // A(); D(); A();
             Trace.WriteLine(lastResult3); // A
+        }
+
+        // EventHandler<DownloadEventArgs>: (object, DownloadEventArgs) -> void
+        internal static void TraceContent(object sender, DownloadEventArgs args)
+        {
+            Trace.WriteLine(args.Content);
+        }
+
+        // EventHandler<DownloadEventArgs>: (object, DownloadEventArgs) -> void
+        internal static void SaveContent(object sender, DownloadEventArgs args)
+        {
+            File.WriteAllText(Path.GetTempFileName(), args.Content);
+        }
+
+        internal static void HandleEvent()
+        {
+            Downloader downloader = new Downloader();
+            downloader.Completed += TraceContent;
+            downloader.Completed += SaveContent;
+            downloader.Start("https://weblogs.asp.net/dixin");
+        }
+
+        internal class DownloadEventArgs : EventArgs
+        {
+            internal DownloadEventArgs(string content)
+            {
+                this.Content = content;
+            }
+
+            internal string Content { get; }
+        }
+
+        internal class Downloader
+        {
+            internal event EventHandler<DownloadEventArgs> Completed;
+
+            private void OnCompleted(DownloadEventArgs args)
+            {
+                EventHandler<DownloadEventArgs> functionGroup = this.Completed;
+                functionGroup?.Invoke(this, args);
+            }
+
+            internal void Start(string uri)
+            {
+                using (WebClient webClient = new WebClient())
+                {
+                    string content = webClient.DownloadString(uri);
+                    this.OnCompleted(new DownloadEventArgs(content));
+                }
+            }
+        }
+
+        internal class CompiledDownloader
+        {
+            private EventHandler<DownloadEventArgs> completedGroup;
+
+            internal void add_Completed(EventHandler<DownloadEventArgs> function)
+            {
+                EventHandler<DownloadEventArgs> oldGroup;
+                EventHandler<DownloadEventArgs> group = this.completedGroup;
+                do
+                {
+                    oldGroup = group;
+                    EventHandler<DownloadEventArgs> newGroup = (EventHandler<DownloadEventArgs>)Delegate.Combine(oldGroup, function);
+                    group = Interlocked.CompareExchange(ref this.completedGroup, newGroup, oldGroup);
+                } while (group != oldGroup);
+            }
+
+            internal void remove_Completed(EventHandler<DownloadEventArgs> function)
+            {
+                EventHandler<DownloadEventArgs> oldGroup;
+                EventHandler<DownloadEventArgs> group = this.completedGroup;
+                do
+                {
+                    oldGroup = group;
+                    EventHandler<DownloadEventArgs> newGroup = (EventHandler<DownloadEventArgs>)Delegate.Remove(oldGroup, function);
+                    group = Interlocked.CompareExchange(ref this.completedGroup, newGroup, oldGroup);
+                } while (group != oldGroup);
+            }
+        }
+
+        internal class SimplifiedDownloader
+        {
+            private Action<object, DownloadEventArgs> completedGroup;
+
+            internal void add_Completed(Action<object, DownloadEventArgs> function)
+            {
+                this.completedGroup += function;
+            }
+
+            internal void remove_Completed(Action<object, DownloadEventArgs> function)
+            {
+                this.completedGroup -= function;
+            }
+
+            private void OnCompleted(DownloadEventArgs args)
+            {
+                Action<object, DownloadEventArgs> functionGroup = this.completedGroup;
+                functionGroup?.Invoke(this, args);
+            }
+
+            internal void Start(string uri)
+            {
+                using (WebClient webClient = new WebClient())
+                {
+                    string content = webClient.DownloadString(uri);
+                    this.OnCompleted(new DownloadEventArgs(content));
+                }
+            }
+        }
+
+        internal static void CompiledHandleEvent()
+        {
+            SimplifiedDownloader downloader = new SimplifiedDownloader();
+            downloader.add_Completed(TraceContent);
+            downloader.add_Completed(SaveContent);
+            downloader.Start("https://weblogs.asp.net/dixin");
+        }
+
+        internal class DownloaderWithEventAccessor
+        {
+            internal event EventHandler<DownloadEventArgs> Completed
+            {
+                add { this.Completed += value; }
+                remove { this.Completed -= value; }
+            }
         }
     }
 }
@@ -409,23 +529,19 @@ namespace System
 
 namespace System
 {
+    using System.Reflection;
+
     public abstract class Delegate
     {
         public object Target { get; }
+
+        public MethodInfo Method { get; }
 
         public static bool operator ==(Delegate d1, Delegate d2);
 
         public static bool operator !=(Delegate d1, Delegate d2);
 
         // Other members.
-    }
-}
-
-namespace System.Reflection
-{
-    public static class RuntimeReflectionExtensions
-    {
-        public static MethodInfo GetMethodInfo(this Delegate del);
     }
 }
 
@@ -450,5 +566,11 @@ namespace System
 
         public bool EndsWith(String value);
     }
+}
+
+namespace System
+{
+    // (object, TEventArgs) -> void
+    public delegate void EventHandler<TEventArgs>(object sender, TEventArgs e);
 }
 #endif

@@ -3,6 +3,8 @@ namespace Tutorial.ParallelLinq
 #if NETFX
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.IO;
     using System.Linq;
     using System.Threading;
 
@@ -10,6 +12,8 @@ namespace Tutorial.ParallelLinq
 #else
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.IO;
     using System.Linq;
     using System.Threading;
 #endif
@@ -33,7 +37,7 @@ namespace Tutorial.ParallelLinq
         public Span(int category, string spanName, string markSeriesName = null)
         {
             this.category = category;
-            this.spanName = string.IsNullOrEmpty(markSeriesName) ? spanName : $@"{markSeriesName}\{spanName}";
+            this.spanName = string.IsNullOrEmpty(markSeriesName) ? spanName : $@"{markSeriesName}/{spanName}";
             $"Timestamp: {this.start.ToString("o")}, thread: {Thread.CurrentThread.ManagedThreadId}, category: {this.category}, span: {this.spanName}".WriteLine();
         }
 
@@ -258,6 +262,19 @@ namespace Tutorial.ParallelLinq
                     }
                 },
                 resultSelector);
+        }
+
+        internal static void TraceToFile()
+        {
+            // Trace to file:
+            string file = Path.Combine(Path.GetTempPath(), "Trace.txt");
+            using (TextWriterTraceListener traceListener = new TextWriterTraceListener(file))
+            // Or trace to console:
+            // using (TextWriterTraceListener traceListener = new TextWriterTraceListener(Console.Out))
+            {
+                Trace.Listeners.Add(traceListener);
+                QueryMethods.ForEachForAllTimeSpans();
+            }
         }
     }
 }

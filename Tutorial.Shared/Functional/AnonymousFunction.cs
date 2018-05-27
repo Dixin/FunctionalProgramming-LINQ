@@ -44,14 +44,11 @@
         internal static void AnonymousFunction()
         {
             Func<int, bool> isPositive;
-            if (cachedIsPositive != null)
+            if (cachedIsPositive == null)
             {
-                isPositive = cachedIsPositive;
+                cachedIsPositive = new Func<int, bool>(IsPositive);
             }
-            else
-            {
-                isPositive = cachedIsPositive = new Func<int, bool>(IsPositive);
-            }
+            isPositive = cachedIsPositive;
             bool result = isPositive.Invoke(0);
         }
     }
@@ -61,9 +58,9 @@
         internal static void Lambda()
         {
             Func<int, bool> isPositive = (int int32) =>
-                {
-                    return int32 > 0;
-                };
+            {
+                return int32 > 0;
+            };
             bool result = isPositive(0);
         }
 
@@ -71,7 +68,7 @@
         {
             Func<int, int, int> add = (int32A, int32B) => int32A + int32B;
             Func<int, bool> isPositive = int32 => int32 > 0;
-            Action<int> traceLine = int32 => Trace.WriteLine(int32);
+            Action<int> traceLine = int32 => int32.WriteLine();
         }
 
         internal static void StatementLambda()
@@ -83,12 +80,12 @@
             };
             Func<int, bool> isPositive = int32 =>
             {
-                Trace.WriteLine(int32);
+                int32.WriteLine();
                 return int32 > 0;
             };
             Action<int> traceLine = int32 =>
             {
-                Trace.WriteLine(int32);
+                int32.WriteLine();
                 Trace.Flush();
             };
         }
@@ -96,10 +93,19 @@
         internal static void ConstructorCall()
         {
             Func<int, int, int> add = new Func<int, int, int>((int32A, int32B) => int32A + int32B);
-
             Func<int, bool> isPositive = new Func<int, bool>(int32 =>
             {
-                Trace.WriteLine(int32);
+                int32.WriteLine();
+                return int32 > 0;
+            });
+        }
+
+        internal static void TypeConversion()
+        {
+            Func<int, int, int> add = (Func<int, int, int>)((int32A, int32B) => int32A + int32B);
+            Func<int, bool> isPositive = (Func<int, bool>)(int32 =>
+            {
+                int32.WriteLine();
                 return int32 > 0;
             });
         }
@@ -144,14 +150,11 @@
         internal static void CallLambdaExpressionWithConstructor()
         {
             Func<int, bool> isPositive;
-            if (Container.cachedIsPositive != null)
+            if (Container.cachedIsPositive == null)
             {
-                isPositive = Container.cachedIsPositive;
+                Container.cachedIsPositive = new Func<int, bool>(Container.Singleton.IsPositive);
             }
-            else
-            {
-                isPositive = Container.cachedIsPositive = new Func<int, bool>(Container.Singleton.IsPositive);
-            }
+            isPositive = Container.cachedIsPositive;
             bool result = isPositive.Invoke(1);
         }
     }
@@ -161,7 +164,7 @@
         internal static void CallAnonymousFunction()
         {
             new Func<int, int, int>((int32A, int32B) => int32A + int32B)(1, 2);
-            new Action<int>(int32 => Trace.WriteLine(int32))(1);
+            new Action<int>(int32 => int32.WriteLine())(1);
 
             new Func<int, int, int>((int32A, int32B) =>
             {
@@ -170,12 +173,12 @@
             })(1, 2);
             new Func<int, bool>(int32 =>
             {
-                Trace.WriteLine(int32);
+                int32.WriteLine();
                 return int32 > 0;
             })(1);
             new Action<int>(int32 =>
             {
-                Trace.WriteLine(int32);
+                int32.WriteLine();
                 Trace.Flush();
             })(1);
         }
@@ -183,12 +186,12 @@
 
     internal class DisplayClass
     {
-        int outer = 0; // Outside the scope of method Add.
+        int outer = 1; // Outside the scope of method Add.
 
         internal int Add()
         {
-            int local = 1; // Inside the scope of method Add.
-            return local + this.outer; // 1.
+            int local = 2; // Inside the scope of method Add.
+            return local + this.outer; // 3.
         }
     }
 
@@ -200,7 +203,7 @@
             new Action(() =>
             {
                 int local = 2; // Inside the scope of function add.
-                Trace.WriteLine(local + outer);
+                (local + outer).WriteLine();
             })(); // 3
         }
     }
@@ -215,7 +218,7 @@
             internal void Add()
             {
                 int local = 2;
-                Trace.WriteLine(local + this.Outer);
+                (local + this.Outer).WriteLine();
             }
         }
 
@@ -226,4 +229,65 @@
             display.Add(); // 3
         }
     }
+
+#if DEMO
+    internal partial class Data
+    {
+        private int value;
+
+        static Data() => MethodBase.GetCurrentMethod().Name.WriteLine(); // Static constructor.
+
+        internal Data(int value) => this.value = value; // Constructor.
+
+        ~Data() => Trace.WriteLine(MethodBase.GetCurrentMethod().Name); // Finalizer.
+
+        internal bool Equals(Data other) => this.value == other.value; // Instance method.
+
+        internal static bool Equals(Data @this, Data other) => @this.value == other.value; // Static method.
+
+        public static Data operator +(Data data1, Data Data) => new Data(data1.value + Data.value); // Operator overload.
+
+        public static explicit operator int(Data value) => value.value; // Conversion operator.
+
+        public static implicit operator Data(int value) => new Data(value); // Conversion operator.
+
+        internal int ReadOnlyValue => this.value; // Property.
+
+        internal int ReadWriteValue
+        {
+            get => this.value; // Property getter.
+            set => this.value = value; // Property setter.
+        }
+
+        internal int this[long index] => throw new NotImplementedException(); // Indexer.
+
+        internal int this[int index]
+        {
+            get => throw new NotImplementedException(); // Indexer getter.
+            set => throw new NotImplementedException(); // Indexer setter.
+        }
+
+        internal event EventHandler Created
+        {
+            add => Trace.WriteLine(MethodBase.GetCurrentMethod().Name); // Event accessor.
+            remove => Trace.WriteLine(MethodBase.GetCurrentMethod().Name); // Event accessor.
+        }
+
+        internal int GetValue()
+        {
+            int LocalFunction() => this.value; // Local function.
+            return LocalFunction();
+        }
+    }
+
+    internal static partial class DataExtensions
+    {
+        internal static bool Equals(Data @this, Data other) => @this.ReadOnlyValue == other.Value; // Extension method.
+    }
+
+    internal partial class Data : IComparable<Data>
+    {
+        int IComparable<Data>.CompareTo(Data other) => this.value.CompareTo(other.value); // Explicit interface implementation.
+    }
+#endif
 }

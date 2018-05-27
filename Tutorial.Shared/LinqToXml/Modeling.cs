@@ -1,22 +1,11 @@
 ﻿namespace Tutorial.LinqToXml
 {
-#if NETFX
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Xml;
     using System.Xml.Linq;
-#else
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Net;
-    using System.Net.Http;
-    using System.Xml;
-    using System.Xml.Linq;
-#endif
 
     internal static partial class Modeling
     {
@@ -112,75 +101,38 @@
             isPermaLink.WriteLine(); // True
         }
 
-        internal static void Node()
+        internal static void DeepEquals()
         {
-            XDocument document = XDocument.Parse("<element></element>");
-            XElement element1 = new XElement("element", null); // <element />
-            XElement element2 = new XElement("element", string.Empty); // <element></element>
-            XNode.DeepEquals(document.Root, element1).WriteLine(); // False
-            XNode.DeepEquals(document.Root, element2).WriteLine(); // True
-        }
+            XElement element1 = XElement.Parse("<parent><child></child></parent>");
+            XElement element2 = new XElement("parent", new XElement("child")); // <parent><child /></parent>
+            object.ReferenceEquals(element1, element2).WriteLine(); // False
+            XNode.DeepEquals(element1, element2).WriteLine(); // True
 
-        internal static XDocument LoadXDocument(string uri)
-        {
-#if NETFX
-            return XDocument.Load(uri);
-#else
-            WebRequest request = WebRequest.Create(uri);
-            using (WebResponse response = request.EndGetResponse(request.BeginGetResponse(null, null)))
-            using (Stream downloadStream = response.GetResponseStream())
-            {
-                return XDocument.Load(downloadStream);
-            }
-#endif
-        }
-
-        internal static XElement LoadXElement(string uri)
-        {
-#if NETFX
-            return XElement.Load(uri);
-#else
-            WebRequest request = WebRequest.Create(uri);
-            using (WebResponse response = request.EndGetResponse(request.BeginGetResponse(null, null)))
-            using (Stream downloadStream = response.GetResponseStream())
-            {
-                return XElement.Load(downloadStream);
-            }
-#endif
-        }
-
-        internal static XmlReader CreateReader(string uri)
-        {
-#if NETFX
-            return XmlReader.Create(uri);
-#else
-            WebRequest request = WebRequest.Create(uri);
-            WebResponse response = request.EndGetResponse(request.BeginGetResponse(null, null));
-            Stream downloadStream = response.GetResponseStream();
-            return XmlReader.Create(downloadStream);
-#endif
+            XElement element3 = new XElement("parent", new XElement("child", string.Empty)); // <parent><child></child></parent>
+            object.ReferenceEquals(element1, element2).WriteLine(); // False
+            XNode.DeepEquals(element1, element3).WriteLine(); // False
         }
 
         internal static void Read()
         {
-            using (XmlReader reader = CreateReader("https://weblogs.asp.net/dixin/rss"))
+            using (XmlReader reader = XmlReader.Create("https://weblogs.asp.net/dixin/rss"))
             {
                 reader.MoveToContent();
                 XNode node = XNode.ReadFrom(reader);
             }
 
             XElement element1 = XElement.Parse("<html><head></head><body></body></html>");
-            XElement element2 = LoadXElement("https://weblogs.asp.net/dixin/rss");
+            XElement element2 = XElement.Load("https://weblogs.asp.net/dixin/rss");
 
             XDocument document1 = XDocument.Parse("<html><head></head><body></body></html>");
-            XDocument document2 = LoadXDocument("https://microsoft.com"); // Succeed.
-            XDocument document3 = LoadXDocument("https://asp.net"); // Fail.
+            XDocument document2 = XDocument.Load("https://microsoft.com"); // Succeed.
+            XDocument document3 = XDocument.Load("https://asp.net"); // Fail.
             // System.Xml.XmlException: The 'ul' start tag on line 68 position 116 does not match the end tag of 'div'. Line 154, position 109.
         }
 
         internal static IEnumerable<XElement> RssItems(string rssUri)
         {
-            using (XmlReader reader = CreateReader(rssUri))
+            using (XmlReader reader = XmlReader.Create(rssUri))
             {
                 reader.MoveToContent();
                 while (reader.Read())
@@ -195,8 +147,11 @@
 
         internal static void Write()
         {
-            XDocument document1 = LoadXDocument("https://weblogs.asp.net/dixin/rss");
-            document1.Save(File.OpenWrite(Path.GetTempFileName()));
+            XDocument document1 = XDocument.Load("https://weblogs.asp.net/dixin/rss");
+            using (FileStream stream = File.OpenWrite(Path.GetTempFileName()))
+            {
+                document1.Save(stream);
+            }
 
             XElement element1 = new XElement("element", string.Empty);
             XDocument document2 = new XDocument();
@@ -234,25 +189,34 @@
             // </root>
         }
 
-        internal static void StreamingElement()
+        internal static void StreamingElementWithChildElements()
         {
-            Func<IEnumerable<XElement>> getChildElements = () => Enumerable
-                .Range(0, 5)
-                .Select(value => new XElement("child", value.WriteLine()));
+            IEnumerable<XElement> ChildElementsFactory() =>
+                Enumerable
+                    .Range(0, 5).Do(value => value.WriteLine())
+                    .Select(value => new XElement("child", value));
 
-            XElement immediate1 = new XElement("parent", getChildElements()); // 0 1 2 3 4.
+            XElement immediateParent = new XElement("parent", ChildElementsFactory()); // 0 1 2 3 4.
+            immediateParent.ToString(SaveOptions.DisableFormatting).WriteLine();
+            // <parent><child>0</child><child>1</child><child>2</child><child>3</child><child>4</child></parent>
 
-            XStreamingElement deferred1 = new XStreamingElement("parent", getChildElements());
-            deferred1.ToString(SaveOptions.DisableFormatting).WriteLine();
+            XStreamingElement deferredParent = new XStreamingElement("parent", ChildElementsFactory()); // Deferred.
+            deferredParent.ToString(SaveOptions.DisableFormatting).WriteLine();
             // 0 1 2 3 4 
             // <parent><child>0</child><child>1</child><child>2</child><child>3</child><child>4</child></parent>
+        }
 
-            XElement immediate2 = new XElement("parent", immediate1.Elements());
-            XStreamingElement deferred2 = new XStreamingElement("parent", immediate1.Elements());
-            immediate1.RemoveAll();
-            immediate2.ToString(SaveOptions.DisableFormatting).WriteLine();
-            // <parent><child>0</child><child>1</child><child>2</child><child>3</child><child>4</child></parent>
-            deferred2.WriteLine(); // <parent />
+        internal static void StreamingElementWithChildElementModification()
+        {
+            XElement source = new XElement("source", new XElement("child", "a"));
+            XElement child = source.Elements().Single();
+
+            XElement immediateParent = new XElement("parent", child);
+            XStreamingElement deferredParent = new XStreamingElement("parent", child); // Deferred.
+
+            child.Value = "b";
+            immediateParent.ToString(SaveOptions.DisableFormatting).WriteLine(); // <parent><child>a</child></parent>
+            deferredParent.ToString(SaveOptions.DisableFormatting).WriteLine(); // <parent><child>b</child></parent>
         }
     }
 }

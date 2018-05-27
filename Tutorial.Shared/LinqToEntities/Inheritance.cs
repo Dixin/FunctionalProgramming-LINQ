@@ -30,23 +30,17 @@
         public decimal ActualCost { get; set; }
     }
 
-    public class PurchaseTransactionHistory : TransactionHistory
-    {
-    }
+    public class PurchaseTransactionHistory : TransactionHistory { }
 
-    public class SalesTransactionHistory : TransactionHistory
-    {
-    }
+    public class SalesTransactionHistory : TransactionHistory { }
 
-    public class WorkTransactionHistory : TransactionHistory
-    {
-    }
+    public class WorkTransactionHistory : TransactionHistory { }
 
     public enum TransactionType { P, S, W }
 
     public partial class AdventureWorks
     {
-        private void MapDiscriminator(ModelBuilder modelBuilder) // Called by OnModelCreating.
+        private static void MapDiscriminator(ModelBuilder modelBuilder) // Called by OnModelCreating.
         {
 #if EF
             modelBuilder

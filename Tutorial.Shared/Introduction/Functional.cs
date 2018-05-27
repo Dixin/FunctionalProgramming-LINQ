@@ -7,17 +7,15 @@ namespace Tutorial.Introduction
     {
         internal static FileInfo DownloadHtml(Uri uri)
         {
-            return default(FileInfo);
+            return default;
         }
 
         internal static FileInfo ConvertToWord(FileInfo htmlDocument, FileInfo template)
         {
-            return default(FileInfo);
+            return default;
         }
 
-        internal static void UploadToOneDrive(FileInfo file)
-        {
-        }
+        internal static void UploadToOneDrive(FileInfo file) { }
 
         internal static Action<Uri, FileInfo> CreateDocumentBuilder(
             Func<Uri, FileInfo> download, Func<FileInfo, FileInfo, FileInfo> convert, Action<FileInfo> upload)

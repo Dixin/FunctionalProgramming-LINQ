@@ -15,7 +15,7 @@
 
         internal static bool IsNegative(int int32) // Impure.
         {
-            Console.WriteLine(int32); // Side effect.
+            Console.WriteLine(int32); // Side effect: console I/O.
             return int32 < 0;
         }
     }
@@ -118,7 +118,7 @@ namespace System
             Contract.Ensures(Contract.Result<int>() >= 0);
             Contract.Ensures((value - Contract.Result<int>()) <= 0);
 
-            return default(int);
+            return default;
         }
     }
 }

@@ -5,11 +5,11 @@
     using System.Globalization;
     using System.Threading.Tasks;
 
-    using Tutorial.CategoryTheory;
-
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using EnumerableAssert = Tutorial.LinqToObjects.EnumerableAssert;
+    using Tutorial.CategoryTheory;
+    using Tutorial.Tests.LinqToObjects;
+
     using FuncExtensions = Tutorial.CategoryTheory.FuncExtensions;
 
     internal static class Functions<TSource, TMiddle, TResult>
@@ -255,7 +255,9 @@
             Assert.AreEqual(left2.Item1, right2.Item1);
         }
 
+#if !ANDROID && !__IOS__
         [TestMethod]
+#endif
         public void HotTaskTest()
         {
             bool isExecuted1 = false;
@@ -284,7 +286,9 @@
             Assert.AreEqual(left2.Result, right2.Result);
         }
 
+#if !ANDROID && !__IOS__
         [TestMethod]
+#endif
         public void ColdTaskTest()
         {
             bool isExecuted1 = false;

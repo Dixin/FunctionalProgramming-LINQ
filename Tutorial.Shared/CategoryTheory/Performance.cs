@@ -131,13 +131,10 @@
                 .Select(_ => RandomArray(minValue, maxValue, minLength, maxLength))
                 .ToArray();
 
-        public static int[] RandomArray(int minValue, int maxValue, int minLength, int maxLength)
-        {
-            Random random = new Random();
-            return EnumerableX
-                .RandomInt32(minValue, maxValue, random).Take(random.Next(minLength, maxLength))
+        public static int[] RandomArray(int minValue, int maxValue, int minLength, int maxLength) => 
+            EnumerableX
+                .RandomInt32(minValue, maxValue).Take(new Random().Next(minLength, maxLength))
                 .ToArray();
-        }
     }
 
     internal class Person : IComparable<Person>
@@ -172,28 +169,30 @@
         }
     }
 
-    internal struct ValuePerson : IComparable<ValuePerson>
+    internal readonly struct ValuePerson : IComparable<ValuePerson>
     {
         private static readonly string LongString =
             Enumerable.Range(0, 10_000).Select(_ => Guid.NewGuid().ToString()).Aggregate(string.Concat);
 
-        internal string Name { get; private set; }
+        internal ValuePerson(string name, int age, string description)
+        {
+            this.Name = name;
+            this.Age = age;
+            this.Description = description;
+        }
 
-        internal int Age { get; private set; }
+        internal string Name { get; }
 
-        internal string Description { get; private set; }
+        internal int Age { get; }
+
+        internal string Description { get; }
 
         internal static IEnumerable<ValuePerson> Random(int count)
         {
             Random random = new Random();
             for (int i = 0; i < count; i++)
             {
-                yield return new ValuePerson()
-                {
-                    Name = Guid.NewGuid().ToString(),
-                    Age = random.Next(0, 100),
-                    Description = LongString
-                };
+                yield return new ValuePerson(name: Guid.NewGuid().ToString(), age: random.Next(0, 100),description:LongString);
             }
         }
 
@@ -395,7 +394,7 @@
             int resultIndex = 0;
             foreach (Person person in source)
             {
-                if ((person.Age >= minAge1 && person.Age <= maxAge2 || person.Age >= minAge2 && person.Age <= maxAge2)
+                if ((person.Age >= minAge1 && person.Age <= maxAge1 || person.Age >= minAge2 && person.Age <= maxAge2)
                     && (string.Compare(person.Name, minName1, StringComparison.OrdinalIgnoreCase) >= 0
                         && string.Compare(person.Name, maxName1, StringComparison.OrdinalIgnoreCase) <= 0
                         || string.Compare(person.Name, minName2, StringComparison.OrdinalIgnoreCase) >= 0
@@ -414,7 +413,7 @@
             int minAge1, int maxAge1, int minAge2, int maxAge2,
             string minName1, string maxName1, string minName2, string maxName2)
             => source.Where(person =>
-                (person.Age >= minAge1 && person.Age <= maxAge2 || person.Age >= minAge2 && person.Age <= maxAge2)
+                (person.Age >= minAge1 && person.Age <= maxAge1 || person.Age >= minAge2 && person.Age <= maxAge2)
                 && (string.Compare(person.Name, minName1, StringComparison.OrdinalIgnoreCase) >= 0
                     && string.Compare(person.Name, maxName1, StringComparison.OrdinalIgnoreCase) <= 0
                     || string.Compare(person.Name, minName2, StringComparison.OrdinalIgnoreCase) >= 0
@@ -426,17 +425,17 @@
         [CompilerGenerated]
         private sealed class Predicate
         {
-            public int minAge1; public int minAge2; public int maxAge1; public int maxAge2;
+            public int MinAge1; public int MinAge2; public int MaxAge1; public int MaxAge2;
 
-            public string minName1; public string maxName1; public string minName2; public string maxName2;
+            public string MinName1; public string MaxName1; public string MinName2; public string MaxName2;
 
             public bool WithLambda(Person person)
-                => ((person.Age >= this.minAge1 && person.Age <= this.maxAge1)
-                        || (person.Age >= this.minAge2 && person.Age <= this.maxAge2))
-                    && ((string.Compare(person.Name, this.minName1, StringComparison.OrdinalIgnoreCase) >= 0
-                            && string.Compare(person.Name, this.maxName1, StringComparison.OrdinalIgnoreCase) <= 0)
-                        || (string.Compare(person.Name, this.minName2, StringComparison.OrdinalIgnoreCase) >= 0
-                            && string.Compare(person.Name, this.maxName2, StringComparison.OrdinalIgnoreCase) <= 0));
+                => ((person.Age >= this.MinAge1 && person.Age <= this.MaxAge1)
+                        || (person.Age >= this.MinAge2 && person.Age <= this.MaxAge2))
+                    && ((string.Compare(person.Name, this.MinName1, StringComparison.OrdinalIgnoreCase) >= 0
+                            && string.Compare(person.Name, this.MaxName1, StringComparison.OrdinalIgnoreCase) <= 0)
+                        || (string.Compare(person.Name, this.MinName2, StringComparison.OrdinalIgnoreCase) >= 0
+                            && string.Compare(person.Name, this.MaxName2, StringComparison.OrdinalIgnoreCase) <= 0));
         }
 
         internal static Person[] CompiledWithLambda(
@@ -445,8 +444,8 @@
             string minName1, string maxName1, string minName2, string maxName2)
                 => source.Where(new Predicate
                     {
-                        minAge1 = minAge1, minAge2 = minAge2, maxAge1 = maxAge1, maxAge2 = maxAge2,
-                        minName1 = minName1, maxName1 = maxName1, minName2 = minName2, maxName2 = maxName2
+                        MinAge1 = minAge1, MinAge2 = minAge2, MaxAge1 = maxAge1, MaxAge2 = maxAge2,
+                        MinName1 = minName1, MaxName1 = maxName1, MinName2 = minName2, MaxName2 = maxName2
                     }.WithLambda).ToArray();
     }
 

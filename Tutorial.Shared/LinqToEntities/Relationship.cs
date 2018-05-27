@@ -137,7 +137,7 @@
 
     public partial class AdventureWorks
     {
-        private void MapCompositePrimaryKey(ModelBuilder modelBuilder) // Called by OnModelCreating.
+        private static void MapCompositePrimaryKey(ModelBuilder modelBuilder) // Called by OnModelCreating.
         {
 #if !EF
             modelBuilder.Entity<ProductProductPhoto>()
@@ -152,7 +152,7 @@
 
     public partial class AdventureWorks
     {
-        private void MapManyToMany(ModelBuilder modelBuilder) // Called by OnModelCreating.
+        private static void MapManyToMany(ModelBuilder modelBuilder) // Called by OnModelCreating.
         {
 #if !EF
             modelBuilder.Entity<ProductProductPhoto>()
@@ -210,7 +210,7 @@ namespace Tutorial.LinqToEntities
                 .HasMany(product => product.ProductPhotos)
                 .WithMany(photo => photo.Products)
                 .Map(mapping => mapping
-                    .ToTable("ProductProductPhoto", Production)
+                    .ToTable(nameof(ProductProductPhoto), Production)
                     .MapLeftKey(nameof(Product.ProductID))
                     .MapRightKey(nameof(ProductPhoto.ProductPhotoID)));
         }

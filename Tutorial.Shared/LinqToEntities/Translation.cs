@@ -42,8 +42,8 @@
                 $"[{nameof(AdventureWorks)}].[{nameof(AdventureWorks.Products)}]",
                 ((IObjectContextAdapter)adventureWorks).ObjectContext,
                 MergeOption.AppendOnly);
-            MethodInfo mergeAsMethod = typeof(ObjectQuery<Product>)
-                .GetTypeInfo().GetDeclaredMethods("MergeAs").Single();
+            MethodInfo mergeAsMethod = typeof(ObjectQuery<Product>).GetTypeInfo()
+                .GetDeclaredMethods("MergeAs").Single();
             MethodCallExpression sourceMergeAsCallExpression = Expression.Call(
                 instance: Expression.Constant(objectQuery),
                 method: mergeAsMethod,
@@ -111,7 +111,7 @@
                 .GetPrimitiveTypes(DataSpace.CSpace)
                 .Single(type => type.ClrEquivalentType == typeof(string)));
             TypeUsage nameRowTypeUsage = TypeUsage.CreateDefaultTypeUsage(RowType.Create(
-                Enumerable.Repeat(EdmProperty.Create(nameof(Product.Name), stringTypeUsage), 1),
+                EnumerableEx.Return(EdmProperty.Create(nameof(Product.Name), stringTypeUsage)),
                 Enumerable.Empty<MetadataProperty>()));
             TypeUsage productTypeUsage = TypeUsage.CreateDefaultTypeUsage(metadata
                 .GetType(nameof(Product), "CodeFirstDatabaseSchema", DataSpace.SSpace));
@@ -217,7 +217,7 @@
                 .GetPrimitiveTypes(DataSpace.CSpace)
                 .Single(type => type.ClrEquivalentType == typeof(string)));
             TypeUsage nameRowTypeUsage = TypeUsage.CreateDefaultTypeUsage(RowType.Create(
-                Enumerable.Repeat(EdmProperty.Create(nameof(Product.Name), stringTypeUsage), 1),
+                EnumerableEx.Return(EdmProperty.Create(nameof(Product.Name), stringTypeUsage)),
                 Enumerable.Empty<MetadataProperty>()));
             TypeUsage productTypeUsage = TypeUsage.CreateDefaultTypeUsage(metadata
                 .GetType(nameof(Product), "CodeFirstDatabaseSchema", DataSpace.SSpace));
@@ -354,11 +354,12 @@
         protected override DbProviderManifest GetDbProviderManifest(string manifestToken) => 
             (DbProviderManifest)RedirectCall(manifestToken);
 
-        protected override DbSpatialDataReader GetDbSpatialDataReader(DbDataReader fromReader, string versionHint) => 
-            (DbSpatialDataReader)RedirectCall<DbDataReader, string>(fromReader, versionHint);
+        protected override DbSpatialDataReader GetDbSpatialDataReader(DbDataReader fromReader, string manifestToken) => 
+            (DbSpatialDataReader)RedirectCall<DbDataReader, string>(fromReader, manifestToken);
 
-        protected override DbSpatialServices DbGetSpatialServices(string versionHint) => 
-            (DbSpatialServices)RedirectCall(versionHint);
+        [Obsolete("Return DbSpatialServices from the GetService method. See http://go.microsoft.com/fwlink/?LinkId=260882 for more information.")]
+        protected override DbSpatialServices DbGetSpatialServices(string manifestToken) => 
+            (DbSpatialServices)RedirectCall(manifestToken);
 
         protected override string DbCreateDatabaseScript(
             string providerManifestToken, StoreItemCollection storeItemCollection) => 
@@ -390,6 +391,7 @@
     using System.Reflection;
 
     using Microsoft.EntityFrameworkCore;
+    using Microsoft.EntityFrameworkCore.Diagnostics;
     using Microsoft.EntityFrameworkCore.Infrastructure;
     using Microsoft.EntityFrameworkCore.Metadata;
     using Microsoft.EntityFrameworkCore.Query;
@@ -481,11 +483,10 @@
 
         internal static SelectExpression WhereAndSelectDatabaseExpressions(AdventureWorks adventureWorks)
         {
-            QueryCompilationContext compilationContext = adventureWorks.GetService<IDatabaseProviderServices>()
-                .QueryCompilationContextFactory
+            QueryCompilationContext compilationContext = adventureWorks.GetService<IQueryCompilationContextFactory>()
                 .Create(async: false);
             SelectExpression databaseExpression = new SelectExpression(
-                querySqlGeneratorFactory: adventureWorks.GetService<IQuerySqlGeneratorFactory>(),
+                dependencies: new SelectExpressionDependencies(adventureWorks.GetService<IQuerySqlGeneratorFactory>()),
                 queryCompilationContext: (RelationalQueryCompilationContext)compilationContext);
             MainFromClause querySource = new MainFromClause(
                 itemName: "product",
@@ -499,16 +500,30 @@
             databaseExpression.AddTable(tableExpression);
             IEntityType productEntityType = adventureWorks.Model.FindEntityType(typeof(Product));
             IProperty nameProperty = productEntityType.FindProperty(nameof(Product.Name));
-            AliasExpression nameAlias = new AliasExpression(new ColumnExpression(
-                name: nameof(Product.Name), property: nameProperty, tableExpression: tableExpression));
-            databaseExpression.AddToProjection(nameAlias);
-            databaseExpression.Predicate = Expression.GreaterThan(
-                left: new SqlFunctionExpression(
-                    functionName: "LEN",
-                    returnType: typeof(int),
-                    arguments: new Expression[] { nameAlias }),
-                right: Expression.Constant(10));
+            ColumnExpression nameColumn = new ColumnExpression(
+                name: nameof(Product.Name), property: nameProperty, tableExpression: tableExpression);
+            databaseExpression.AddToProjection(nameColumn);
+            databaseExpression.AddToPredicate(Expression.GreaterThan(
+                left: new ExplicitCastExpression(
+                    operand: new SqlFunctionExpression(
+                        functionName: "LEN",
+                        returnType: typeof(int),
+                        arguments: new Expression[] { nameColumn }),
+                    type: typeof(int)),
+                right: Expression.Constant(10)));
             return databaseExpression.WriteLine();
+        }
+
+        internal static void WhereAndSelectQuery(AdventureWorks adventureWorks)
+        {
+            IQueryable<string> products = adventureWorks.Products
+               .Where(product => product.Name.Length > 10)
+               .Select(product => product.Name);
+            // Equivalent to:
+            // IQueryable<string> products =
+            //    from product in adventureWorks.Products
+            //    where product.Name.Length > 10
+            //    select product.Name;
         }
 
         internal static void CompileWhereAndSelectExpressions(AdventureWorks adventureWorks)
@@ -559,13 +574,19 @@
             compilation.Parameters.WriteLines(parameter => $"{parameter.Key}: {parameter.Value}");
         }
 
+        internal static void SelectAndFirstQuery(AdventureWorks adventureWorks)
+        {
+            string first = adventureWorks.Products.Select(product => product.Name).First();
+            // Equivalent to:
+            // string first = (from product in adventureWorks.Products select product.Name).First();
+        }
+
         internal static SelectExpression SelectAndFirstDatabaseExpressions(AdventureWorks adventureWorks)
         {
-            QueryCompilationContext compilationContext = adventureWorks.GetService<IDatabaseProviderServices>()
-                .QueryCompilationContextFactory
+            QueryCompilationContext compilationContext = adventureWorks.GetService<IQueryCompilationContextFactory>()
                 .Create(async: false);
             SelectExpression selectExpression = new SelectExpression(
-                querySqlGeneratorFactory: adventureWorks.GetService<IQuerySqlGeneratorFactory>(),
+                dependencies: new SelectExpressionDependencies(adventureWorks.GetService<IQuerySqlGeneratorFactory>()),
                 queryCompilationContext: (RelationalQueryCompilationContext)compilationContext);
             MainFromClause querySource = new MainFromClause(
                 itemName: "product",
@@ -579,8 +600,8 @@
             selectExpression.AddTable(tableExpression);
             IEntityType productEntityType = adventureWorks.Model.FindEntityType(typeof(Product));
             IProperty nameProperty = productEntityType.FindProperty(nameof(Product.Name));
-            selectExpression.AddToProjection(new AliasExpression(new ColumnExpression(
-                name: nameof(Product.Name), property: nameProperty, tableExpression: tableExpression)));
+            selectExpression.AddToProjection(new ColumnExpression(
+                name: nameof(Product.Name), property: nameProperty, tableExpression: tableExpression));
             selectExpression.Limit = Expression.Constant(1);
             return selectExpression.WriteLine();
         }
@@ -588,37 +609,36 @@
 
     public static partial class DbContextExtensions
     {
-        public partial class ApiCompilationFilter : EvaluatableExpressionFilterBase { }
-
         public static (SelectExpression, IReadOnlyDictionary<string, object>) Compile(
             this DbContext dbContext, Expression linqExpression)
         {
-            IDatabaseProviderServices databaseProviderServices = dbContext.GetService<IDatabaseProviderServices>();
-            QueryCompilationContext compilationContext = databaseProviderServices.QueryCompilationContextFactory
-                .Create(async: false);
-            INodeTypeProvider nodeTypeProvider = dbContext.GetService<MethodInfoBasedNodeTypeRegistry>();
-            IQueryContextFactory queryContextFactory = dbContext.GetService<IQueryContextFactory>();
-            QueryContext queryContext = queryContextFactory.Create();
-            ISensitiveDataLogger<QueryCompiler> logger = dbContext.GetService<ISensitiveDataLogger<QueryCompiler>>();
-            linqExpression = ParameterExtractingExpressionVisitor.ExtractParameters(
-                linqExpression, queryContext, new ApiCompilationFilter(), logger);
+            QueryContext queryContext = dbContext.GetService<IQueryContextFactory>().Create();
+            IEvaluatableExpressionFilter evaluatableExpressionFilter = dbContext.GetService<IEvaluatableExpressionFilter>();
+            linqExpression = new ParameterExtractingExpressionVisitor(
+                evaluatableExpressionFilter: evaluatableExpressionFilter,
+                parameterValues: queryContext,
+                logger: dbContext.GetService<IDiagnosticsLogger<DbLoggerCategory.Query>>(),
+                parameterize: true).ExtractParameters(linqExpression);
             QueryParser queryParser = new QueryParser(new ExpressionTreeParser(
-                nodeTypeProvider: nodeTypeProvider,
+                nodeTypeProvider: dbContext.GetService<INodeTypeProviderFactory>().Create(),
                 processor: new CompoundExpressionTreeProcessor(new IExpressionTreeProcessor[]
                 {
-                    new PartialEvaluatingExpressionTreeProcessor(new ApiCompilationFilter()),
+                    new PartialEvaluatingExpressionTreeProcessor(evaluatableExpressionFilter),
                     new TransformingExpressionTreeProcessor(ExpressionTransformerRegistry.CreateDefault())
                 })));
             QueryModel queryModel = queryParser.GetParsedQuery(linqExpression);
 
-            RelationalQueryModelVisitor queryModelVisitor = (RelationalQueryModelVisitor)compilationContext
-                .CreateQueryModelVisitor();
             Type resultType = queryModel.GetResultType();
             if (resultType.IsConstructedGenericType && resultType.GetGenericTypeDefinition() == typeof(IQueryable<>))
             {
                 resultType = resultType.GenericTypeArguments.Single();
             }
-            queryModelVisitor.GetType().GetTypeInfo()
+
+            QueryCompilationContext compilationContext = dbContext.GetService<IQueryCompilationContextFactory>()
+                .Create(async: false);
+            RelationalQueryModelVisitor queryModelVisitor = (RelationalQueryModelVisitor)compilationContext
+                .CreateQueryModelVisitor();
+            queryModelVisitor.GetType()
                 .GetMethod(nameof(RelationalQueryModelVisitor.CreateQueryExecutor))
                 .MakeGenericMethod(resultType)
                 .Invoke(queryModelVisitor, new object[] { queryModel });
@@ -632,7 +652,7 @@
     {
         public partial class ApiCompilationFilter : EvaluatableExpressionFilterBase
         {
-            private static readonly PropertyInfo dateTimeUtcNow = typeof(DateTime).GetTypeInfo()
+            private static readonly PropertyInfo dateTimeUtcNow = typeof(DateTime)
                 .GetProperty(nameof(DateTime.UtcNow));
 
             public override bool IsEvaluatableMember(MemberExpression memberExpression) =>
@@ -675,14 +695,14 @@
             IReadOnlyDictionary<string, object> parameters = null)
         {
             IMaterializerFactory materializerFactory = dbContext.GetService<IMaterializerFactory>();
-            IRelationalAnnotationProvider annotationProvider = dbContext.GetService<IRelationalAnnotationProvider>();
             Func<ValueBuffer, object> materializee = materializerFactory
                 .CreateMaterializer(
                     entityType: dbContext.Model.FindEntityType(typeof(TResult)),
                     selectExpression: databaseExpression,
                     projectionAdder: (property, expression) => expression.AddToProjection(
-                        annotationProvider.For(property).ColumnName, property, databaseExpression.QuerySource),
-                    querySource: databaseExpression.QuerySource)
+                        property, databaseExpression.QuerySource),
+                    querySource: databaseExpression.QuerySource,
+                    typeIndexMap: out _)
                 .Compile();
             IQuerySqlGeneratorFactory sqlGeneratorFactory = dbContext.GetService<IQuerySqlGeneratorFactory>();
             IQuerySqlGenerator sqlGenerator = sqlGeneratorFactory.CreateDefault(databaseExpression);
@@ -709,10 +729,6 @@
 
         internal static void WhereAndSelectWithCustomPredicate(AdventureWorks adventureWorks)
         {
-            //var q = adventureWorks.Products.Skip(1).Take(2);
-            //var compile = adventureWorks.Compile(q.Expression);
-            //var sql = adventureWorks.Generate(compile.Item1, compile.Item2);
-            //var r = adventureWorks.MaterializeEntity<Product>(sql, compile.Item2);
             IQueryable<Product> source = adventureWorks.Products;
             IQueryable<string> products = source
                 .Where(product => FilterName(product.Name))
@@ -822,7 +838,7 @@
             sql.CommandText.WriteLine();
             // SELECT [product].[Name]
             // FROM [Production].[ProductCategory] AS [product]
-            // WHERE LEN([product].[Name]) > 10
+            // WHERE CAST(LEN([product].[Name]) AS int) > 10
         }
 
         internal static void SelectAndFirstSql(AdventureWorks adventureWorks)
@@ -873,6 +889,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         public virtual Expression Offset { get; set; } // OFFSET.
 
         public override Type Type { get; }
+
+        // Other members.
     }
 }
 
@@ -933,6 +951,8 @@ namespace System.Data.Common
         public DbParameterCollection Parameters { get; }
 
         public DbDataReader ExecuteReader();
+
+        // Other members.
     }
 }
 
@@ -1020,7 +1040,7 @@ namespace System.Linq
             return source.Provider.Execute<TSource>(firstCallExpression);
         }
 
-        // Other methods...
+        // Other members.
     }
 }
 
@@ -1085,7 +1105,7 @@ namespace System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder
 
         public static DbConstantExpression Constant(object value);
 
-        // Other methods...
+        // Other members.
     }
 }
 
@@ -1097,10 +1117,14 @@ namespace System.Data.Entity.Core.Common.CommandTrees
     public abstract class DbCommandTree
     {
         public IEnumerable<KeyValuePair<string, TypeUsage>> Parameters { get; }
+
+        // Other members.
     }
     public sealed class DbQueryCommandTree : DbCommandTree
     {
         public DbExpression Query { get; }
+
+        // Other members.
     }
 }
 
@@ -1122,7 +1146,7 @@ namespace System.Data.Entity.Core.Common.CommandTrees
 
         public abstract TResultType Visit(DbConstantExpression expression);
 
-        // Other methods.
+        // Other members.
     }
 }
 
@@ -1131,9 +1155,7 @@ namespace System.Data.Entity.SqlServer.SqlGen
     using System.Collections.Generic;
     using System.Data.Entity.Core.Common.CommandTrees;
 
-    internal interface ISqlFragment
-    {
-    }
+    internal interface ISqlFragment { }
 
     internal class SqlGenerator : DbExpressionVisitor<ISqlFragment>
     {

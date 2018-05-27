@@ -4,34 +4,41 @@ namespace Tutorial.LinqToObjects
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Configuration;
+    using System.Globalization;
+    using System.IO;
     using System.Linq;
     using System.Reflection;
-    using System.Web.Profile;
+    using System.Resources;
 
     using Microsoft.TeamFoundation.Client;
     using Microsoft.TeamFoundation.WorkItemTracking.Client;
+    using Microsoft.VisualStudio.Services.Common;
 
     using Tutorial.Functional;
+    using Tutorial.Resources;
 #else
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Globalization;
+    using System.IO;
     using System.Linq;
     using System.Reflection;
+    using System.Resources;
 
+    using Tutorial.Resources;
     using Tutorial.Functional;
 #endif
 
     internal static class QueryExpressions
     {
-        private static readonly Assembly CoreLibrary = typeof(object).GetTypeInfo().Assembly;
+        private static readonly Assembly CoreLibrary = typeof(object).Assembly;
 
         internal static void Where()
         {
             IEnumerable<Type> source = CoreLibrary.GetExportedTypes();
             IEnumerable<Type> primitives = from type in source
-                                           where type.GetTypeInfo().IsPrimitive
+                                           where type.IsPrimitive
                                            select type;
         }
 
@@ -64,10 +71,22 @@ namespace Tutorial.LinqToObjects
         {
             IEnumerable<Type> source = CoreLibrary.GetExportedTypes();
             IEnumerable<string> obsoleteMembers =
-                from type in CoreLibrary.GetExportedTypes()
+                from type in source
                 from member in type.GetDeclaredMembers()
                 where member.IsObsolete()
-                select $"{type} - {member}";
+                select $"{type}:{member}";
+        }
+
+        internal static void SelectManyWithResultSelectorAndSubquery()
+        {
+            IEnumerable<Type> source = CoreLibrary.GetExportedTypes();
+            IEnumerable<string> obsoleteMembers =
+                from type in source
+                from obsoleteMember in (from member in type.GetDeclaredMembers()
+                                        where member.IsObsolete()
+                                        select member)
+                select $"{type}:{obsoleteMember}"; // Define query.
+            obsoleteMembers.WriteLines(); // Execute query.
         }
 
         internal static void GroupBy()
@@ -322,31 +341,43 @@ namespace Tutorial.LinqToObjects
         }
 
 #if NETFX
-        internal static void CastNonGenericIEnumerable(TfsClientCredentials credentials)
+        internal static void CastNonGeneric(VssCredentials credentials)
         {
+            // WorkItemCollection implements IEnumerable.
             using (TfsTeamProjectCollection projectCollection = new TfsTeamProjectCollection(
                 new Uri("https://dixin.visualstudio.com/DefaultCollection"), credentials))
             {
-                const string wiql = "SELECT * FROM WorkItems WHERE [Work Item Type] = 'Bug' AND State != 'Closed'"; // WIQL does not support GROUP BY.
+                const string Wiql = "SELECT * FROM WorkItems WHERE [Work Item Type] = 'Bug' AND State != 'Closed'"; // WIQL does not support GROUP BY.
                 WorkItemStore workItemStore = (WorkItemStore)projectCollection.GetService(typeof(WorkItemStore));
-                WorkItemCollection workItems = workItemStore.Query(wiql); // WorkItemCollection implements IEnumerable.
+                WorkItemCollection workItems = workItemStore.Query(Wiql);
 
                 IEnumerable<IGrouping<string, WorkItem>> workItemGroups =
-                        from WorkItem workItem in workItems // Cast.
-                        group workItem by workItem.CreatedBy; // Group work items in local memory.
+                    from WorkItem workItem in workItems // Cast.
+                    group workItem by workItem.CreatedBy; // Group work items in local memory.
                 // ...
             }
         }
 #endif
 
-#if NETFX
-        internal static void CastNonGenericIEnumerable2()
+        internal static void CastMoreNonGeneric()
         {
-            SettingsPropertyCollection properties = ProfileBase.Properties; // SettingsPropertyCollection implements IEnumerable.
-            IEnumerable<SettingsProperty> genericProperties = from SettingsProperty property in properties // Cast.
-                                                              select property;
+            // ResourceSet implements IEnumerable.
+            ResourceSet resourceSet = new ResourceManager(typeof(Resources))
+                .GetResourceSet(CultureInfo.CurrentCulture, createIfNotExists: true, tryParents: true);
+            IEnumerable<DictionaryEntry> entries1 =
+                from DictionaryEntry entry in resourceSet
+                select entry;
+
+            // ResourceReader implements IEnumerable.
+            Assembly assembly = typeof(QueryMethods).Assembly;
+            using (Stream stream = assembly.GetManifestResourceStream(assembly.GetManifestResourceNames()[0]))
+            using (ResourceReader resourceReader = new ResourceReader(stream))
+            {
+                IEnumerable<DictionaryEntry> entries2 =
+                    from DictionaryEntry entry in resourceReader
+                    select entry;
+            }
         }
-#endif
 
         internal static void CastGenericIEnumerable()
         {

@@ -3,67 +3,7 @@
     using System;
     using System.Diagnostics;
     using System.Runtime.CompilerServices;
-
-    internal class Point
-    {
-        private readonly int x;
-
-        private readonly int y;
-
-        internal Point(int x, int y)
-        {
-            this.x = x;
-            this.y = y;
-        }
-
-        internal int X { get { return this.x; } }
-
-        internal int Y { get { return this.y; } }
-    }
-
-    internal struct ValuePoint
-    {
-        private readonly int x;
-
-        private readonly int y;
-
-        internal ValuePoint(int x, int y)
-        {
-            this.x = x;
-            this.y = y;
-        }
-
-        internal int X { get { return this.x; } }
-
-        internal int Y { get { return this.y; } }
-    }
-
-    internal static partial class Fundamentals
-    {
-        internal static void ValueTypeReferenceType()
-        {
-            Point reference1 = new Point(1, 2);
-            Point reference2 = reference1;
-            Trace.WriteLine(object.ReferenceEquals(reference1, reference2)); // True
-
-            ValuePoint value1 = new ValuePoint(3, 4);
-            ValuePoint value2 = value1;
-            Trace.WriteLine(object.ReferenceEquals(value1, value2)); // False
-        }
-    }
-
-    internal static partial class Fundamentals
-    {
-        internal static void Default()
-        {
-            Point defaultReference = default(Point);
-            (defaultReference is null).WriteLine(); // True.
-
-            ValuePoint defaultValue = default(ValuePoint);
-            Trace.WriteLine(defaultValue.X); // 0
-            Trace.WriteLine(defaultValue.Y); // 0
-        }
-    }
+    using System.Text;
 
     internal static partial class Functions
     {
@@ -100,10 +40,41 @@
             value.WriteLine(); // 10
         }
 
-        internal static void Output(out Uri reference, out int value)
+        internal static void PassByReadOnlyReference(in Uri reference, in int value)
+        {
+        }
+
+        internal static void CallPassByReadOnlyReference()
+        {
+            Uri reference = new Uri("https://weblogs.asp.net/dixin");
+            int value = 1;
+            PassByReadOnlyReference(in reference, in value); // Not copied.
+            reference.WriteLine(); // https://weblogs.asp.net/dixin
+            value.WriteLine(); // 1
+        }
+
+        internal static void CallPassByReadOnlyReference2()
+        {
+            Uri reference = new Uri("https://weblogs.asp.net/dixin");
+            int value = 1;
+            PassByReadOnlyReference(reference, value); // Not copied.
+            reference.WriteLine(); // https://weblogs.asp.net/dixin
+            value.WriteLine(); // 1
+        }
+
+#if DEMO
+        internal static void PassByReadOnlyReference(in Uri reference, in int value)
+        {
+            reference = new Uri("https://flickr.com/dixin"); // Cannot be compiled.
+            value = 10; // Cannot be compiled.
+        }
+#endif
+
+        internal static bool Output(out Uri reference, out int value)
         {
             reference = new Uri("https://flickr.com/dixin");
             value = 10;
+            return false;
         }
 
         internal static void CallOutput()
@@ -120,6 +91,12 @@
             Output(out Uri reference, out int value);
             reference.WriteLine(); // https://flickr.com/dixin
             value.WriteLine(); // 10
+        }
+
+        internal static void Discard()
+        {
+            bool result = Output(out _, out _);
+            _ = Output(out _, out _);
         }
 
         internal static int Sum(params int[] values)
@@ -160,9 +137,7 @@
             int sum4 = Sum(array);
         }
 
-        internal static void ParameterArray(bool required1, int required2, params string[] optional)
-        {
-        }
+        internal static void ParameterArray(bool required1, int required2, params string[] optional) { }
 
         internal static void PositionalAndNamed()
         {
@@ -170,10 +145,12 @@
             PassByValue(reference: null, value: 0); // Named arguments.
             PassByValue(value: 0, reference: null); // Named arguments.
             PassByValue(null, value: 0); // Positional argument followed by named argument.
+            PassByValue(reference: null, 0); // Named argument followed by positional argument.
         }
 
         internal static void CompiledPositionalAndNamed()
         {
+            PassByValue(null, 0);
             PassByValue(null, 0);
             PassByValue(null, 0);
             PassByValue(null, 0);
@@ -186,9 +163,9 @@
             PassByValue(value: GetInt32(), reference: GetUri()); // Call GetInt32 then GetUri.
         }
 
-        internal static Uri GetUri() { return default(Uri); }
+        internal static Uri GetUri() { return default; }
 
-        internal static int GetInt32() { return default(int); }
+        internal static int GetInt32() { return default; }
 
         internal static void CompiledNamedArgument()
         {
@@ -197,13 +174,18 @@
             PassByValue(GetUri(), value);
         }
 
+        internal static void Named()
+        {
+            UnicodeEncoding unicodeEncoding1 = new UnicodeEncoding(true, true, true);
+            UnicodeEncoding unicodeEncoding2 = new UnicodeEncoding(
+                bigEndian: true, byteOrderMark: true, throwOnInvalidBytes: true);
+        }
+
         internal static void Optional(
             bool required1, char required2,
             int optional1 = int.MaxValue, string optional2 = "Default value.",
             Uri optional3 = null, Guid optional4 = new Guid(),
-            Uri optional5 = default(Uri), Guid optional6 = default(Guid))
-        {
-        }
+            Uri optional5 = default, Guid optional6 = default) { }
 
         internal static void CallOptional()
         {
@@ -313,5 +295,40 @@
             lastReference = new Uri("https://flickr.com/dixin");
             Trace.WriteLine(references[references.Length - 1]); // https://flickr.com/dixin
         }
+
+        internal static ref readonly int RefReadOnlyLastValue(int[] values)
+        {
+            int length = values.Length;
+            if (length > 0)
+            {
+                return ref values[length - 1];
+            }
+            throw new ArgumentException("Array is empty.", nameof(values));
+        }
+
+        internal static ref readonly Uri RefReadOnlyLastReference(Uri[] references)
+        {
+            int length = references.Length;
+            if (length > 0)
+            {
+                return ref references[length - 1];
+            }
+            throw new ArgumentException("Array is empty.", nameof(references));
+        }
+
+#if DEMO
+        internal static void ReturnByRedOnlyReference()
+        {
+            int[] values = new int[] { 0, 1, 2, 3, 4 };
+            ref readonly int lastValue = ref RefReadOnlyLastValue(values); // Not copied.
+            lastValue = 10; // Cannot be compiled.
+            Trace.WriteLine(values[values.Length - 1]); // 10
+
+            Uri[] references = new Uri[] { new Uri("https://weblogs.asp.net/dixin") };
+            ref readonly Uri lastReference = ref RefReadOnlyLastReference(references); // Not copied.
+            lastReference = new Uri("https://flickr.com/dixin"); // Cannot be compiled.
+            Trace.WriteLine(references[references.Length - 1]); // https://flickr.com/dixin
+        }
+#endif
     }
 }

@@ -11,7 +11,6 @@
     using System.Net.Http;
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
-    using System.Security;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
@@ -72,11 +71,11 @@
 
         internal static void Action() { }
 
-        internal static T Func<T>() => default(T);
+        internal static T Func<T>() => default;
 
-        internal static Task ActionAsync() => default(Task);
+        internal static Task ActionAsync() => default;
 
-        internal static Task<T> FuncAsync<T>(T value) => default(Task<T>);
+        internal static Task<T> FuncAsync<T>(T value) => default;
 
         internal static void ReadWrite(string readPath, string writePath)
         {
@@ -173,21 +172,27 @@
                 return await reader.ReadToEndAsync();
             }
         }
+    }
 
+    internal static partial class Functions
+    {
         private static StringBuilder logs = new StringBuilder();
 
         private static StringWriter logWriter = new StringWriter(logs);
 
-        private static async void CollectionChangeAsync(object sender, NotifyCollectionChangedEventArgs e) =>
+        private static async void CollectionChangedAsync(object sender, NotifyCollectionChangedEventArgs e) =>
             await logWriter.WriteLineAsync(e.Action.ToString());
 
         internal static void EventHandler()
         {
             ObservableCollection<int> collection = new ObservableCollection<int>();
-            collection.CollectionChanged += CollectionChangeAsync;
-            collection.Add(1);
+            collection.CollectionChanged += CollectionChangedAsync;
+            collection.Add(1); // Fires CollectionChanged event.
         }
+    }
 
+    internal static partial class Functions
+    {
         internal static async Task AwaitTasks(string path)
         {
             // string contents = await ReadAsync(path);
@@ -217,12 +222,14 @@
 
         internal static async Task HotColdTasks(string path)
         {
-            Task task1 = new Task(() => { });
-            task1.Start();
-            await task1; // Hot task.
+            Task hotTask = new Task(() => { });
+            hotTask.Start();
+            await hotTask;
+            hotTask.Status.WriteLine();
 
-            Task<int> task2 = new Task<int>(() => 0);
-            int result = await task2; // Cold task.
+            Task coldTask = new Task(() => { });
+            await coldTask;
+            coldTask.Status.WriteLine(); // Never executes.
         }
     }
 
@@ -564,19 +571,21 @@
         internal static async Task AsyncAnonymous(string readPath, string writePath)
         {
             Task<Task<string>> task1 = new Task<Task<string>>(async () => await ReadAsync(readPath));
+            task1.Start(); // Cold task needs to be started.
             string contents = await task1.Unwrap(); // Equivalent to: string contents = await await task1;
 
             Task<Task> task2 = new Task<Task>(async () => await WriteAsync(writePath, null));
+            task2.Start(); // Cold task needs to be started.
             await task2.Unwrap(); // Equivalent to: await await task2;
         }
 
         internal static async Task RunAsync(string readPath, string writePath)
         {
             Task<string> task1 = Task.Run(async () => await ReadAsync(readPath)); // Automatically unwrapped.
-            string contents = await task1;
+            string contents = await task1; // Task.Run returns hot task..
 
             Task task2 = Task.Run(async () => await WriteAsync(writePath, contents)); // Automatically unwrapped.
-            await task2;
+            await task2; // Task.Run returns hot task.
         }
 
         internal static async FuncAwaitable<T> ReturnFuncAwaitable<T>(T value)
@@ -714,7 +723,7 @@ namespace System.Threading.Tasks
 
     public partial class Task : IAsyncResult
     {
-        public Task(Action action);
+        public Task(Action action); // () -> void
 
         public void Start();
 
@@ -739,7 +748,7 @@ namespace System.Threading.Tasks
 
     public partial class Task<TResult> : Task
     {
-        public Task(Func<TResult> function);
+        public Task(Func<TResult> function); // () -> TResult
 
         public TResult Result { get; }
 
@@ -814,7 +823,7 @@ namespace System.Collections.ObjectModel
     {
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
-        // Other members;
+        // Other members.
     }
 }
 
