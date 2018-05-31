@@ -5,37 +5,33 @@ namespace Tutorial.Introduction
 
     internal static partial class Functional
     {
-        internal static FileInfo DownloadHtml(Uri uri)
+        internal static FileInfo Download(Uri sourceUri, DirectoryInfo downloadDirectory)
         {
-            return default;
+            throw new NotImplementedException();
         }
 
-        internal static FileInfo ConvertToWord(FileInfo htmlDocument, FileInfo template)
+        internal static FileInfo Convert(FileInfo sourceFile, FileInfo templateFile)
         {
-            return default;
+            throw new NotImplementedException();
         }
 
-        internal static void UploadToOneDrive(FileInfo file) { }
-
-        internal static Action<Uri, FileInfo> CreateDocumentBuilder(
-            Func<Uri, FileInfo> download, Func<FileInfo, FileInfo, FileInfo> convert, Action<FileInfo> upload)
+        internal static Func<Uri, DirectoryInfo, FileInfo, FileInfo> CreateDocumentBuilder(
+            Func<Uri, DirectoryInfo, FileInfo> download, Func<FileInfo, FileInfo, FileInfo> convert)
         {
-            return (uri, wordTemplate) =>
+            return (sourceUri, downloadDirectory, templateFile) =>
             {
-                FileInfo htmlDocument = download(uri);
-                FileInfo wordDocument = convert(htmlDocument, wordTemplate);
-                upload(wordDocument);
+                FileInfo sourceFile = download(sourceUri, downloadDirectory);
+                return convert(sourceFile, templateFile);
             };
         }
     }
 
     internal static partial class Functional
     {
-        internal static void BuildDocument(Uri uri, FileInfo template)
+        internal static void BuildDocument(Uri sourceUri, DirectoryInfo downloadDirectory, FileInfo templateFile)
         {
-            Action<Uri, FileInfo> buildDocument = CreateDocumentBuilder(
-                DownloadHtml, ConvertToWord, UploadToOneDrive);
-            buildDocument(uri, template);
+            Func<Uri, DirectoryInfo, FileInfo, FileInfo> buildDocument = CreateDocumentBuilder(Download, Convert);
+            FileInfo resultFile = buildDocument(sourceUri, downloadDirectory, templateFile);
         }
     }
 }

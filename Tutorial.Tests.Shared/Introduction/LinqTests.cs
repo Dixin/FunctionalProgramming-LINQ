@@ -10,9 +10,9 @@
     public class LinqTests
     {
         [TestMethod]
-        public async Task LinqToJsonTest()
+        public void LinqToJsonTest()
         {
-            await Linq.LinqToJson("fuiKNFp9vQFvjLNvx4sUwti4Yb5yGutBN4Xh10LXZhhRKjWlV4");
+            Linq.LinqToJson("fuiKNFp9vQFvjLNvx4sUwti4Yb5yGutBN4Xh10LXZhhRKjWlV4");
         }
     }
 }

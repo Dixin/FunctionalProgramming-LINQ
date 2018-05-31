@@ -5,6 +5,7 @@
     using System.Data.Common;
     using System.Data.SqlClient;
     using System.Diagnostics;
+    using System.Diagnostics.Contracts;
     using System.IO;
     using System.Reflection;
     using System.Xml.XPath;
@@ -59,124 +60,129 @@
         }
     }
 
+    [Pure]
     internal static partial class Imperative
     {
         internal static void DelegateTypes()
         {
             Assembly coreLibrary = typeof(object).Assembly;
-            Dictionary<string, List<Type>> delegateTypes = new Dictionary<string, List<Type>>();
-            foreach (Type type in coreLibrary.GetExportedTypes())
+            IEnumerable<Type> allTypes = coreLibrary.ExportedTypes;
+
+            // Filter delagate types from all types, and group them by namespace.
+            Dictionary<string, List<Type>> delegateGroups = new Dictionary<string, List<Type>>();
+            foreach (Type type in allTypes)
             {
+                // Delegate type's base type is System.MulticastDelegate.
                 if (type.BaseType == typeof(MulticastDelegate))
                 {
-                    if (!delegateTypes.TryGetValue(type.Namespace, out List<Type> namespaceTypes))
+                    if (!delegateGroups.TryGetValue(type.Namespace, out List<Type> delegateGroup))
                     {
-                        namespaceTypes = delegateTypes[type.Namespace] = new List<Type>();
+                        delegateGroup = delegateGroups[type.Namespace] = new List<Type>();
                     }
-                    namespaceTypes.Add(type);
+                    delegateGroup.Add(type);
                 }
             }
-            List<KeyValuePair<string, List<Type>>> delegateTypesList =
-                new List<KeyValuePair<string, List<Type>>>(delegateTypes);
-            for (int index = 0; index < delegateTypesList.Count - 1; index++)
+
+            // Sort delegate type groups by count (descending), and then by namespace (ascending).
+            List<KeyValuePair<string, List<Type>>> sortedDelegateGroups = new List<KeyValuePair<string, List<Type>>>();
+            foreach (KeyValuePair<string, List<Type>> nextGroup in delegateGroups)
             {
-                int currentIndex = index;
-                KeyValuePair<string, List<Type>> after = delegateTypesList[index + 1];
-                while (currentIndex >= 0)
+                for (int index = 0; index <= sortedDelegateGroups.Count; index++)
                 {
-                    KeyValuePair<string, List<Type>> before = delegateTypesList[currentIndex];
-                    int compare = before.Value.Count.CompareTo(after.Value.Count);
-                    if (compare == 0)
+                    if (index < sortedDelegateGroups.Count)
                     {
-                        compare = string.Compare(after.Key, before.Key, StringComparison.Ordinal);
+                        KeyValuePair<string, List<Type>> currentGroup = sortedDelegateGroups[index];
+                        int compare = currentGroup.Value.Count - nextGroup.Value.Count;
+                        if (compare == 0)
+                        {
+                            compare = string.CompareOrdinal(nextGroup.Key, currentGroup.Key);
+                        }
+
+                        if (compare >= 0)
+                        {
+                            continue;
+                        }
                     }
-                    if (compare >= 0)
-                    {
-                        break;
-                    }
-                    delegateTypesList[currentIndex + 1] = delegateTypesList[currentIndex];
-                    currentIndex--;
+
+                    sortedDelegateGroups.Insert(index, nextGroup);
+                    break;
                 }
-                delegateTypesList[currentIndex + 1] = after;
             }
-            foreach (KeyValuePair<string, List<Type>> namespaceTypes in delegateTypesList) // Output.
+
+            // Output the results.
+            foreach (KeyValuePair<string, List<Type>> delegateGroup in sortedDelegateGroups)
             {
-                Trace.Write(namespaceTypes.Value.Count + " " + namespaceTypes.Key + ":");
-                foreach (Type delegateType in namespaceTypes.Value)
+                Trace.Write(delegateGroup.Value.Count + " in " + delegateGroup.Key + ":");
+                foreach (Type delegateType in delegateGroup.Value)
                 {
                     Trace.Write(" " + delegateType.Name);
                 }
-                Trace.WriteLine(null);
+                Trace.Write(Environment.NewLine);
             }
-            // 30 System: Action`1 Action Action`2 Action`3 Action`4 Func`1 Func`2 Func`3 Func`4 Func`5 Action`5 Action`6 Action`7 Action`8 Func`6 Func`7 Func`8 Func`9 Comparison`1 Converter`2 Predicate`1 ResolveEventHandler AssemblyLoadEventHandler AppDomainInitializer CrossAppDomainDelegate AsyncCallback ConsoleCancelEventHandler EventHandler EventHandler`1 UnhandledExceptionEventHandler
-            // 8 System.Threading: SendOrPostCallback ContextCallback ParameterizedThreadStart WaitCallback WaitOrTimerCallback IOCompletionCallback ThreadStart TimerCallback
-            // 3 System.Reflection: ModuleResolveEventHandler MemberFilter TypeFilter
-            // 3 System.Runtime.CompilerServices: TryCode CleanupCode CreateValueCallback
-            // 2 System.Runtime.Remoting.Messaging: MessageSurrogateFilter HeaderHandler
-            // 1 System.Runtime.InteropServices: ObjectCreationDelegate
-            // 1 System.Runtime.Remoting.Contexts: CrossContextDelegate
+            // 27 in System: Action`1 Action Action`2 Action`3 Action`4 Func`1 Func`2 Func`3 Func`4 Func`5 Action`5 Action`6 Action`7 Action`8 Func`6 Func`7 Func`8 Func`9 Comparison`1 Converter`2 Predicate`1 AssemblyLoadEventHandler AsyncCallback EventHandler EventHandler`1 ResolveEventHandler UnhandledExceptionEventHandler
+            // 8 in System.Threading: WaitCallback WaitOrTimerCallback IOCompletionCallback TimerCallback ContextCallback ParameterizedThreadStart SendOrPostCallback ThreadStart
+            // 3 in System.Reflection: MemberFilter ModuleResolveEventHandler TypeFilter
+            // 3 in System.Runtime.CompilerServices: TryCode CleanupCode CreateValueCallback
         }
     }
 
-    internal class WebClient
+    internal class Crawler
     {
-        internal FileInfo Download(Uri uri)
+        private readonly DirectoryInfo downloadDirectory;
+
+        internal Crawler(DirectoryInfo downloadDirectory)
         {
-            return default;
+            this.downloadDirectory = downloadDirectory;
+        }
+
+        // Download the specified URI to the download directory.
+        internal FileInfo Download(Uri sourceUri)
+        {
+            throw new NotImplementedException();
         }
     }
 
-    internal class DocumentConverter
+    internal class Template
     {
-        internal DocumentConverter(FileInfo template)
+        private readonly FileInfo templateFile;
+
+        internal Template(FileInfo templateFile)
         {
-            this.Template = template;
+            this.templateFile = templateFile;
         }
 
-        internal FileInfo Template { get; private set; }
-
-        internal FileInfo ToWord(FileInfo htmlDocument)
+        // Convert the specified HTML document with template.
+        internal FileInfo Convert(FileInfo sourceFile)
         {
-            return default;
+            throw new NotImplementedException();
         }
-    }
-
-    internal class OneDriveClient
-    {
-        internal void Upload(FileInfo file) { }
     }
 
     internal class DocumentBuilder
     {
-        private readonly WebClient webClient;
+        private readonly Crawler crawler;
 
-        private readonly DocumentConverter documentConverter;
+        private readonly Template template;
 
-        private readonly OneDriveClient oneDriveClient;
-
-        internal DocumentBuilder(
-            WebClient webClient, DocumentConverter documentConverter, OneDriveClient oneDriveClient)
+        internal DocumentBuilder(Crawler crawler, Template template)
         {
-            this.webClient = webClient;
-            this.documentConverter = documentConverter;
-            this.oneDriveClient = oneDriveClient;
+            this.crawler = crawler;
+            this.template = template;
         }
 
-        internal void Build(Uri uri)
+        internal FileInfo Build(Uri uri)
         {
-            FileInfo htmlDocument = this.webClient.Download(uri);
-            FileInfo wordDocument = this.documentConverter.ToWord(htmlDocument);
-            this.oneDriveClient.Upload(wordDocument);
+            FileInfo htmlDocument = this.crawler.Download(uri);
+            return this.template.Convert(htmlDocument);
         }
     }
 
     internal partial class Imperative
     {
-        internal static void BuildDocument(Uri uri, FileInfo template)
+        internal static void BuildDocument(Uri sourceUri, DirectoryInfo downloadDirectory, FileInfo templateFile)
         {
-            DocumentBuilder builder = new DocumentBuilder(
-                new WebClient(), new DocumentConverter(template), new OneDriveClient());
-            builder.Build(uri);
+            DocumentBuilder builder = new DocumentBuilder(new Crawler(downloadDirectory), new Template(templateFile));
+            FileInfo resultFile = builder.Build(sourceUri);
         }
     }
 }

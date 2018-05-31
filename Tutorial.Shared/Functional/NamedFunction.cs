@@ -181,13 +181,6 @@
             return new Data(data1.value + data2.value);
         }
 
-        public static explicit operator int(Data value)
-        // Compiled to: public static int op_Explicit(Data data)
-        {
-            Trace.WriteLine(MethodBase.GetCurrentMethod().Name); // op_Explicit
-            return value.value;
-        }
-
         public static explicit operator string(Data value)
         // Compiled to: public static string op_Explicit(Data data)
         {
@@ -208,7 +201,6 @@
         internal static void Operators(Data data1, Data data2)
         {
             Data result = data1 + data2; // Compiled to: Data.op_Addition(data1, data2)
-            int int32 = (int)data1; // Compiled to: Data.op_Explicit(data1)
             string @string = (string)data1; // Compiled to: Data.op_Explicit(data1)
             Data data = 1; // Compiled to: Data.op_Implicit(1)
         }
@@ -343,11 +335,35 @@
             return value.ToString();
         }
 
-        internal static DateTime FromInt64(long value)
+        internal static DateTime FromInt64(long value) // Cannot be compiled.
         {
             return new DateTime(value);
         }
 #endif
+    }
+
+    internal partial class Data
+    {
+        public static explicit operator long(Data value)
+        // Compiled to: public static long op_Explicit(Data data)
+        {
+            return value.value;
+        }
+
+        public static explicit operator decimal(Data value)
+        // Compiled to: public static decimal op_Explicit(Data data)
+        {
+            return value.value;
+        }
+    }
+
+    internal partial class Functions
+    {
+        internal static void ReturnValue(Data data)
+        {
+            long @long = (long)data; // Compiled to: Data.op_Explicit(data).
+            decimal @decimal = (decimal)data; // Compiled to: Data.op_Explicit(data).
+        }
 
         internal static void SwapInt32(ref int value1, ref int value2)
         {

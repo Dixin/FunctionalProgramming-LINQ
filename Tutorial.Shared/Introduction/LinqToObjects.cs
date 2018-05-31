@@ -25,45 +25,47 @@
 
     internal static partial class Linq
     {
-        internal static void DelegateTypesQueryExpression()
+        internal static void DelegateTypesWithQueryExpression()
         {
             Assembly coreLibrary = typeof(object).Assembly;
-            IEnumerable<IGrouping<string, Type>> delegateTypes =
-                from type in coreLibrary.GetExportedTypes()
+            IEnumerable<IGrouping<string, Type>> delegateGroups =
+                from type in coreLibrary.ExportedTypes
                 where type.BaseType == typeof(MulticastDelegate)
-                group type by type.Namespace into namespaceTypes
-                orderby namespaceTypes.Count() descending, namespaceTypes.Key
-                select namespaceTypes;
-            foreach (IGrouping<string, Type> namespaceTypes in delegateTypes) // Output.
+                group type by type.Namespace into delegateGroup
+                orderby delegateGroup.Count() descending, delegateGroup.Key
+                select delegateGroup;
+
+            foreach (IGrouping<string, Type> delegateGroup in delegateGroups) // Output.
             {
-                Trace.Write(namespaceTypes.Count() + " " + namespaceTypes.Key + ":");
-                foreach (Type delegateType in namespaceTypes)
+                Trace.Write(delegateGroup.Count() + " in " + delegateGroup.Key + ":");
+                foreach (Type delegateType in delegateGroup)
                 {
                     Trace.Write(" " + delegateType.Name);
                 }
-                Trace.WriteLine(null);
+                Trace.Write(Environment.NewLine);
             }
         }
     }
 
     internal static partial class Linq
     {
-        internal static void DelegateTypesQueryMethods()
+        internal static void DelegateTypesWithQueryMethods()
         {
             Assembly coreLibrary = typeof(object).Assembly;
-            IEnumerable<IGrouping<string, Type>> delegateTypes = coreLibrary.GetExportedTypes()
+            IEnumerable<IGrouping<string, Type>> delegateGroups = coreLibrary.ExportedTypes
                 .Where(type => type.BaseType == typeof(MulticastDelegate))
                 .GroupBy(type => type.Namespace)
-                .OrderByDescending(namespaceTypes => namespaceTypes.Count())
-                .ThenBy(namespaceTypes => namespaceTypes.Key);
-            foreach (IGrouping<string, Type> namespaceTypes in delegateTypes) // Output.
+                .OrderByDescending(delegateGroup => delegateGroup.Count())
+                .ThenBy(delegateGroup => delegateGroup.Key);
+
+            foreach (IGrouping<string, Type> delegateGroup in delegateGroups) // Output.
             {
-                Trace.Write(namespaceTypes.Count() + " " + namespaceTypes.Key + ":");
-                foreach (Type delegateType in namespaceTypes)
+                Trace.Write(delegateGroup.Count() + " in " + delegateGroup.Key + ":");
+                foreach (Type delegateType in delegateGroup)
                 {
                     Trace.Write(" " + delegateType.Name);
                 }
-                Trace.WriteLine(null);
+                Trace.Write(Environment.NewLine);
             }
         }
     }

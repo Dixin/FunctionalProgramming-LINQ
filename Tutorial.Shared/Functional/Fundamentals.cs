@@ -290,14 +290,34 @@ namespace Tutorial.Functional
         {
             Point reference1 = new Point(1, 2);
             Point reference2 = reference1;
-            Trace.WriteLine(object.ReferenceEquals(reference1, reference2)); // True
 
             ValuePoint value1 = new ValuePoint(3, 4);
             ValuePoint value2 = value1;
-            Trace.WriteLine(object.ReferenceEquals(value1, value2)); // False
+        }
 
-            Point[] referenceArray = new Point[] { new Point(5, 6) };
-            ValuePoint[] valueArray = new ValuePoint[] { new ValuePoint(7, 8) };
+        internal static void RefLocalVariable()
+        {
+            Point reference1 = new Point(1, 2);
+            ref Point reference2 = ref reference1;
+
+            ValuePoint value1 = new ValuePoint(3, 4);
+            ref ValuePoint value2 = ref value1;
+
+            Point reference3 = new Point(1, 2);
+            reference2 = ref reference3;
+
+            ValuePoint value3 = new ValuePoint(5, 6);
+            value2 = ref value3;
+        }
+
+        internal static void Array()
+        {
+            Point[] referenceArrayOnHeap = new Point[] { new Point(5, 6) };
+            ValuePoint[] valueArrayOnHeap = new ValuePoint[] { new ValuePoint(7, 8) };
+
+#if NETSTANDARD2_0
+            Span<ValuePoint> valueArrayOnStack = stackalloc[] { new ValuePoint(9, 10) };
+#endif
         }
     }
 
@@ -596,6 +616,7 @@ namespace Tutorial.Functional
         // Other members.
     }
 
+    [Serializable]
     internal partial class Category
     {
         internal Category(string name)
@@ -603,13 +624,16 @@ namespace Tutorial.Functional
             this.Name = name;
         }
 
+        [field: NonSerialized]
         internal string Name { get; /* private set; */ }
     }
 
+    [Serializable]
     internal partial class CompiledCategory
     {
         [CompilerGenerated]
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        [NonSerialized]
         private readonly string nameBackingField;
 
         internal CompiledCategory(string name)
@@ -737,7 +761,16 @@ namespace Tutorial.Functional
 
         internal static void DefaultValueForNull(Point reference, ValuePoint? nullableValue)
         {
-            Point point = reference != null ? reference : Point.Default;
+            Point point;
+            if (reference != null)
+            {
+                point = reference;
+            }
+            else
+            {
+                point = reference;
+            }
+
             ValuePoint valuePoint = nullableValue != null ? (ValuePoint)nullableValue : ValuePoint.Default;
         }
 
@@ -778,6 +811,28 @@ namespace Tutorial.Functional
         {
             this.Name = !string.IsNullOrWhiteSpace(name) ? name : throw new ArgumentNullException("name");
             this.Category = category ?? throw new ArgumentNullException("category");
+        }
+
+        internal Category Category { get; }
+
+        internal string Name { get; }
+    }
+
+    internal partial class CompiledSubcategory
+    {
+        internal CompiledSubcategory(string name, Category category)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentNullException("name");
+            }
+            this.Name = name;
+
+            if (category == null)
+            {
+                throw new ArgumentNullException("category");
+            }
+            this.Category = category;
         }
 
         internal Category Category { get; }

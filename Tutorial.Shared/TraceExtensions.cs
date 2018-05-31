@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Diagnostics;
 
-    public static class TraceExtensions
+    public static partial class TraceExtensions
     {
         public static T WriteLine<T>(this T value)
         {
@@ -17,15 +17,17 @@
             Trace.Write(value);
             return value;
         }
+    }
 
-        public static IEnumerable<T> WriteLines<T>(this IEnumerable<T> values, Func<T, string> messageFactory = null)
+    public static partial class TraceExtensions
+    {
+        public static IEnumerable<T> WriteLines<T>(this IEnumerable<T> values, Func<T, string> messageSelector = null)
         {
-            if (messageFactory != null)
+            if (messageSelector != null)
             {
                 foreach (T value in values)
                 {
-                    string message = messageFactory(value);
-                    Trace.WriteLine(message);
+                    Trace.WriteLine(messageSelector(value));
                 }
             }
             else
@@ -37,5 +39,6 @@
             }
             return values;
         }
+
     }
 }

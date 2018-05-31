@@ -7,10 +7,8 @@
     using System.Data.Common;
     using System.Data.SqlClient;
     using System.Diagnostics;
-    using System.IO;
     using System.Linq;
-    using System.Net.Http;
-    using System.Threading.Tasks;
+    using System.Net;
     using System.Xml.Linq;
 
     using Newtonsoft.Json.Linq;
@@ -23,8 +21,7 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-    using System.Net.Http;
-    using System.Threading.Tasks;
+    using System.Net;
     using System.Xml.Linq;
 
     using Newtonsoft.Json.Linq;
@@ -152,12 +149,12 @@
             }
         }
 
-        internal static async Task LinqToJson(string apiKey)
+        internal static void LinqToJson(string apiKey)
         {
-            using (HttpClient httpClient = new HttpClient())
+            using (WebClient webClient = new WebClient())
             {
                 string feedUri = $"https://api.tumblr.com/v2/blog/dixinyan.tumblr.com/posts/photo?api_key={apiKey}";
-                JObject feed = JObject.Parse((await httpClient.GetStringAsync(feedUri)));
+                JObject feed = JObject.Parse((webClient.DownloadString(feedUri)));
                 IEnumerable<JToken> source = feed["response"]["posts"]; // Get source.
                 IEnumerable<string> query =
                     from post in source
