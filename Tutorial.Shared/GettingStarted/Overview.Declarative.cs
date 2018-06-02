@@ -1,4 +1,4 @@
-﻿namespace Tutorial.Introduction
+﻿namespace Tutorial.GettingStarted
 {
     using System;
     using System.ComponentModel.DataAnnotations;

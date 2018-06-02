@@ -235,7 +235,7 @@ namespace System
 }
 #endif
 
-namespace Tutorial.Functional
+namespace Tutorial.GettingStarted
 {
     using System;
     using System.Collections;
@@ -247,7 +247,7 @@ namespace Tutorial.Functional
     using System.Runtime.CompilerServices;
 
 
-    internal static partial class Fundamentals
+    internal static partial class Basics
     {
         internal partial class Point
         {
@@ -284,7 +284,7 @@ namespace Tutorial.Functional
         }
     }
 
-    internal static partial class Fundamentals
+    internal static partial class Basics
     {
         internal static void ValueTypeReferenceType()
         {
@@ -321,7 +321,7 @@ namespace Tutorial.Functional
         }
     }
 
-    internal static partial class Fundamentals
+    internal static partial class Basics
     {
         internal ref struct OnStackOnly { }
 
@@ -344,7 +344,7 @@ namespace Tutorial.Functional
 #endif
     }
 
-    internal static partial class Fundamentals
+    internal static partial class Basics
     {
         internal static void Default()
         {
@@ -371,7 +371,7 @@ namespace Tutorial.Functional
         }
     }
 
-    internal static partial class Fundamentals
+    internal static partial class Basics
     {
         internal static void Dispose(string connectionString)
         {
@@ -392,7 +392,7 @@ namespace Tutorial.Functional
         }
     }
 
-    internal static partial class Fundamentals
+    internal static partial class Basics
     {
         internal static void Using(string connectionString)
         {
@@ -419,7 +419,7 @@ namespace Tutorial.Functional
         void IInterface.Explicit() { }
     }
 
-    internal static partial class Fundamentals
+    internal static partial class Basics
     {
         internal static void InterfaceMembers()
         {
@@ -468,7 +468,7 @@ namespace Tutorial.Functional
         T Pop();
     }
 
-    internal static partial class Fundamentals
+    internal static partial class Basics
     {
         internal static void Stack()
         {
@@ -547,7 +547,7 @@ namespace Tutorial.Functional
         }
     }
 
-    internal static partial class Fundamentals
+    internal static partial class Basics
     {
         internal static void CloseType()
         {
@@ -681,7 +681,7 @@ namespace Tutorial.Functional
         }
     }
 
-    internal static partial class Fundamentals
+    internal static partial class Basics
     {
         internal static void SetProperties()
         {
@@ -712,7 +712,7 @@ namespace Tutorial.Functional
         }
     }
 
-    internal static partial class Fundamentals
+    internal static partial class Basics
     {
         internal static void CollectionInitializer(Device device1, Device device2)
         {
@@ -732,7 +732,7 @@ namespace Tutorial.Functional
         internal Device this[int id] { set { } }
     }
 
-    internal static partial class Fundamentals
+    internal static partial class Basics
     {
         internal static void IndexInitializer(Device device1, Device device2)
         {
@@ -747,7 +747,7 @@ namespace Tutorial.Functional
         }
     }
 
-    internal static partial class Fundamentals
+    internal static partial class Basics
     {
         internal partial class Point
         {
@@ -840,7 +840,7 @@ namespace Tutorial.Functional
         internal string Name { get; }
     }
 
-    internal static partial class Fundamentals
+    internal static partial class Basics
     {
         internal static void ArgumentCheck(int count)
         {

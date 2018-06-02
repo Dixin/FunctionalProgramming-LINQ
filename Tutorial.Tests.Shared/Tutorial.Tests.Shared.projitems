@@ -28,7 +28,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Functional\ParametersTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Introduction\ContactTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\GenericTests.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Functional\ImperativeTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\LocalFunctionsTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\PrefixVisitorTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\VariancesTests.cs" />

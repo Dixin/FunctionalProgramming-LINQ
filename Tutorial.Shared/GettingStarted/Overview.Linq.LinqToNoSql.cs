@@ -1,4 +1,4 @@
-namespace Tutorial.Introduction
+namespace Tutorial.GettingStarted
 {
     using System;
     using System.Diagnostics;
@@ -38,7 +38,7 @@ namespace Tutorial.Introduction
         public string StateProvinceName;
     }
 
-    internal static partial class Linq
+    internal static partial class Overview
     {
         internal static void LinqToNoSql(string key)
         {

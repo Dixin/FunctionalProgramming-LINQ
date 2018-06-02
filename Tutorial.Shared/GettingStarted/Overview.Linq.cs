@@ -1,22 +1,5 @@
-﻿namespace Tutorial.Introduction
+﻿namespace Tutorial.GettingStarted
 {
-#if NETFX
-    using System;
-    using System.Collections.Generic;
-    using System.Data;
-    using System.Data.Common;
-    using System.Data.SqlClient;
-    using System.Diagnostics;
-    using System.Linq;
-    using System.Net;
-    using System.Xml.Linq;
-
-    using Newtonsoft.Json.Linq;
-
-    using Tutorial.LinqToEntities;
-
-    using global::LinqToTwitter;
-#else
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -29,9 +12,8 @@
     using Tutorial.LinqToEntities;
 
     using global::LinqToTwitter;
-#endif
 
-    internal static partial class Linq
+    internal static partial class Overview
     {
         internal static void LinqToObjectsQueryExpression()
         {
@@ -48,7 +30,7 @@
         }
     }
 
-    internal static partial class Linq
+    internal static partial class Overview
     {
         internal static void LinqToObjectsQueryMethods()
         {
@@ -100,33 +82,6 @@
             }
         }
 
-#if NETFX
-        internal static void LinqToDataSets(string connectionString)
-        {
-            using (DataSet dataSet = new DataSet())
-            using (DataAdapter dataAdapter = new SqlDataAdapter(
-                @"SELECT [Name], [ListPrice], [ProductSubcategoryID] FROM [Production].[Product]", connectionString))
-            {
-                dataAdapter.Fill(dataSet);
-                EnumerableRowCollection<DataRow> source = dataSet.Tables[0].AsEnumerable(); // Get source.
-                EnumerableRowCollection<string> query =
-                    from product in source
-                    where product.Field<int>("ProductSubcategoryID") == 1
-                    orderby product.Field<decimal>("ListPrice")
-                    select product.Field<string>("Name"); // Define query.
-                // Equivalent to:
-                // EnumerableRowCollection<string> query = source
-                //    .Where(product => product.Field<int>("ProductSubcategoryID") == 1)
-                //    .OrderBy(product => product.Field<decimal>("ListPrice"))
-                //    .Select(product => product.Field<string>("Name"));
-                foreach (string result in query) // Execute query.
-                {
-                    Trace.WriteLine(result);
-                }
-            }
-        }
-#endif
-
         internal static void LinqToEntities()
         {
             using (AdventureWorks adventureWorks = new AdventureWorks())
@@ -154,7 +109,7 @@
             using (WebClient webClient = new WebClient())
             {
                 string feedUri = $"https://api.tumblr.com/v2/blog/dixinyan.tumblr.com/posts/photo?api_key={apiKey}";
-                JObject feed = JObject.Parse((webClient.DownloadString(feedUri)));
+                JObject feed = JObject.Parse(webClient.DownloadString(feedUri));
                 IEnumerable<JToken> source = feed["response"]["posts"]; // Get source.
                 IEnumerable<string> query =
                     from post in source

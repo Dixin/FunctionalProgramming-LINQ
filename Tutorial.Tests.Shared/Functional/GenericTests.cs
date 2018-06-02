@@ -3,9 +3,8 @@
     using System;
     using System.Diagnostics;
 
-    using Tutorial.Functional;
-
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Tutorial.GettingStarted;
 
     [TestClass]
     public class GenericTests

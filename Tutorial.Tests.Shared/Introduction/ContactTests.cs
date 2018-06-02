@@ -5,8 +5,7 @@
     using System.Linq;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    
-    using Tutorial.Introduction;
+    using Tutorial.GettingStarted;
     using Tutorial.Resources;
     using Tutorial.Tests.LinqToObjects;
 

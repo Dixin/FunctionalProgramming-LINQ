@@ -1,4 +1,4 @@
-﻿namespace Tutorial.Introduction
+﻿namespace Tutorial.GettingStarted
 {
     using System;
     using System.Collections.Generic;
@@ -10,7 +10,7 @@
     using System.Reflection;
     using System.Xml.XPath;
 
-    internal static partial class Imperative
+    internal static partial class Overview
     {
         internal static void Sql(string connectionString)
         {
@@ -43,7 +43,7 @@
         }
     }
 
-    internal static partial class Imperative
+    internal static partial class Overview
     {
         internal static void Xml()
         {
@@ -61,7 +61,7 @@
     }
 
     [Pure]
-    internal static partial class Imperative
+    internal static partial class Overview
     {
         internal static void DelegateTypes()
         {
@@ -177,9 +177,9 @@
         }
     }
 
-    internal partial class Imperative
+    internal partial class Overview
     {
-        internal static void BuildDocument(Uri sourceUri, DirectoryInfo downloadDirectory, FileInfo templateFile)
+        internal static void BuildDocumentWithObjects(Uri sourceUri, DirectoryInfo downloadDirectory, FileInfo templateFile)
         {
             DocumentBuilder builder = new DocumentBuilder(new Crawler(downloadDirectory), new Template(templateFile));
             FileInfo resultFile = builder.Build(sourceUri);

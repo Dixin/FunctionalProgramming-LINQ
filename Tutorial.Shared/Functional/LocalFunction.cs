@@ -3,16 +3,17 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
+    using System.Reflection;
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
 
-    internal static partial class Functions
+    internal static partial class LocalFunctions
     {
         internal static void MethodWithLocalFunction()
         {
             void LocalFunction() // Define local function.
             {
-                nameof(LocalFunction).WriteLine();
+                MethodBase.GetCurrentMethod().Name.WriteLine();
             }
             LocalFunction(); // Call local function.
         }
@@ -24,18 +25,28 @@
                 LocalFunction(); // Call local function.
                 void LocalFunction() // Define local function.
                 {
-                    nameof(LocalFunction).WriteLine();
+                    MethodBase.GetCurrentMethod().Name.WriteLine();
                 }
                 LocalFunction(); // Call local function.
                 return 0;
             }
         }
+
+        [CompilerGenerated]
+        internal static void CompiledLocalFunction()
+        {
+            MethodBase.GetCurrentMethod().Name.WriteLine();
+        }
+
+        internal static void CompiledMethodWithLocalFunction()
+        {
+            CompiledLocalFunction();
+        }
     }
 
-    internal static partial class Functions
+    internal static partial class LocalFunctions
     {
 #if DEMO
-        // Cannot be compiled.
         internal static void LocalFunctionOverload()
         {
             void LocalFunction() { }
@@ -50,16 +61,10 @@
 
         private static int BinarySearch<T>(IList<T> source, T value, IComparer<T> comparer, int startIndex, int endIndex)
         {
-            if (startIndex > endIndex)
-            {
-                return -1;
-            }
+            if (startIndex > endIndex) { return -1; }
             int middleIndex = startIndex + (endIndex - startIndex) / 2;
             int compare = comparer.Compare(source[middleIndex], value);
-            if (compare == 0)
-            {
-                return middleIndex;
-            }
+            if (compare == 0) { return middleIndex; }
             return compare > 0
                 ? BinarySearch(source, value, comparer, startIndex, middleIndex - 1)
                 : BinarySearch(source, value, comparer, middleIndex + 1, endIndex);
@@ -70,16 +75,10 @@
             int BinarySearch(
                 IList<T> localSource, T localValue, IComparer<T> localComparer, int startIndex, int endIndex)
             {
-                if (startIndex > endIndex)
-                {
-                    return -1;
-                }
+                if (startIndex > endIndex) { return -1; }
                 int middleIndex = startIndex + (endIndex - startIndex) / 2;
                 int compare = localComparer.Compare(localSource[middleIndex], localValue);
-                if (compare == 0)
-                {
-                    return middleIndex;
-                }
+                if (compare == 0) { return middleIndex; }
                 return compare > 0
                     ? BinarySearch(localSource, localValue, localComparer, startIndex, middleIndex - 1)
                     : BinarySearch(localSource, localValue, localComparer, middleIndex + 1, endIndex);
@@ -92,16 +91,10 @@
         {
             int BinarySearch(int startIndex, int endIndex)
             {
-                if (startIndex > endIndex)
-                {
-                    return -1;
-                }
+                if (startIndex > endIndex) { return -1; }
                 int middleIndex = startIndex + (endIndex - startIndex) / 2;
                 int compare = comparer.Compare(source[middleIndex], value);
-                if (compare == 0)
-                {
-                    return middleIndex;
-                }
+                if (compare == 0) { return middleIndex; }
                 return compare > 0
                     ? BinarySearch(startIndex, middleIndex - 1)
                     : BinarySearch(middleIndex + 1, endIndex);
@@ -113,7 +106,7 @@
 
         [CompilerGenerated]
         [StructLayout(LayoutKind.Auto)]
-        private struct Display1<T>
+        private struct Closure2<T>
         {
             public IComparer<T> Comparer;
 
@@ -123,149 +116,160 @@
         }
 
         [CompilerGenerated]
-        private static int CompiledLocalBinarySearch<T>(int startIndex, int endIndex, ref Display1<T> display)
+        private static int CompiledLocalBinarySearch<T>(int startIndex, int endIndex, ref Closure2<T> closure)
         {
-            if (startIndex > endIndex)
-            {
-                return -1;
-            }
+            if (startIndex > endIndex) { return -1; }
             int middleIndex = startIndex + (endIndex - startIndex) / 2;
-            int compare = display.Comparer.Compare(display.Source[middleIndex], display.Value);
-            if (compare == 0)
-            {
-                return middleIndex;
-            }
+            int compare = closure.Comparer.Compare(closure.Source[middleIndex], closure.Value);
+            if (compare == 0) { return middleIndex; }
             return compare <= 0
-                ? CompiledLocalBinarySearch(middleIndex + 1, endIndex, ref display)
-                : CompiledLocalBinarySearch(startIndex, middleIndex - 1, ref display);
+                ? CompiledLocalBinarySearch(middleIndex + 1, endIndex, ref closure)
+                : CompiledLocalBinarySearch(startIndex, middleIndex - 1, ref closure);
         }
 
         internal static int CompiledBinarySearchWithClosure<T>(IList<T> source, T value, IComparer<T> comparer = null)
         {
-            Display1<T> display = new Display1<T>()
+            Closure2<T> closure = new Closure2<T>()
             {
                 Source = source,
                 Value = value,
                 Comparer = comparer
             };
-            return CompiledLocalBinarySearch(0, source.Count - 1, ref display);
+            return CompiledLocalBinarySearch(0, source.Count - 1, ref closure);
         }
 
-        internal static void FunctionMember()
+        internal static void LocalFunctionWithLocalFunction()
         {
             void LocalFunction()
             {
-                void LocalFunctionInLocalFunction() { }
+                void NestedLocalFunction() { }
+                NestedLocalFunction();
             }
+            LocalFunction();
         }
 
         internal static Action AnonymousFunctionWithLocalFunction()
         {
-            return () =>
+            return () => // Return an anonymous function of type Action.
             {
                 void LocalFunction() { }
                 LocalFunction();
             };
         }
 
-        internal class Display
+        internal class Closure
         {
-            int outer = 1; // Outside the scope of method Add.
+            int field = 1; // Outside function Add.
 
             internal void Add()
             {
-                int local = 2; // Inside the scope of method Add.
-                (local + outer).WriteLine(); // this.outer field.
+                int local = 2; // Inside function Add.
+                (local + field).WriteLine(); // local + this.field.
             }
         }
 
-        internal static void LocalFunctionClosure2()
+        internal static void LocalFunctionWithClosure()
         {
-            int outer = 1; // Outside the scope of function Add.
+            int free = 1; // Outside local function Add.
             void Add()
             {
-                int local = 2; // Inside the scope of function Add.
-                (local + outer).WriteLine();
+                int local = 2; // Inside local function Add.
+                (local + free).WriteLine();
             }
-            Add(); // 3
+            Add();
         }
 
         [CompilerGenerated]
         [StructLayout(LayoutKind.Auto)]
-        private struct Display0
+        private struct Closure1
         {
-            public int Outer;
+            public int Free;
         }
 
-        private static void Add(ref Display0 display)
+        [CompilerGenerated]
+        private static void CompiledAdd(ref Closure1 closure)
         {
             int local = 2;
-            (local + display.Outer).WriteLine();
+            (local + closure.Free).WriteLine();
         }
 
-        internal static void CompiledLocalFunctionClosure()
+        internal static void CompiledLocalFunctionWithClosure()
         {
-            int outer = 1; // Outside the scope of function Add.
-            Display0 display = new Display0() { Outer = outer };
-            Add(ref display); // 3
+            int free = 1;
+            Closure1 closure = new Closure1() { Free = free };
+            CompiledAdd(ref closure);
         }
 
-        internal static void Outer()
+        internal static void FreeVariableMutatation()
         {
-            int outer = 1; // Outside the scope of function Add.
+            int free = 1;
 
             void Add()
             {
-                int local = 2; // Inside the scope of function Add.
-                (local + outer).WriteLine();
+                int local = 2;
+                (local + free).WriteLine();
             }
 
             Add(); // 3
-            outer = 3; // Outer variable can change.
+            free = 3; // Free variable mutates.
             Add(); // 5
         }
 
-        internal static void CompiledOuter()
+        internal static void CompiledFreeVariableMutation()
         {
-            int outer = 1;
-            Display0 closure = new Display0 { Outer = outer };
-            Add(ref closure);
-            closure.Outer = outer = 3;
-            Add(ref closure);
+            int free = 1;
+            Closure1 closure = new Closure1 { Free = free };
+            CompiledAdd(ref closure);
+            closure.Free = free = 3;
+            CompiledAdd(ref closure);
         }
 
-        internal static void OuterReference()
+        internal static void FreeVariableReference()
         {
             List<Action> localFunctions = new List<Action>();
-            for (int outer = 0; outer < 3; outer++)
+            for (int free = 0; free < 3; free++) // free is 0, 1, 2.
             {
-                void LocalFunction()
-                {
-                    outer.WriteLine(); // outer is 0, 1, 2.
-                }
-
+                void LocalFunction() { free.WriteLine(); }
                 localFunctions.Add(LocalFunction);
-            } // outer is 3.
+            } // free is 3.
             foreach (Action localFunction in localFunctions)
             {
                 localFunction(); // 3 3 3 (instead of 0 1 2)
             }
         }
 
-        internal static void CopyOuterReference()
+        [CompilerGenerated]
+        private struct Closure3
+        {
+            public int Free;
+
+            internal void LocalFunction() { this.Free.WriteLine(); }
+        }
+
+        internal static void CompiledFreeVariableReference()
         {
             List<Action> localFunctions = new List<Action>();
-            for (int outer = 0; outer < 3; outer++)
+            Closure3 closure = new Closure3();
+            for (closure.Free = 0; closure.Free < 3; closure.Free++) // free is 0, 1, 2.
             {
-                int copyOfOuter = outer; // outer is 0, 1, 2.
-                // When outer changes, copyOfOuter does not change.
-                void LocalFunction()
-                {
-                    copyOfOuter.WriteLine();
-                }
+                localFunctions.Add(closure.LocalFunction);
+            } // closure.Free is 3.
+            foreach (Action localFunction in localFunctions)
+            {
+                localFunction(); // 3 3 3 (instead of 0 1 2)
+            }
+        }
 
+        internal static void CopyFreeVariableReference()
+        {
+            List<Action> localFunctions = new List<Action>();
+            for (int free = 0; free < 3; free++) // free is 0, 1, 2.
+            {
+                int copyOfFree = free;
+                // When free mutates, copyOfFree does not mutate.
+                void LocalFunction() { copyOfFree.WriteLine(); }
                 localFunctions.Add(LocalFunction);
-            } // copyOfOuter is 0, 1, 2.
+            } // free is 3. copyOfFree is 0, 1, 2.
             foreach (Action localFunction in localFunctions)
             {
                 localFunction(); // 0 1 2
@@ -273,25 +277,22 @@
         }
 
         [CompilerGenerated]
-        private sealed class Display2
+        private sealed class Closure4
         {
-            public int CopyOfOuter;
+            public int CopyOfFree;
 
-            internal void LocalFunction()
-            {
-                this.CopyOfOuter.WriteLine();
-            }
+            internal void LocalFunction() { this.CopyOfFree.WriteLine(); }
         }
 
-        internal static void CompiledCopyOuterReference()
+        internal static void CompiledCopyFreeVariableReference()
         {
             List<Action> localFunctions = new List<Action>();
-            for (int outer = 0; outer < 3; outer++)
+            for (int free = 0; free < 3; free++)
             {
-                Display2 display = new Display2() { CopyOfOuter = outer }; // outer is 0, 1, 2.
-                // When outer changes, display.CopyOfOuter does not change.
-                localFunctions.Add(display.LocalFunction);
-            } // display.CcopyOfOuter is 0, 1, 2.
+                Closure4 closure = new Closure4() { CopyOfFree = free }; // free is 0, 1, 2.
+                // When free changes, closure.CopyOfFree does not change.
+                localFunctions.Add(closure.LocalFunction);
+            } // free is 3. closure.CopyOfFree is 0, 1, 2.
             foreach (Action localFunction in localFunctions)
             {
                 localFunction(); // 0 1 2
@@ -299,52 +300,118 @@
         }
     }
 
-    internal static partial class Functions
+    internal static partial class LocalFunctions
     {
-        [SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")] private static Action longLife;
-        internal static void Reference()
+        [SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
+        private static Action persisted;
+
+        internal static void FreeVariableLifetime()
         {
             // https://msdn.microsoft.com/en-us/library/System.Array.aspx
-            byte[] shortLife = new byte[0X7FFFFFC7]; // Local variable of large array (Array.MaxByteArrayLength).
+            byte[] tempLargeInstance = new byte[0x_7FFF_FFC7]; // Local variable of large instance, Array.MaxByteArrayLength is 0x_7FFF_FFC7.
             // ...
             void LocalFunction()
             {
                 // ...
-                byte @byte = shortLife[0]; // Closure.
+                int length = tempLargeInstance.Length; // Reference to free variable.
+                // ...
+                length.WriteLine();
                 // ...
             }
             // ...
             LocalFunction();
             // ...
-            longLife = LocalFunction; // Reference from longLife to shortLife.
+            persisted = LocalFunction; // Reference to local function.
         }
     }
 
-    internal static partial class Functions
+    internal static partial class LocalFunctions
     {
         [CompilerGenerated]
-        private sealed class Display3
+        private sealed class Closure5
         {
-            public byte[] ShortLife;
+            public byte[] TempLargeInstance;
 
             internal void LocalFunction()
             {
-                // ...
-                byte @byte = this.ShortLife[0];
-                // ...
+                int length = this.TempLargeInstance.Length;
+                length.WriteLine();
             }
         }
 
-        internal static void CompiledReference()
+        internal static void CompiledFreeVariableLifetime()
         {
-            byte[] shortLife = new byte[0X7FFFFFC7]; // Local variable of large array (Array.MaxByteArrayLength).
-            // ...
-            Display3 display = new Display3();
-            display.ShortLife = shortLife;
-            display.LocalFunction();
-            // ...
-            longLife = display.LocalFunction;
-            // Now longLife.ShortLife holds the reference to the huge large array.
+            byte[] tempLargeInstance = new byte[0X7FFFFFC7];
+            Closure5 closure = new Closure5() { TempLargeInstance = tempLargeInstance };
+            closure.LocalFunction();
+            persisted = closure.LocalFunction;
+            // closure's lifetime is bound to persisted, so is closure.TempLargeInstance.
+        }
+
+        internal static void FreeVariableLifetimeOptimized()
+        {
+            byte[] tempLargeInstance = new byte[0x_7FFF_FFC7];
+            int length = tempLargeInstance.Length;
+            void LocalFunction() { length.WriteLine(); }
+            LocalFunction();
+            persisted = LocalFunction; // Reference to local function.
+        }
+
+        internal static Action SharedClosure()
+        {
+            byte[] tempLargeInstance = new byte[0x_7FFF_FFC7];
+            void LocalFunction1() { int length = tempLargeInstance.Length; }
+            LocalFunction1();
+
+            bool tempSmallInstance = false;
+            void LocalFunction2() { tempSmallInstance = true; }
+            LocalFunction2();
+
+            return LocalFunction2; // Reutrn a function of Action type.
+        }
+
+        internal static void CallSharedClosure()
+        {
+            persisted = SharedClosure(); // Returned LocalFunction2 is persisted.
+        }
+
+        [CompilerGenerated]
+        private struct Closure6
+        {
+            public byte[] TempLargeInstance;
+
+            internal void LocalFunction1() { int length = this.TempLargeInstance.Length; }
+
+            public bool TempSmallInstance;
+
+            internal void LocalFunction2() { this.TempSmallInstance = true; }
+        }
+
+        internal static Action CompiledSharedClosure()
+        {
+            Closure6 closure = new Closure6();
+            closure.TempLargeInstance = new byte[0x_7FFF_FFC7];
+            closure.LocalFunction1();
+
+            closure.TempSmallInstance = false;
+            closure.LocalFunction2();
+
+            return closure.LocalFunction2; // Reutrn a function of Action type.
+        }
+
+        internal static Action SeparatedClosures()
+        {
+            { // Lexical scope has its own closure.
+                byte[] tempLargeInstance = new byte[0x_7FFF_FFC7];
+                void LocalFunction1() { int length = tempLargeInstance.Length; }
+                LocalFunction1();
+            }
+
+            bool tempSmallInstance = false;
+            void LocalFunction2() { tempSmallInstance = true; }
+            LocalFunction2();
+
+            return LocalFunction2; // Reutrn a function of Action type.
         }
     }
 }

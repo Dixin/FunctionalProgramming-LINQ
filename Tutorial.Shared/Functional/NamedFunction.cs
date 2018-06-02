@@ -6,6 +6,7 @@
     using System.IO;
     using System.Linq;
     using System.Reflection;
+    using Tutorial.GettingStarted;
 
     internal partial class Data
     {
@@ -204,6 +205,23 @@
             string @string = (string)data1; // Compiled to: Data.op_Explicit(data1)
             Data data = 1; // Compiled to: Data.op_Implicit(1)
         }
+    }
+
+    // Copied from Basics.cs
+    internal partial class Device
+    {
+        private string name;
+
+        internal string Name
+        {
+            get { return this.name; }
+            set { this.name = value; }
+        }
+    }
+
+    internal partial class Device
+    {
+        internal decimal Price { get; set; }
     }
 
     internal partial class Device

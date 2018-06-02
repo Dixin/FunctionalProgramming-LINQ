@@ -1,9 +1,9 @@
-namespace Tutorial.Introduction
+namespace Tutorial.GettingStarted
 {
     using System;
     using System.IO;
 
-    internal static partial class Functional
+    internal static partial class Overview
     {
         internal static FileInfo Download(Uri sourceUri, DirectoryInfo downloadDirectory)
         {
@@ -26,7 +26,7 @@ namespace Tutorial.Introduction
         }
     }
 
-    internal static partial class Functional
+    internal static partial class Overview
     {
         internal static void BuildDocument(Uri sourceUri, DirectoryInfo downloadDirectory, FileInfo templateFile)
         {
