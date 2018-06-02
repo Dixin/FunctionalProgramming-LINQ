@@ -44,7 +44,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Functional\Immutability.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\LocalFunction.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\NamedFunction.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Functional\Parameters.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Functional\InputOutput.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\PatternMatching.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\Purity.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\QueryExpression.cs" />

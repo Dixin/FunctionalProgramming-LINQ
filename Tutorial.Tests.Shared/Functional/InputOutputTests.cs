@@ -10,23 +10,23 @@
         [TestMethod]
         public void ParameterTest()
         {
-            Functions.CallPassByValue();
-            Functions.CallPassByReference();
-            Functions.CallOutput();
-            Functions.OutVariable();
+            InputOutput.CallPassByValue();
+            InputOutput.CallPassByReference();
+            InputOutput.CallOutput();
+            InputOutput.OutVariable();
         }
 
         [TestMethod]
         public void CallerInfoTest()
         {
-            Functions.CallTraceWithCaller();
+            InputOutput.CallTraceWithCaller();
         }
 
         [TestMethod]
         public void ReturnTest()
         {
-            Functions.ReturnByValue();
-            Functions.ReturnByReference();
+            InputOutput.ReturnByValue();
+            InputOutput.ReturnByReference();
         }
     }
 }

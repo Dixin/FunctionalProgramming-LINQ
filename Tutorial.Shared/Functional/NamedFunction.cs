@@ -86,7 +86,7 @@
         }
     }
 
-    internal static partial class Functions
+    internal static partial class NamedFunctions
     {
         internal static void CallExtensionMethod(Data data)
         {
@@ -105,7 +105,7 @@
     }
 #endif
 
-    internal static partial class Functions
+    internal static partial class NamedFunctions
     {
         internal static void CompiledCallExtensionMethod(Data data)
         {
@@ -134,7 +134,7 @@
         }
     }
 
-    internal static partial class Functions
+    internal static partial class NamedFunctions
     {
         internal static void CallMethods(Data data1, Data data2)
         {
@@ -152,7 +152,7 @@
         }
     }
 
-    internal static partial class Functions
+    internal static partial class NamedFunctions
     {
         internal static void CallEnumerationExtensionMethod(DayOfWeek dayOfWeek)
         {
@@ -197,7 +197,7 @@
         }
     }
 
-    internal static partial class Functions
+    internal static partial class NamedFunctions
     {
         internal static void Operators(Data data1, Data data2)
         {
@@ -243,7 +243,7 @@
         }
     }
 
-    internal static partial class Functions
+    internal static partial class NamedFunctions
     {
         internal static void Property(Device device)
         {
@@ -280,29 +280,6 @@
             Subcategory subcategory = category[0]; // Compiled to: category.get_Item(0)
             category[0] = subcategory; // Compiled to: category.set_Item(0, subcategory)
         }
-
-#if DEMO
-        internal class Downloader
-        {
-            internal event EventHandler<DownloadEventArgs> Completed
-            {
-                add // Compiled to: internal void add_Completed(EventHandler<DownloadEventArgs> value)
-                {
-                    Trace.WriteLine(MethodBase.GetCurrentMethod().Name); // add_Completed
-                }
-                remove // Compiled to: internal void remove_Completed(EventHandler<DownloadEventArgs> value)
-                {
-                    Trace.WriteLine(MethodBase.GetCurrentMethod().Name); // remove_Completed
-                }
-            }
-        }
-#endif
-
-        internal static void EventAccessor(Downloader downloader)
-        {
-            downloader.Completed += TraceContent; // Compiled to: downloader.add_Completed(TraceContent)
-            downloader.Completed -= SaveContent; // Compiled to: downloader.remove_Completed(SaveContent)
-        }
     }
 
     internal partial class Data
@@ -320,7 +297,7 @@
         }
     }
 
-    internal partial class Functions
+    internal partial class NamedFunctions
     {
         internal static void DataSaved(object sender, EventArgs args) { }
 
@@ -338,7 +315,7 @@
         }
     }
 
-    internal partial class Functions
+    internal partial class NamedFunctions
     {
         internal static void TraceObject(Uri uri, FileInfo file, int int32)
         {
@@ -375,7 +352,7 @@
         }
     }
 
-    internal partial class Functions
+    internal partial class NamedFunctions
     {
         internal static void ReturnValue(Data data)
         {
@@ -466,7 +443,7 @@ namespace Tutorial.Functional
     using static System.Diagnostics.Trace;
     using static System.Linq.Enumerable;
 
-    internal static partial class Functions
+    internal static partial class NamedFunctions
     {
         internal static void UsingStatic(int value, int[] array)
         {

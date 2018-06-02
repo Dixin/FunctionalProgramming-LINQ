@@ -308,6 +308,8 @@ namespace Tutorial.GettingStarted
 
             ValuePoint value3 = new ValuePoint(5, 6);
             value2 = ref value3;
+
+            ref readonly ValuePoint value4 = ref value1;
         }
 
         internal static void Array()

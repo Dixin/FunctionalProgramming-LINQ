@@ -13,7 +13,7 @@
     {
         internal static void Run(bool stopWhenFail = false)
         {
-            new ContactTests().EmailValidationTest();
+            new OverviewTests().EmailValidationTest();
             List<(MethodInfo, Exception, double)> failed = new List<(MethodInfo, Exception, double)>();
             typeof(MSTest).Assembly.GetTypes()
                 .Where(type => Attribute.GetCustomAttribute(type, typeof(TestClassAttribute)) != null)

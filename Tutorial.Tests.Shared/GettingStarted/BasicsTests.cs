@@ -1,10 +1,10 @@
-﻿namespace Tutorial.Tests.Functional
+﻿namespace Tutorial.Tests.GettingStarted
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Tutorial.GettingStarted;
 
     [TestClass]
-    public class FundamentalsTests
+    public class BasicsTests
     {
         [TestMethod]
         public void TypeTest()

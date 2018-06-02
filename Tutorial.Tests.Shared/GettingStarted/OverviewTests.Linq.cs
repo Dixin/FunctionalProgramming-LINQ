@@ -3,8 +3,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Tutorial.GettingStarted;
 
-    [TestClass]
-    public class LinqTests
+    public partial class OverviewTests
     {
         [TestMethod]
         public void LinqToJsonTest()

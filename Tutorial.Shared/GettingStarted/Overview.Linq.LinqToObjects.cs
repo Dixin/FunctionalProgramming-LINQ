@@ -69,35 +69,4 @@
             }
         }
     }
-
-    internal partial class Linq
-    {
-        internal static void CompiledDelegateTypes()
-        {
-            Assembly coreLibrary = typeof(object).Assembly;
-
-            Func<Type, bool> filterPredicateFunction = type => type.BaseType == typeof(MulticastDelegate);
-            IEnumerable<Type> filterQuery = Enumerable.Where(coreLibrary.GetExportedTypes(), filterPredicateFunction);
-
-            Func<Type, string> groupKeySelectorFunction = type => type.Namespace;
-            IEnumerable<IGrouping<string, Type>> groupQuery = Enumerable.GroupBy(filterQuery, groupKeySelectorFunction);
-
-            Func<IGrouping<string, Type>, int> orderKeySelectorFunction1 = namespaceTypes => namespaceTypes.Count();
-            IOrderedEnumerable<IGrouping<string, Type>> orderQuery1 = Enumerable.OrderByDescending(
-                groupQuery, orderKeySelectorFunction1);
-
-            Func<IGrouping<string, Type>, string> orderKeySelectorFunction2 = namespaceTypes => namespaceTypes.Key;
-            IEnumerable<IGrouping<string, Type>> orderQuery2 = Enumerable.ThenBy(orderQuery1, orderKeySelectorFunction2);
-
-            foreach (IGrouping<string, Type> namespaceTypes in orderQuery2) // Output.
-            {
-                Trace.Write(namespaceTypes.Count() + " " + namespaceTypes.Key + ":");
-                foreach (Type delegateType in namespaceTypes)
-                {
-                    Trace.Write(" " + delegateType.Name);
-                }
-                Trace.WriteLine(null);
-            }
-        }
-    }
 }

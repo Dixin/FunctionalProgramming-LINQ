@@ -1,4 +1,4 @@
-﻿namespace Tutorial.Tests.Functional
+﻿namespace Tutorial.Tests.GettingStarted
 {
     using System;
     using System.Diagnostics;
@@ -7,7 +7,7 @@
     using Tutorial.GettingStarted;
 
     [TestClass]
-    public class GenericTests
+    public partial class OverviewTests
     {
         [TestMethod]
         public void StackTest()

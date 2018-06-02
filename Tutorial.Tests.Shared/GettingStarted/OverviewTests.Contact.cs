@@ -9,8 +9,7 @@
     using Tutorial.Resources;
     using Tutorial.Tests.LinqToObjects;
 
-    [TestClass]
-    public class ContactTests
+    public partial class OverviewTests
     {
         [TestMethod]
         public void NameValidationTest()

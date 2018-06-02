@@ -5,7 +5,7 @@
     using System.Runtime.CompilerServices;
     using System.Text;
 
-    internal static partial class Functions
+    internal static partial class InputOutput
     {
         internal static void PassByValue(Uri reference, int value)
         {
@@ -23,7 +23,7 @@
         }
     }
 
-    internal static partial class Functions
+    internal static partial class InputOutput
     {
         internal static void PassByReference(ref Uri reference, ref int value)
         {
@@ -106,6 +106,7 @@
             {
                 sum += value;
             }
+
             return sum;
         }
 
@@ -137,7 +138,9 @@
             int sum4 = Sum(array);
         }
 
-        internal static void ParameterArray(bool required1, int required2, params string[] optional) { }
+        internal static void ParameterArray(bool required1, int required2, params string[] optional)
+        {
+        }
 
         internal static void PositionalAndNamed()
         {
@@ -163,9 +166,15 @@
             PassByValue(value: GetInt32(), reference: GetUri()); // Call GetInt32 then GetUri.
         }
 
-        internal static Uri GetUri() { return default; }
+        internal static Uri GetUri()
+        {
+            return default;
+        }
 
-        internal static int GetInt32() { return default; }
+        internal static int GetInt32()
+        {
+            return default;
+        }
 
         internal static void CompiledNamedArgument()
         {
@@ -185,7 +194,9 @@
             bool required1, char required2,
             int optional1 = int.MaxValue, string optional2 = "Default value.",
             Uri optional3 = null, Guid optional4 = new Guid(),
-            Uri optional5 = default, Guid optional6 = default) { }
+            Uri optional5 = default, Guid optional6 = default)
+        {
+        }
 
         internal static void CallOptional()
         {
@@ -194,7 +205,7 @@
             Optional(true, '@', 1, string.Empty);
             Optional(true, '@', optional2: string.Empty);
             Optional(
-                optional6: Guid.NewGuid(), optional3: GetUri(), required1: false, optional1: GetInt32(), 
+                optional6: Guid.NewGuid(), optional3: GetUri(), required1: false, optional1: GetInt32(),
                 required2: Convert.ToChar(64)); // Call Guid.NewGuid, then GetUri, then GetInt32, then Convert.ToChar.
         }
 
@@ -227,9 +238,13 @@
 
         internal static void CompiledCallTraceWithCaller()
         {
-            TraceWithCaller("Message.", "CompiledCallTraceWithCaller", @"D:\Data\GitHub\CodeSnippets\Tutorial.Shared\Linq\CSharp\Parameters.cs", 242);
+            TraceWithCaller("Message.", "CompiledCallTraceWithCaller",
+                @"D:\Data\GitHub\CodeSnippets\Tutorial.Shared\Linq\CSharp\Parameters.cs", 242);
         }
+    }
 
+    internal static partial class InputOutput
+    {
         internal static int LastValue(int[] values)
         {
             int length = values.Length;
