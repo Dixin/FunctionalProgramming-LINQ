@@ -220,10 +220,7 @@
             // Compiled to:
             // TraceWithCaller("Message.", "CompiledCallTraceWithCaller", @"D:\Data\GitHub\Tutorial\Tutorial.Shared\Functional\InputOutput.cs,", 216);
         }
-    }
 
-    internal static partial class InputOutput
-    {
         internal static int FirstValueByCopy(int[] values)
         {
             return values[0];
