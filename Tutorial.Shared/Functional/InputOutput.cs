@@ -77,7 +77,7 @@
 
         internal static void OutVariable()
         {
-            OutputParameter(out Uri reference, out int value);
+            OutputParameter(out Uri reference, out int value); // Not copied.
             reference.WriteLine(); // https://flickr.com/dixin
             value.WriteLine(); // 10
         }
@@ -112,7 +112,7 @@
         }
 #endif
 
-        internal static void CallSum(int[] array)
+        internal static void CallSum()
         {
             int sum1 = Sum();
             int sum2 = Sum(0);
@@ -120,7 +120,7 @@
             int sum4 = Sum(new[] { 0, 1, 2, 3, 4 });
         }
 
-        internal static void CompiledCallSum(int[] array)
+        internal static void CompiledCallSum()
         {
             int sum1 = Sum(Array.Empty<int>());
             int sum2 = Sum(new int[] { 0 });
@@ -218,7 +218,7 @@
         {
             TraceWithCaller("Message.");
             // Compiled to:
-            // TraceWithCaller("Message.", "CompiledCallTraceWithCaller", @"D:\Data\GitHub\Tutorial\Tutorial.Shared\Functional\InputOutput.cs,", 216);
+            // TraceWithCaller("Message.", "CompiledCallTraceWithCaller", @"D:\Data\GitHub\Tutorial\Tutorial.Shared\Functional\InputOutput.cs,", 219);
         }
 
         internal static int FirstValueByCopy(int[] values)
