@@ -85,6 +85,7 @@
         internal static void Discard()
         {
             bool result = OutputParameter(out _, out _);
+            OutputParameter(out _, out _);
             _ = OutputParameter(out _, out _);
         }
 
@@ -236,12 +237,12 @@
         internal static void OutputByCopy()
         {
             int[] values = new int[] { 0, 1, 2, 3, 4 };
-            int firstValue = FirstValueByCopy(values); // Copied.
+            int firstValue = FirstValueByCopy(values); // Copy of values[0].
             firstValue = 10;
             values[0].WriteLine(); // 0
 
             Uri[] references = new Uri[] { new Uri("https://weblogs.asp.net/dixin") };
-            Uri firstReference = FirstReferenceByCopy(references); // Copied.
+            Uri firstReference = FirstReferenceByCopy(references); // Copy of references[0].
             firstReference = new Uri("https://flickr.com/dixin");
             references[0].WriteLine(); // https://weblogs.asp.net/dixin
         }
@@ -259,12 +260,12 @@
         internal static void OutputByAlias()
         {
             int[] values = new int[] { 0, 1, 2, 3, 4 };
-            ref int firstValue = ref FirstValueByAlias(values); // Not copied.
+            ref int firstValue = ref FirstValueByAlias(values); // Alias of values[0].
             firstValue = 10;
             values[0].WriteLine(); // 10
 
             Uri[] references = new Uri[] { new Uri("https://weblogs.asp.net/dixin") };
-            ref Uri firstReference = ref FirstReferenceByAlias(references); // Not copied.
+            ref Uri firstReference = ref FirstReferenceByAlias(references); // Alias of references[0].
             firstReference = new Uri("https://flickr.com/dixin");
             references[0].WriteLine(); // https://flickr.com/dixin
         }
@@ -283,11 +284,11 @@
         internal static void OutputByImmutableAlias()
         {
             int[] values = new int[] { 0, 1, 2, 3, 4 };
-            ref readonly int firstValue = ref FirstValueByImmutableAlias(values); // Not copied.
+            ref readonly int firstValue = ref FirstValueByImmutableAlias(values); // Immutable alias of values[0].
             firstValue = 10; // Cannot be compiled.
 
             Uri[] references = new Uri[] { new Uri("https://weblogs.asp.net/dixin") };
-            ref readonly Uri firstReference = ref FirstReferenceByImmutableAlias(references); // Not copied.
+            ref readonly Uri firstReference = ref FirstReferenceByImmutableAlias(references); // Immutable alias of references[0].
             firstReference = new Uri("https://flickr.com/dixin"); // Cannot be compiled.
         }
 #endif
