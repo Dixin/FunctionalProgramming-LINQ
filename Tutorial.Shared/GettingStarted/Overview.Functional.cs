@@ -24,11 +24,8 @@ namespace Tutorial.GettingStarted
                 return convert(sourceFile, templateFile);
             };
         }
-    }
 
-    internal static partial class Overview
-    {
-        internal static void BuildDocument(Uri sourceUri, DirectoryInfo downloadDirectory, FileInfo templateFile)
+        internal static void BuildDocumentWithFunctions(Uri sourceUri, DirectoryInfo downloadDirectory, FileInfo templateFile)
         {
             Func<Uri, DirectoryInfo, FileInfo, FileInfo> buildDocument = CreateDocumentBuilder(Download, Convert);
             FileInfo resultFile = buildDocument(sourceUri, downloadDirectory, templateFile);

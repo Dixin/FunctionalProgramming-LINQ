@@ -42,10 +42,7 @@
         {
             CompiledLocalFunction();
         }
-    }
 
-    internal static partial class LocalFunctions
-    {
 #if DEMO
         internal static void LocalFunctionOverload()
         {
@@ -298,10 +295,7 @@
                 localFunction(); // 0 1 2
             }
         }
-    }
 
-    internal static partial class LocalFunctions
-    {
         [SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         private static Action persisted;
 
@@ -323,10 +317,7 @@
             // ...
             persisted = LocalFunction; // Reference to local function.
         }
-    }
 
-    internal static partial class LocalFunctions
-    {
         [CompilerGenerated]
         private sealed class Closure5
         {

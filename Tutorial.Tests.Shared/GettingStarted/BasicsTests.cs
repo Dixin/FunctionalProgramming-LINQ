@@ -9,7 +9,7 @@
         [TestMethod]
         public void TypeTest()
         {
-            Basics.ValueTypeReferenceType();
+            Basics.LocalVariable();
             Basics.Default();
         }
     }

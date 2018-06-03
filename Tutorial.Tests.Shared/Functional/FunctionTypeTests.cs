@@ -5,12 +5,12 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
-    public class FunctionTypeTests
+    public class DelegatesTests
     {
         [TestMethod]
         public void DelegateTest()
         {
-            Functions.Static();
+            Delegates.Static();
         }
     }
 }

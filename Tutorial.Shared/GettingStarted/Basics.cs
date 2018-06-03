@@ -282,37 +282,51 @@ namespace Tutorial.GettingStarted
 
             internal int Y { get { return this.y; } }
         }
-    }
 
-    internal static partial class Basics
-    {
-        internal static void ValueTypeReferenceType()
+        internal static void LocalVariable()
         {
             Point reference1 = new Point(1, 2);
-            Point reference2 = reference1;
+            Point reference2 = reference1; // Copy.
+            reference2 = new Point(3, 4); // reference1 is not impacted.
 
-            ValuePoint value1 = new ValuePoint(3, 4);
-            ValuePoint value2 = value1;
+            ValuePoint value1 = new ValuePoint(5, 6);
+            ValuePoint value2 = value1; // Copy.
+            value2 = new ValuePoint(7, 8); // value1 is not impacted.
         }
 
         internal static void RefLocalVariable()
         {
             Point reference1 = new Point(1, 2);
-            ref Point reference2 = ref reference1;
+            ref Point reference2 = ref reference1; // Alias.
+            reference2 = new Point(3, 4); // reference1 is not reassigned.
 
-            ValuePoint value1 = new ValuePoint(3, 4);
-            ref ValuePoint value2 = ref value1;
+            ValuePoint value1 = new ValuePoint(5, 6);
+            ref ValuePoint value2 = ref value1; // Alias.
+            value2 = new ValuePoint(7, 8); // value1 is not reassigned.
 
             Point reference3 = new Point(1, 2);
-            reference2 = ref reference3;
+            reference2 = ref reference3; // Alias of something else.
 
             ValuePoint value3 = new ValuePoint(5, 6);
-            value2 = ref value3;
-
-            ref readonly ValuePoint value4 = ref value1;
+            value2 = ref value3; // Alias of something else.
         }
 
-        internal static void Array()
+        internal static void ImmutableRefLocalVariable()
+        {
+            Point reference1 = new Point(1, 2);
+            ref readonly Point reference2 = ref reference1; // Immutable alias.
+#if DEMO
+            reference2 = new Point(3, 4); // Cannot be compiled.
+#endif
+
+            ValuePoint value1 = new ValuePoint(3, 4);
+            ref readonly ValuePoint value2 = ref value1; // Immutable alias.
+#if DEMO
+            value2 = new ValuePoint(7, 8); // Cannot be compiled.
+#endif
+        }
+
+            internal static void Array()
         {
             Point[] referenceArrayOnHeap = new Point[] { new Point(5, 6) };
             ValuePoint[] valueArrayOnHeap = new ValuePoint[] { new ValuePoint(7, 8) };
@@ -321,10 +335,7 @@ namespace Tutorial.GettingStarted
             Span<ValuePoint> valueArrayOnStack = stackalloc[] { new ValuePoint(9, 10) };
 #endif
         }
-    }
 
-    internal static partial class Basics
-    {
         internal ref struct OnStackOnly { }
 
 #if DEMO
@@ -344,10 +355,7 @@ namespace Tutorial.GettingStarted
             private OnStackOnly fieldOnStackOrHeap; // Cannot be compiled.
         }
 #endif
-    }
 
-    internal static partial class Basics
-    {
         internal static void Default()
         {
             Point defaultReference = default(Point);
@@ -371,10 +379,7 @@ namespace Tutorial.GettingStarted
 
             ValuePoint defaultValue = default;
         }
-    }
 
-    internal static partial class Basics
-    {
         internal static void Dispose(string connectionString)
         {
             SqlConnection connection = new SqlConnection(connectionString);
@@ -392,10 +397,7 @@ namespace Tutorial.GettingStarted
                 }
             }
         }
-    }
 
-    internal static partial class Basics
-    {
         internal static void Using(string connectionString)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
@@ -708,7 +710,7 @@ namespace Tutorial.GettingStarted
             this.devices[this.devices.Length - 1] = device;
         }
 
-        public IEnumerator GetEnumerator() // From IEnumerable.
+        public IEnumerator GetEnumerator() // IEnumerable member.
         {
             return this.devices.GetEnumerator();
         }
@@ -747,10 +749,7 @@ namespace Tutorial.GettingStarted
             devices[0] = device1;
             devices[1] = device2;
         }
-    }
 
-    internal static partial class Basics
-    {
         internal partial class Point
         {
             internal static Point Default { get; } = new Point(0, 0);

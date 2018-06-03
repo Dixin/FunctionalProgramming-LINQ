@@ -52,7 +52,7 @@
     // (string, string) -> int
     internal delegate int FuncStringStringToInt32(string value1, string value2);
 
-    internal static partial class Functions
+    internal static partial class Delegates
     {
         internal static void Constructor()
         {
@@ -62,7 +62,7 @@
         }
     }
 
-    internal static partial class Functions
+    internal static partial class Delegates
     {
         internal static void Instantiate()
         {
@@ -95,7 +95,7 @@
     }
 #endif
 
-    internal static partial class Functions
+    internal static partial class Delegates
     {
         internal static void Invoke(Action<int> action)
         {
@@ -126,7 +126,7 @@
             Func<int, int, int> func1 = Math.Max; // new Func<int, int, int>(Math.Max);
             int result1 = func1(1, 2); // func1.Invoke(1, 2);;
             Trace.WriteLine(func1.Target == null); // True
-            MethodInfo method1 = func1.GetMethodInfo();
+            MethodInfo method1 = func1.Method;
             Trace.WriteLine($"{method1.DeclaringType}: {method1}"); // System.Math: Int32 Max(Int32, Int32)
 
             Func<int, int, int> func2 = Math.Max; // new Func<int, int, int>(Math.Max);

@@ -15,7 +15,7 @@
 
     internal static partial class Overview
     {
-        internal static void LinqToObjectsQueryExpression()
+        internal static void LinqToObjectsWithQueryExpression()
         {
             IEnumerable<int> source = new int[] { 4, 3, 2, 1, 0, -1 }; // Get source.
             IEnumerable<double> query =
@@ -28,11 +28,8 @@
                 Trace.WriteLine(result);
             }
         }
-    }
 
-    internal static partial class Overview
-    {
-        internal static void LinqToObjectsQueryMethods()
+        internal static void LinqToObjectsWithQueryMethods()
         {
             IEnumerable<int> source = new int[] { 4, 3, 2, 1, 0, -1 }; // Get source.
             IEnumerable<double> query = source

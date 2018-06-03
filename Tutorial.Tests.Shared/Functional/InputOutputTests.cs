@@ -10,9 +10,9 @@
         [TestMethod]
         public void ParameterTest()
         {
-            InputOutput.CallPassByValue();
-            InputOutput.CallPassByReference();
-            InputOutput.CallOutput();
+            InputOutput.CallInputByCopy();
+            InputOutput.CallInputByAlias();
+            InputOutput.CallOutputParameter();
             InputOutput.OutVariable();
         }
 
@@ -25,8 +25,8 @@
         [TestMethod]
         public void ReturnTest()
         {
-            InputOutput.ReturnByValue();
-            InputOutput.ReturnByReference();
+            InputOutput.OutputByCopy();
+            InputOutput.OutputByAlias();
         }
     }
 }

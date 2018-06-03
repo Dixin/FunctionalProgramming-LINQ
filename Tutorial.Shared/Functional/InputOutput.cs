@@ -7,96 +7,85 @@
 
     internal static partial class InputOutput
     {
-        internal static void PassByValue(Uri reference, int value)
+        internal static void InputByCopy(Uri reference, int value)
         {
             reference = new Uri("https://flickr.com/dixin");
             value = 10;
         }
 
-        internal static void CallPassByValue()
+        internal static void CallInputByCopy()
         {
             Uri reference = new Uri("https://weblogs.asp.net/dixin");
             int value = 1;
-            PassByValue(reference, value); // Copied.
+            InputByCopy(reference, value); // Copied.
             reference.WriteLine(); // https://weblogs.asp.net/dixin
             value.WriteLine(); // 1
         }
-    }
 
-    internal static partial class InputOutput
-    {
-        internal static void PassByReference(ref Uri reference, ref int value)
+        internal static void InputByAlias(ref Uri reference, ref int value)
         {
             reference = new Uri("https://flickr.com/dixin");
             value = 10;
         }
 
-        internal static void CallPassByReference()
+        internal static void CallInputByAlias()
         {
             Uri reference = new Uri("https://weblogs.asp.net/dixin");
             int value = 1;
-            PassByReference(ref reference, ref value); // Not copied.
+            InputByAlias(ref reference, ref value); // Not copied.
             reference.WriteLine(); // https://flickr.com/dixin
             value.WriteLine(); // 10
         }
 
-        internal static void PassByReadOnlyReference(in Uri reference, in int value)
+        internal static void InputByImmutableAlias(in Uri reference, in int value)
         {
         }
 
-        internal static void CallPassByReadOnlyReference()
+        internal static void CallInputByImmutableAlias()
         {
             Uri reference = new Uri("https://weblogs.asp.net/dixin");
             int value = 1;
-            PassByReadOnlyReference(in reference, in value); // Not copied.
-            reference.WriteLine(); // https://weblogs.asp.net/dixin
-            value.WriteLine(); // 1
-        }
-
-        internal static void CallPassByReadOnlyReference2()
-        {
-            Uri reference = new Uri("https://weblogs.asp.net/dixin");
-            int value = 1;
-            PassByReadOnlyReference(reference, value); // Not copied.
+            InputByImmutableAlias(in reference, in value); // Not copied.
+            InputByImmutableAlias(reference, value); // Not copied.
             reference.WriteLine(); // https://weblogs.asp.net/dixin
             value.WriteLine(); // 1
         }
 
 #if DEMO
-        internal static void PassByReadOnlyReference(in Uri reference, in int value)
+        internal static void InputByImmutableAlias(in Uri reference, in int value)
         {
             reference = new Uri("https://flickr.com/dixin"); // Cannot be compiled.
             value = 10; // Cannot be compiled.
         }
 #endif
 
-        internal static bool Output(out Uri reference, out int value)
+        internal static bool OutputParameter(out Uri reference, out int value)
         {
             reference = new Uri("https://flickr.com/dixin");
             value = 10;
             return false;
         }
 
-        internal static void CallOutput()
+        internal static void CallOutputParameter()
         {
             Uri reference;
             int value;
-            Output(out reference, out value); // Not copied.
+            OutputParameter(out reference, out value); // Not copied.
             reference.WriteLine(); // https://flickr.com/dixin
             value.WriteLine(); // 10
         }
 
         internal static void OutVariable()
         {
-            Output(out Uri reference, out int value);
+            OutputParameter(out Uri reference, out int value);
             reference.WriteLine(); // https://flickr.com/dixin
             value.WriteLine(); // 10
         }
 
         internal static void Discard()
         {
-            bool result = Output(out _, out _);
-            _ = Output(out _, out _);
+            bool result = OutputParameter(out _, out _);
+            _ = OutputParameter(out _, out _);
         }
 
         internal static int Sum(params int[] values)
@@ -125,62 +114,56 @@
         internal static void CallSum(int[] array)
         {
             int sum1 = Sum();
-            int sum2 = Sum(1);
-            int sum3 = Sum(1, 2, 3, 4, 5);
-            int sum4 = Sum(array);
+            int sum2 = Sum(0);
+            int sum3 = Sum(0, 1, 2, 3, 4);
+            int sum4 = Sum(new[] { 0, 1, 2, 3, 4 });
         }
 
         internal static void CompiledCallSum(int[] array)
         {
             int sum1 = Sum(Array.Empty<int>());
-            int sum2 = Sum(new int[] { 1 });
-            int sum3 = Sum(new int[] { 1, 2, 3, 4, 5 });
-            int sum4 = Sum(array);
+            int sum2 = Sum(new int[] { 0 });
+            int sum3 = Sum(new int[] { 0, 1, 2, 3, 4 });
+            int sum4 = Sum(new int[] { 0, 1, 2, 3, 4 });
         }
 
-        internal static void ParameterArray(bool required1, int required2, params string[] optional)
+        internal static void MultipleParameters(bool required1, int required2, params string[] optional)
         {
         }
 
         internal static void PositionalAndNamed()
         {
-            PassByValue(null, 0); // Positional arguments.
-            PassByValue(reference: null, value: 0); // Named arguments.
-            PassByValue(value: 0, reference: null); // Named arguments.
-            PassByValue(null, value: 0); // Positional argument followed by named argument.
-            PassByValue(reference: null, 0); // Named argument followed by positional argument.
+            InputByCopy(null, 0); // Positional arguments.
+            InputByCopy(reference: null, value: 0); // Named arguments.
+            InputByCopy(value: 0, reference: null); // Named arguments.
+            InputByCopy(null, value: 0); // Positional argument followed by named argument.
+            InputByCopy(reference: null, 0); // Named argument followed by positional argument.
         }
 
         internal static void CompiledPositionalAndNamed()
         {
-            PassByValue(null, 0);
-            PassByValue(null, 0);
-            PassByValue(null, 0);
-            PassByValue(null, 0);
-            PassByValue(null, 0);
+            InputByCopy(null, 0);
+            InputByCopy(null, 0);
+            InputByCopy(null, 0);
+            InputByCopy(null, 0);
+            InputByCopy(null, 0);
         }
 
-        internal static void NamedEvaluation()
+        internal static void NamedArgumentEvaluation()
         {
-            PassByValue(reference: GetUri(), value: GetInt32()); // Call GetUri then GetInt32.
-            PassByValue(value: GetInt32(), reference: GetUri()); // Call GetInt32 then GetUri.
+            InputByCopy(reference: GetUri(), value: GetInt32()); // Call GetUri then GetInt32.
+            InputByCopy(value: GetInt32(), reference: GetUri()); // Call GetInt32 then GetUri.
         }
 
-        internal static Uri GetUri()
-        {
-            return default;
-        }
+        internal static Uri GetUri() { return default; }
 
-        internal static int GetInt32()
-        {
-            return default;
-        }
+        internal static int GetInt32() { return default; }
 
-        internal static void CompiledNamedArgument()
+        internal static void CompiledNamedArgumentEvaluation()
         {
-            PassByValue(GetUri(), GetInt32()); // Call GetUri then GetInt32.
+            InputByCopy(GetUri(), GetInt32()); // Call GetUri then GetInt32.
             int value = GetInt32(); // Call GetInt32 then GetUri.
-            PassByValue(GetUri(), value);
+            InputByCopy(GetUri(), value);
         }
 
         internal static void Named()
@@ -233,116 +216,79 @@
         internal static void CallTraceWithCaller()
         {
             TraceWithCaller("Message.");
-            // [CallTraceWithCaller, D:\Data\GitHub\CodeSnippets\Tutorial.Shared\Linq\CSharp\Parameters.cs, 242]: Message.
-        }
-
-        internal static void CompiledCallTraceWithCaller()
-        {
-            TraceWithCaller("Message.", "CompiledCallTraceWithCaller",
-                @"D:\Data\GitHub\CodeSnippets\Tutorial.Shared\Linq\CSharp\Parameters.cs", 242);
+            // Compiled to:
+            // TraceWithCaller("Message.", "CompiledCallTraceWithCaller", @"D:\Data\GitHub\Tutorial\Tutorial.Shared\Functional\InputOutput.cs,", 216);
         }
     }
 
     internal static partial class InputOutput
     {
-        internal static int LastValue(int[] values)
+        internal static int FirstValueByCopy(int[] values)
         {
-            int length = values.Length;
-            if (length > 0)
-            {
-                return values[length - 1];
-            }
-            throw new ArgumentException("Array is empty.", nameof(values));
+            return values[0];
         }
 
-        internal static Uri LastReference(Uri[] references)
+        internal static Uri FirstReferenceByCopy(Uri[] references)
         {
-            int length = references.Length;
-            if (length > 0)
-            {
-                return references[length - 1];
-            }
-            throw new ArgumentException("Array is empty.", nameof(references));
+            return references[0];
         }
 
-        internal static void ReturnByValue()
+        internal static void OutputByCopy()
         {
             int[] values = new int[] { 0, 1, 2, 3, 4 };
-            int lastValue = LastValue(values); // Copied.
-            lastValue = 10;
-            Trace.WriteLine(values[values.Length - 1]); // 4
+            int firstValue = FirstValueByCopy(values); // Copied.
+            firstValue = 10;
+            values[0].WriteLine(); // 0
 
             Uri[] references = new Uri[] { new Uri("https://weblogs.asp.net/dixin") };
-            Uri lastReference = LastReference(references); // Copied.
-            lastReference = new Uri("https://flickr.com/dixin");
-            Trace.WriteLine(references[references.Length - 1]); // https://weblogs.asp.net/dixin
+            Uri firstReference = FirstReferenceByCopy(references); // Copied.
+            firstReference = new Uri("https://flickr.com/dixin");
+            references[0].WriteLine(); // https://weblogs.asp.net/dixin
         }
 
-        internal static ref int RefLastValue(int[] values)
+        internal static ref int FirstValueByAlias(int[] values)
         {
-            int length = values.Length;
-            if (length > 0)
-            {
-                return ref values[length - 1];
-            }
-            throw new ArgumentException("Array is empty.", nameof(values));
+            return ref values[0];
         }
 
-        internal static ref Uri RefLastReference(Uri[] references)
+        internal static ref Uri FirstReferenceByAlias(Uri[] references)
         {
-            int length = references.Length;
-            if (length > 0)
-            {
-                return ref references[length - 1];
-            }
-            throw new ArgumentException("Array is empty.", nameof(references));
+            return ref references[0];
         }
 
-        internal static void ReturnByReference()
+        internal static void OutputByAlias()
         {
             int[] values = new int[] { 0, 1, 2, 3, 4 };
-            ref int lastValue = ref RefLastValue(values); // Not copied.
-            lastValue = 10;
-            Trace.WriteLine(values[values.Length - 1]); // 10
+            ref int firstValue = ref FirstValueByAlias(values); // Not copied.
+            firstValue = 10;
+            values[0].WriteLine(); // 10
 
             Uri[] references = new Uri[] { new Uri("https://weblogs.asp.net/dixin") };
-            ref Uri lastReference = ref RefLastReference(references); // Not copied.
-            lastReference = new Uri("https://flickr.com/dixin");
-            Trace.WriteLine(references[references.Length - 1]); // https://flickr.com/dixin
+            ref Uri firstReference = ref FirstReferenceByAlias(references); // Not copied.
+            firstReference = new Uri("https://flickr.com/dixin");
+            references[0].WriteLine(); // https://flickr.com/dixin
         }
 
-        internal static ref readonly int RefReadOnlyLastValue(int[] values)
+        internal static ref readonly int FirstValueByImmutableAlias(int[] values)
         {
-            int length = values.Length;
-            if (length > 0)
-            {
-                return ref values[length - 1];
-            }
-            throw new ArgumentException("Array is empty.", nameof(values));
+            return ref values[0];
         }
 
-        internal static ref readonly Uri RefReadOnlyLastReference(Uri[] references)
+        internal static ref readonly Uri FirstReferenceByImmutableAlias(Uri[] references)
         {
-            int length = references.Length;
-            if (length > 0)
-            {
-                return ref references[length - 1];
-            }
-            throw new ArgumentException("Array is empty.", nameof(references));
+            return ref references[0];
         }
 
 #if DEMO
-        internal static void ReturnByRedOnlyReference()
+        internal static void OutputByImmutableAlias()
         {
             int[] values = new int[] { 0, 1, 2, 3, 4 };
-            ref readonly int lastValue = ref RefReadOnlyLastValue(values); // Not copied.
-            lastValue = 10; // Cannot be compiled.
-            Trace.WriteLine(values[values.Length - 1]); // 10
+            ref readonly int firstValue = ref FirstValueByImmutableAlias(values); // Not copied.
+            firstValue = 10; // Cannot be compiled.
 
             Uri[] references = new Uri[] { new Uri("https://weblogs.asp.net/dixin") };
-            ref readonly Uri lastReference = ref RefReadOnlyLastReference(references); // Not copied.
-            lastReference = new Uri("https://flickr.com/dixin"); // Cannot be compiled.
-            Trace.WriteLine(references[references.Length - 1]); // https://flickr.com/dixin
+            ref readonly Uri firstReference = ref FirstReferenceByImmutableAlias(references); // Not copied.
+            firstReference = new Uri("https://flickr.com/dixin"); // Cannot be compiled.
         }
 #endif
     }

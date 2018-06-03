@@ -313,10 +313,7 @@
             Trace.WriteLine(file?.ToString());
             Trace.WriteLine(int32.ToString());
         }
-    }
 
-    internal partial class NamedFunctions
-    {
         internal static void TraceObject(Uri uri, FileInfo file, int int32)
         {
             Trace.WriteLine(uri);
