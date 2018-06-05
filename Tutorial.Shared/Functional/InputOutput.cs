@@ -90,18 +90,7 @@
         }
 
         internal static int Sum(params int[] values)
-        {
-            int sum = 0;
-            foreach (int value in values)
-            {
-                sum += value;
-            }
-
-            return sum;
-        }
-
-#if DEMO
-        internal static int CompiledSum([ParamArray] int[] values)
+        // Compiled to: Sum([ParamArray] int[] values)
         {
             int sum = 0;
             foreach (int value in values)
@@ -110,7 +99,6 @@
             }
             return sum;
         }
-#endif
 
         internal static void CallSum()
         {
@@ -132,7 +120,7 @@
         {
         }
 
-        internal static void PositionalAndNamed()
+        internal static void PositionalArgumentAndNamedArgument()
         {
             InputByCopy(null, 0); // Positional arguments.
             InputByCopy(reference: null, value: 0); // Named arguments.
@@ -141,7 +129,7 @@
             InputByCopy(reference: null, 0); // Named argument followed by positional argument.
         }
 
-        internal static void CompiledPositionalAndNamed()
+        internal static void CompiledPositionalArgumentAndNamedArguments()
         {
             InputByCopy(null, 0);
             InputByCopy(null, 0);
@@ -167,14 +155,14 @@
             InputByCopy(GetUri(), value);
         }
 
-        internal static void Named()
+        internal static void NamedArgument()
         {
             UnicodeEncoding unicodeEncoding1 = new UnicodeEncoding(true, true, true);
             UnicodeEncoding unicodeEncoding2 = new UnicodeEncoding(
                 bigEndian: true, byteOrderMark: true, throwOnInvalidBytes: true);
         }
 
-        internal static void Optional(
+        internal static void OptionalParameter(
             bool required1, char required2,
             int optional1 = int.MaxValue, string optional2 = "Default value.",
             Uri optional3 = null, Guid optional4 = new Guid(),
@@ -182,27 +170,27 @@
         {
         }
 
-        internal static void CallOptional()
+        internal static void CallOptionalParameter()
         {
-            Optional(true, '@');
-            Optional(true, '@', 1);
-            Optional(true, '@', 1, string.Empty);
-            Optional(true, '@', optional2: string.Empty);
-            Optional(
+            OptionalParameter(true, '@');
+            OptionalParameter(true, '@', 1);
+            OptionalParameter(true, '@', 1, string.Empty);
+            OptionalParameter(true, '@', optional2: string.Empty);
+            OptionalParameter(
                 optional6: Guid.NewGuid(), optional3: GetUri(), required1: false, optional1: GetInt32(),
                 required2: Convert.ToChar(64)); // Call Guid.NewGuid, then GetUri, then GetInt32, then Convert.ToChar.
         }
 
-        internal static void CompiledCallOptional()
+        internal static void CompiledCallOptionalParameter()
         {
-            Optional(true, '@', 1, "Default value.", null, new Guid(), null, new Guid());
-            Optional(true, '@', 1, "Default value.", null, new Guid(), null, new Guid());
-            Optional(true, '@', 1, string.Empty, null, new Guid(), null, new Guid());
-            Optional(true, '@', 1, string.Empty, null, new Guid(), null, new Guid());
+            OptionalParameter(true, '@', 1, "Default value.", null, new Guid(), null, new Guid());
+            OptionalParameter(true, '@', 1, "Default value.", null, new Guid(), null, new Guid());
+            OptionalParameter(true, '@', 1, string.Empty, null, new Guid(), null, new Guid());
+            OptionalParameter(true, '@', 1, string.Empty, null, new Guid(), null, new Guid());
             Guid optional6 = Guid.NewGuid(); // Call Guid.NewGuid, then GetUri, then GetInt32, then Convert.ToChar.
             Uri optional3 = GetUri();
             int optional1 = GetInt32();
-            Optional(false, Convert.ToChar(64), optional1, "Default value.", optional3);
+            OptionalParameter(false, Convert.ToChar(64), optional1, "Default value.", optional3);
         }
 
         internal static void TraceWithCaller(
@@ -277,17 +265,18 @@
             return ref references[0];
         }
 
-#if DEMO
         internal static void OutputByImmutableAlias()
         {
             int[] values = new int[] { 0, 1, 2, 3, 4 };
             ref readonly int firstValue = ref FirstValueByImmutableAlias(values); // Immutable alias of values[0].
+#if DEMO
             firstValue = 10; // Cannot be compiled.
-
+#endif
             Uri[] references = new Uri[] { new Uri("https://weblogs.asp.net/dixin") };
             ref readonly Uri firstReference = ref FirstReferenceByImmutableAlias(references); // Immutable alias of references[0].
+#if DEMO
             firstReference = new Uri("https://flickr.com/dixin"); // Cannot be compiled.
-        }
 #endif
+        }
     }
 }

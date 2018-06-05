@@ -1,12 +1,10 @@
 ﻿namespace Tutorial.Functional
 {
     using System;
-    using System.Diagnostics;
     using System.IO;
     using System.Net;
     using System.Reflection;
     using System.Threading;
-    using System.Threading.Tasks;
 
     // () -> void
     internal delegate void FuncToVoid();
@@ -54,21 +52,18 @@
 
     internal static partial class Delegates
     {
-        internal static void Constructor()
+        internal static void InstantiationWithConstructor()
         {
             Func<int, int, int> func = new Func<int, int, int>(Math.Max);
-            int result = func(1, 2);
-            Trace.WriteLine(result); // 2
+            int result1 = func(1, 2);
+            result1.WriteLine(); // 2
         }
-    }
 
-    internal static partial class Delegates
-    {
-        internal static void Instantiate()
+        internal static void Instantiation()
         {
             Func<int, int, int> func = Math.Max;
-            int result = func(1, 2);
-            Trace.WriteLine(result); // 2
+            int result2 = func(1, 2);
+            result2.WriteLine(); // 2
         }
     }
 
@@ -88,18 +83,18 @@
     {
         internal static void CompiledInstantiate()
         {
-            CompiledFunc<int, int, int> func = new CompiledFunc<int, int, int>(null, Math.Max);
+            CompiledFunc<int, int, int> func = new CompiledFunc<int, int, int>(null, Math.Max); // object is null for static method.
             int result = func.Invoke(1, 2);
-            Trace.WriteLine(result); // 2
+            result.WriteLine(); // 2
         }
     }
 #endif
 
     internal static partial class Delegates
     {
-        internal static void Invoke(Action<int> action)
+        internal static void Invoke<T>(Action<T> action, T arg)
         {
-            action?.Invoke(0); // if (action != null) { action(); }
+            action?.Invoke(arg); // if (action != null) { action(arg); }
         }
 
         internal static void TraceAllTextAsync(string path)
@@ -111,115 +106,49 @@
         internal static void TraceAllTextCallback(IAsyncResult asyncResult)
         {
             Func<string, string> func = (Func<string, string>)asyncResult.AsyncState;
-            string text = func.EndInvoke(asyncResult);
-            Trace.WriteLine(text);
+            string allText = func.EndInvoke(asyncResult);
+            allText.WriteLine();
         }
 
-        internal static async Task TraceAllTextAsyncTask(string path)
+        internal static void StaticMethod()
         {
-            string text = await Task.Run(() => File.ReadAllText(path));
-            Trace.WriteLine(text);
-        }
-
-        internal static void Static()
-        {
-            Func<int, int, int> func1 = Math.Max; // new Func<int, int, int>(Math.Max);
+            Func<int, int, int> func1 = Math.Max;
             int result1 = func1(1, 2); // func1.Invoke(1, 2);;
-            Trace.WriteLine(func1.Target == null); // True
+            (func1.Target is null).WriteLine(); // True
             MethodInfo method1 = func1.Method;
-            Trace.WriteLine($"{method1.DeclaringType}: {method1}"); // System.Math: Int32 Max(Int32, Int32)
+            $"{method1.DeclaringType}: {method1}".WriteLine(); // System.Math: Int32 Max(Int32, Int32)
 
-            Func<int, int, int> func2 = Math.Max; // new Func<int, int, int>(Math.Max);
-            Trace.WriteLine(object.ReferenceEquals(func1, func2)); // False
-            Trace.WriteLine(func1 == func2); // True
+            Func<int, int, int> func2 = Math.Max;
+            object.ReferenceEquals(func1, func2).WriteLine(); // False
+            (func1 == func2).WriteLine(); // True
         }
 
-        internal static void Instance()
+        internal static void InstanceMethod()
         {
-            object object1 = new object();
-            Func<object, bool> func1 = object1.Equals; // new Func<object, bool>(object1.Equals);
-            Trace.WriteLine(ReferenceEquals(func1.Target, object1)); // True
+            object instance1 = new object();
+            Func<object, bool> func1 = instance1.Equals;
+            object.ReferenceEquals(func1.Target, instance1).WriteLine(); // True
             MethodInfo method2 = func1.Method;
-            Trace.WriteLine($"{method2.DeclaringType}: {method2}"); // System.Object: Boolean Equals(System.Object)
+            $"{method2.DeclaringType}: {method2}".WriteLine(); // System.Object: Boolean Equals(System.Object)
 
-            object object2 = new object();
-            Func<object, bool> func2 = object2.Equals; // new Func<object, bool>(object2.Equals);
-            Trace.WriteLine(ReferenceEquals(func2.Target, object2)); // True
-            Trace.WriteLine(object.ReferenceEquals(func1, func2)); // False
-            Trace.WriteLine(func1 == func2); // False
+            object instance2 = new object();
+            Func<object, bool> func2 = instance2.Equals;
+            object.ReferenceEquals(func2.Target, instance2).WriteLine(); // True
+            object.ReferenceEquals(func1, func2).WriteLine(); // False
+            (func1 == func2).WriteLine(); // False
 
-            Func<object, bool> func3 = object1.Equals; // new Func<object, bool>(object1.Equals);
-            Trace.WriteLine(object.ReferenceEquals(func1, func3)); // False
-            Trace.WriteLine(func1 == func3); // True
+            Func<object, bool> func3 = instance1.Equals;
+            object.ReferenceEquals(func1, func3).WriteLine(); // False
+            (func1 == func3).WriteLine(); // True
         }
 
-        internal static int Add(int a, int b)
-        {
-            Trace.WriteLine(nameof(Add));
-            return a + b;
-        }
+        internal static string A() { return MethodBase.GetCurrentMethod().Name.WriteLine(); }
 
-        internal static int Subtract(int a, int b)
-        {
-            Trace.WriteLine(nameof(Subtract));
-            return a - b;
-        }
+        internal static string B() { return MethodBase.GetCurrentMethod().Name.WriteLine(); }
 
-        internal static int Multiply(int a, int b)
-        {
-            Trace.WriteLine(nameof(Multiply));
-            return a * b;
-        }
+        internal static string C() { return MethodBase.GetCurrentMethod().Name.WriteLine(); }
 
-        internal static int Divide(int a, int b)
-        {
-            Trace.WriteLine(nameof(Divide));
-            return a / b;
-        }
-
-        internal static void FunctionGroup2()
-        {
-            Func<int, int, int> addFunction = Add;
-            Func<int, int, int> subtractFunction = Subtract;
-            Func<int, int, int> functionGroup1 = addFunction + subtractFunction;
-            functionGroup1 += Multiply;
-            functionGroup1 += Divide;
-            int lastResult1 = functionGroup1(6, 2); // Add Subtract Multiply Divide
-            Trace.WriteLine(lastResult1); // 3
-
-            Func<int, int, int> functionGroup2 = functionGroup1 - addFunction;
-            functionGroup2 -= Divide;
-            int lastResult2 = functionGroup2(6, 2); // Subtract Multiply
-            Trace.WriteLine(lastResult2); // 12
-
-            Func<int, int, int> functionGroup3 = functionGroup1 - functionGroup2 + addFunction;
-            int lastResult3 = functionGroup3(6, 2); // Add Divide Add
-            Trace.WriteLine(lastResult3); // 8
-        }
-
-        internal static string A()
-        {
-            Trace.WriteLine(nameof(A));
-            return nameof(A);
-        }
-
-        internal static string B()
-        {
-            Trace.WriteLine(nameof(B));
-            return nameof(B);
-        }
-
-        internal static string C()
-        {
-            Trace.WriteLine(nameof(C));
-            return nameof(C);
-        }
-
-        internal static string D()
-        {
-            Trace.WriteLine(nameof(D));
-            return nameof(D);
-        }
+        internal static string D() { return MethodBase.GetCurrentMethod().Name.WriteLine(); }
 
         internal static void FunctionGroup()
         {
@@ -229,65 +158,62 @@
             functionGroup1 += C;
             functionGroup1 += D;
             string lastResult1 = functionGroup1(); // A B C D
-            Trace.WriteLine(lastResult1); // D
+            lastResult1.WriteLine(); // D
 
             Func<string> functionGroup2 = functionGroup1 - a;
             functionGroup2 -= D;
             string lastResult2 = functionGroup2(); // B C
-            Trace.WriteLine(lastResult2); // C
+            lastResult2.WriteLine(); // C
 
-            Func<string> functionGroup3 = functionGroup1 - functionGroup2 + a;
-            string lastResult3 = functionGroup3(); // A D A
-            Trace.WriteLine(lastResult3); // 8
+            Func<string> functionGroup3 = functionGroup1 - functionGroup2 + a + A;
+            string lastResult3 = functionGroup3(); // A D A A
+            lastResult3.WriteLine(); // A
         }
 
         internal static void CompiledFunctionGroup()
         {
             Func<string> a = A;
             Func<string> b = B;
-            Func<string> functionGroup1 = (Func<string>)Delegate.Combine(a, b); // = A + B;
-            functionGroup1 = (Func<string>)Delegate.Combine(functionGroup1, new Func<string>(C)); // += C;
-            functionGroup1 = (Func<string>)Delegate.Combine(functionGroup1, new Func<string>(D)); // += D;
-            string lastResult1 = functionGroup1.Invoke(); // A(); B(); C(); D();
-            Trace.WriteLine(lastResult1); // D
+            Func<string> functionGroup1 = (Func<string>)Delegate.Combine(a, b); // = A + B
+            functionGroup1 = (Func<string>)Delegate.Combine(functionGroup1, new Func<string>(C)); // += C
+            functionGroup1 = (Func<string>)Delegate.Combine(functionGroup1, new Func<string>(D)); // += D
+            string lastResult1 = functionGroup1.Invoke(); // A B C D
+            lastResult1.WriteLine(); // D
 
-            Func<string> functionGroup2 = (Func<string>)Delegate.Remove(functionGroup1, a); // = functionGroup1 - A;
-            functionGroup2 = (Func<string>)Delegate.Remove(functionGroup2, new Func<string>(D)); // -= D;
-            string lastResult2 = functionGroup2.Invoke(); // B(); C();
-            Trace.WriteLine(lastResult2); // C
+            Func<string> functionGroup2 = (Func<string>)Delegate.Remove(functionGroup1, a); // = functionGroup1 - A
+            functionGroup2 = (Func<string>)Delegate.Remove(functionGroup2, new Func<string>(D)); // -= D
+            string lastResult2 = functionGroup2.Invoke(); // B C
+            lastResult2.WriteLine(); // C
 
-            Func<string> functionGroup3 = (Func<string>)Delegate.Combine( // = functionGroup1 - functionGroup2 + A;
-                (Func<string>)Delegate.Remove(functionGroup1, functionGroup2), a);
-            string lastResult3 = functionGroup3(); // A(); D(); A();
-            Trace.WriteLine(lastResult3); // A
+            Func<string> functionGroup3 = (Func<string>)Delegate.Combine((Func<string>)Delegate.Combine((Func<string>)Delegate.Remove(functionGroup1, functionGroup2), a), new Func<string>(A)); // = functionGroup1 - functionGroup2 + a + A
+            string lastResult3 = functionGroup3(); // A D A A
+            lastResult3.WriteLine(); // A
         }
 
-        // EventHandler<DownloadEventArgs>: (object, DownloadEventArgs) -> void
-        internal static void TraceContent(object sender, DownloadEventArgs args)
-        {
-            Trace.WriteLine(args.Content);
-        }
-
-        // EventHandler<DownloadEventArgs>: (object, DownloadEventArgs) -> void
+        // (object, DownloadEventArgs) -> void: EventHandler<DownloadEventArgs> or Action<object, DownloadEventArgs>
         internal static void SaveContent(object sender, DownloadEventArgs args)
         {
             File.WriteAllText(Path.GetTempFileName(), args.Content);
         }
 
-        internal static void HandleEvent()
+        // (object, DownloadEventArgs) -> void: EventHandler<DownloadEventArgs> or Action<object, DownloadEventArgs>
+        internal static void TraceContent(object sender, DownloadEventArgs args)
+        {
+            args.Content.WriteLine();
+        }
+
+        internal static void Event()
         {
             Downloader downloader = new Downloader();
-            downloader.Completed += TraceContent;
             downloader.Completed += SaveContent;
+            downloader.Completed += TraceContent;
+            downloader.Completed -= SaveContent;
             downloader.Start("https://weblogs.asp.net/dixin");
         }
 
         internal class DownloadEventArgs : EventArgs
         {
-            internal DownloadEventArgs(string content)
-            {
-                this.Content = content;
-            }
+            internal DownloadEventArgs(string content) { this.Content = content; }
 
             internal string Content { get; }
         }
@@ -371,11 +297,12 @@
             }
         }
 
-        internal static void CompiledHandleEvent()
+        internal static void CompiledEvent()
         {
             SimplifiedDownloader downloader = new SimplifiedDownloader();
-            downloader.add_Completed(TraceContent);
             downloader.add_Completed(SaveContent);
+            downloader.add_Completed(TraceContent);
+            downloader.remove_Completed(SaveContent);
             downloader.Start("https://weblogs.asp.net/dixin");
         }
 
@@ -537,11 +464,24 @@ namespace System
 
         public MethodInfo Method { get; }
 
+        public static Delegate Combine(params Delegate[] delegates);
+
+        public static Delegate Combine(Delegate a, Delegate b);
+
+        public static Delegate Remove(Delegate source, Delegate value);
+
         public static bool operator ==(Delegate d1, Delegate d2);
 
         public static bool operator !=(Delegate d1, Delegate d2);
 
         // Other members.
+    }
+
+    public abstract class MulticastDelegate : Delegate
+    {
+        public static bool operator ==(MulticastDelegate d1, MulticastDelegate d2);
+
+        public static bool operator !=(MulticastDelegate d1, MulticastDelegate d2);
     }
 }
 
