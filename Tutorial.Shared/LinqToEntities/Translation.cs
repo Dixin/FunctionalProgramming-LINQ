@@ -450,7 +450,7 @@
             Func<IQueryable<Product>, Expression<Func<Product, bool>>, IQueryable<Product>> whereMethod =
                 Queryable.Where;
             MethodCallExpression whereCallExpression = Expression.Call(
-                method: whereMethod.GetMethodInfo(),
+                method: whereMethod.Method,
                 arg0: sourceConstantExpression,
                 arg1: Expression.Quote(predicateExpression));
             IQueryable<Product> whereQueryable = sourceQueryProvider
@@ -466,7 +466,7 @@
             Func<IQueryable<Product>, Expression<Func<Product, string>>, IQueryable<string>> selectMethod =
                 Queryable.Select;
             MethodCallExpression selectCallExpression = Expression.Call(
-                method: selectMethod.GetMethodInfo(),
+                method: selectMethod.Method,
                 arg0: whereCallExpression,
                 arg1: Expression.Quote(selectorExpression));
             IQueryable<string> selectQueryable = whereQueryProvider
@@ -556,7 +556,7 @@
             // string first = selectQueryable.First();
             Func<IQueryable<string>, string> firstMethod = Queryable.First;
             MethodCallExpression firstCallExpression = Expression.Call(
-                method: firstMethod.GetMethodInfo(), arg0: selectCallExpression);
+                method: firstMethod.Method, arg0: selectCallExpression);
 
             string first = selectQueryProvider.Execute<string>(firstCallExpression).WriteLine(); // Execute query.
         }
@@ -567,7 +567,7 @@
                 .Select(product => product.Name).Expression;
             Func<IQueryable<string>, string> firstMethod = Queryable.First;
             MethodCallExpression linqExpression = Expression.Call(
-                method: firstMethod.GetMethodInfo(), arg0: selectQueryable);
+                method: firstMethod.Method, arg0: selectQueryable);
             (SelectExpression DatabaseExpression, IReadOnlyDictionary<string, object> Parameters) compilation =
                 adventureWorks.Compile(linqExpression);
             compilation.DatabaseExpression.WriteLine();
@@ -1002,7 +1002,7 @@ namespace System.Linq
             Func<IQueryable<TSource>, Expression<Func<TSource, bool>>, IQueryable<TSource>> currentMethod =
                 Where;
             MethodCallExpression whereCallExpression = Expression.Call(
-                method: currentMethod.GetMethodInfo(),
+                method: currentMethod.Method,
                 arg0: source.Expression,
                 arg1: Expression.Quote(predicate));
             return source.Provider.CreateQuery<TSource>(whereCallExpression);
@@ -1014,7 +1014,7 @@ namespace System.Linq
             Func<IQueryable<TSource>, Expression<Func<TSource, TResult>>, IQueryable<TResult>> currentMethod =
                 Select;
             MethodCallExpression selectCallExpression = Expression.Call(
-                method: currentMethod.GetMethodInfo(),
+                method: currentMethod.Method,
                 arg0: source.Expression,
                 arg1: Expression.Quote(selector));
             return source.Provider.CreateQuery<TResult>(selectCallExpression);
@@ -1025,7 +1025,7 @@ namespace System.Linq
         {
             Func<IQueryable<TSource>, Expression<Func<TSource, bool>>, TSource> currentMethod = First;
             MethodCallExpression firstCallExpression = Expression.Call(
-                method: currentMethod.GetMethodInfo(),
+                method: currentMethod.Method,
                 arg0: source.Expression,
                 arg1: Expression.Quote(predicate));
             return source.Provider.Execute<TSource>(firstCallExpression);
@@ -1035,7 +1035,7 @@ namespace System.Linq
         {
             Func<IQueryable<TSource>, TSource> currentMethod = First;
             MethodCallExpression firstCallExpression = Expression.Call(
-                method: currentMethod.GetMethodInfo(),
+                method: currentMethod.Method,
                 arg0: source.Expression);
             return source.Provider.Execute<TSource>(firstCallExpression);
         }

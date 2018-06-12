@@ -7,6 +7,7 @@
     using Microsoft.FSharp.Core;
 
     using static Tutorial.CategoryTheory.DotNetCategory;
+    using static Tutorial.Functional.FirstClassFunctions;
 
 #if DEMO
     // Cannot be compiled.

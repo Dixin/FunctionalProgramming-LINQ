@@ -2,12 +2,16 @@
 {
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
+#if !WINDOWS_UWP && !ANDROID
     using System.Linq;
+#endif
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Tutorial.GettingStarted;
+#if !WINDOWS_UWP && !ANDROID
     using Tutorial.Resources;
     using Tutorial.Tests.LinqToObjects;
+#endif
 
     public partial class OverviewTests
     {

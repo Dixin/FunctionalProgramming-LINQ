@@ -331,7 +331,7 @@ namespace Tutorial.GettingStarted
             Point[] referenceArrayOnHeap = new Point[] { new Point(5, 6) };
             ValuePoint[] valueArrayOnHeap = new ValuePoint[] { new ValuePoint(7, 8) };
 
-#if NETSTANDARD2_0
+#if NETSTANDARD2_0 || __IOS__
             Span<ValuePoint> valueArrayOnStack = stackalloc[] { new ValuePoint(9, 10) };
 #endif
         }

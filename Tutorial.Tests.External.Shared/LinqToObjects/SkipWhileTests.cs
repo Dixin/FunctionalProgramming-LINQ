@@ -3,10 +3,8 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using Xunit;
-using Xunit.Abstractions;
 
 using Enumerable = Tutorial.LinqToObjects.EnumerableExtensions;
 using static Tutorial.LinqToObjects.EnumerableExtensions;

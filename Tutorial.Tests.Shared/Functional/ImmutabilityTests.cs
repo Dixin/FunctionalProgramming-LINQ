@@ -1,4 +1,4 @@
-﻿namespace Tutorial.Tests.Shared.Functional
+﻿namespace Tutorial.Tests.Functional
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Tutorial.Functional;

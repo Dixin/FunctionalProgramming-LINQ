@@ -10,7 +10,7 @@
         [TestMethod]
         public void DelegateTest()
         {
-            Delegates.Static();
+            Delegates.StaticMethod();
         }
     }
 }

@@ -10,7 +10,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)ActionFunc.Compose.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ActionFunc.Curry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ActionFunc.Forward.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CategoryTheory\Bifunctor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CategoryTheory\Category.cs" />
@@ -32,25 +31,24 @@
     <Compile Include="$(MSBuildThisFileDirectory)CategoryTheory\Performance.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CategoryTheory\UIElementExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ConnectionStrings.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Functional\AnonymousFunction.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Functional\AsyncFunction.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Functional\Lambda.AnonymousFunction.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Functional\AsynchronousFunction.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\Composition.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Functional\Curry.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Functional\ExpressionTree.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Functional\ExpressionTreeVisitor.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Functional\FluentApi.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Functional\Delegates.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Functional\HigherOrderFunction.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Functional\FirstClassFunction.Curry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Functional\Lambda.ExpressionTree.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Functional\Composition.FluentApi.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Functional\Delegate.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Functional\FirstClassFunction.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\Immutability.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\LocalFunction.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\NamedFunction.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\InputOutput.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\PatternMatching.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Functional\Purity.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Functional\QueryExpression.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Functional\QueryExpressionPattern.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Functional\PurreFunction.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Functional\Composition.QueryExpression.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Functional\Composition.QueryExpressionPattern.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GettingStarted\Basics.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Functional\Variances.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Functional\CovarianceContravariance.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GettingStarted\Overview.Linq.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GettingStarted\Overview.Linq.NetFX.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Relationship.cs" />
@@ -133,13 +131,11 @@
   <ItemGroup>
     <Content Include="$(MSBuildThisFileDirectory)Blog.htm" />
     <Content Include="$(MSBuildThisFileDirectory)BlogOriginal.htm" />
-    <Content Include="$(MSBuildThisFileDirectory)Functional\AnonymousFunction.js" />
     <Content Include="$(MSBuildThisFileDirectory)Functional\Composition.hs" />
-    <Content Include="$(MSBuildThisFileDirectory)Functional\Data.il" />
-    <Content Include="$(MSBuildThisFileDirectory)Functional\Func.il" />
-    <Content Include="$(MSBuildThisFileDirectory)Functional\HigherOrder.hs" />
-    <Content Include="$(MSBuildThisFileDirectory)Functional\LambdaExpression.txt" />
-    <Content Include="$(MSBuildThisFileDirectory)Functional\Optional.il" />
+    <Content Include="$(MSBuildThisFileDirectory)Functional\NamedFunction.Data.il" />
+    <Content Include="$(MSBuildThisFileDirectory)Functional\CovarianceContravariance.Func.il" />
+    <Content Include="$(MSBuildThisFileDirectory)Functional\Lambda.ExpressionTree.txt" />
+    <Content Include="$(MSBuildThisFileDirectory)Functional\InputOutput.OptionalParameter.il" />
     <Content Include="$(MSBuildThisFileDirectory)GettingStarted\Overview.Linq.LinqToNoSql.All.json" />
     <Content Include="$(MSBuildThisFileDirectory)LinqToEntities\AdventureWorks.Trim.sql" />
     <Content Include="$(MSBuildThisFileDirectory)LinqToEntities\Inheritance.sql" />

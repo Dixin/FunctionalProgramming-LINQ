@@ -5,148 +5,123 @@
     using System.Data.SqlClient;
     using System.Linq;
     using System.Linq.Expressions;
+#if !__IOS__
     using System.Reflection;
     using System.Reflection.Emit;
+#endif
 
-    using Tutorial.Functional;
-
-    using Array = System.Array;
-
-    internal class InfixVisitor : BinaryArithmeticExpressionVisitor<string>
+    internal static partial class RemoteQueries
     {
-        internal override string VisitBody(LambdaExpression expression) => $"SELECT {base.VisitBody(expression)};";
-
-        protected override string VisitAdd(
-            BinaryExpression add, LambdaExpression expression) => this.VisitBinary(add, "+", expression);
-
-        protected override string VisitConstant(
-           ConstantExpression constant, LambdaExpression expression) => constant.Value.ToString();
-
-        protected override string VisitDivide(
-            BinaryExpression divide, LambdaExpression expression) => this.VisitBinary(divide, "/", expression);
-
-        protected override string VisitMultiply(
-            BinaryExpression multiply, LambdaExpression expression) => this.VisitBinary(multiply, "*", expression);
-
-        protected override string VisitParameter(
-            ParameterExpression parameter, LambdaExpression expression) => $"@{parameter.Name}";
-
-        protected override string VisitSubtract(
-            BinaryExpression subtract, LambdaExpression expression) => this.VisitBinary(subtract, "-", expression);
-
-        private string VisitBinary(
-            BinaryExpression binary, string @operator, LambdaExpression expression) =>
-                $"({this.VisitNode(binary.Left, expression)} {@operator} {this.VisitNode(binary.Right, expression)})";
-    }
-
-    internal static partial class ExpressionTree
-    {
-        internal static void Sql()
+        internal static string InOrder(this LambdaExpression expression)
         {
-            InfixVisitor infixVisitor = new InfixVisitor();
-            Expression<Func<double, double, double>> expression1 = (a, b) => a * a + b * b;
-            string infixExpression1 = infixVisitor.VisitBody(expression1);
-            infixExpression1.WriteLine(); // SELECT ((@a * @a) + (@b * @b));
+            string VisitNode(Expression node)
+            {
+                switch (node.NodeType)
+                {
+                    case ExpressionType.Constant when node is ConstantExpression constant:
+                        return constant.Value.ToString();
 
-            Expression<Func<double, double, double, double, double, double>> expression2 =
-                (a, b, c, d, e) => a + b - c * d / 2 + e * 3;
-            string infixExpression2 = infixVisitor.VisitBody(expression2);
-            infixExpression2.WriteLine(); // SELECT (((@a + @b) - ((@c * @d) / 2)) + (@e * 3));
+                    case ExpressionType.Parameter when node is ParameterExpression parameter:
+                        return $"@{parameter.Name}";
+
+                    // In-order output: left child, current node, right child.
+                    case ExpressionType.Add when node is BinaryExpression binary:
+                        return $"({VisitNode(binary.Left)} + {VisitNode(binary.Right)})";
+
+                    case ExpressionType.Subtract when node is BinaryExpression binary:
+                        return $"({VisitNode(binary.Left)} - {VisitNode(binary.Right)})";
+
+                    case ExpressionType.Multiply when node is BinaryExpression binary:
+                        return $"({VisitNode(binary.Left)} * {VisitNode(binary.Right)})";
+
+                    case ExpressionType.Divide when node is BinaryExpression binary:
+                        return $"({VisitNode(binary.Left)} / {VisitNode(binary.Right)})";
+
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(node));
+                }
+            }
+
+            return $"SELECT {VisitNode(expression.Body)};";
         }
-    }
 
-    public static partial class BinaryArithmeticTranslator
-    {
-        internal static double ExecuteScalar(
+        internal static void Infix()
+        {
+            Expression<Func<double, double, double, double, double, double>> expression =
+                (a, b, c, d, e) => a + b - c * d / 2D + e * 3D;
+            string sql = expression.InOrder();
+            sql.WriteLine(); // SELECT (((@a + @b) - ((@c * @d) / 2)) + (@e * 3));
+        }
+
+        internal static double ExecuteSql(
             string connection,
-            string command,
+            string sql,
             IDictionary<string, double> parameters)
         {
             using (SqlConnection sqlConnection = new SqlConnection(connection))
-            using (SqlCommand sqlCommand = new SqlCommand(command, sqlConnection))
+            using (SqlCommand sqlCommand = new SqlCommand(sql, sqlConnection))
             {
                 sqlConnection.Open();
                 parameters.ForEach(parameter => sqlCommand.Parameters.AddWithValue(parameter.Key, parameter.Value));
                 return (double)sqlCommand.ExecuteScalar();
             }
         }
-    }
-
-    public static partial class BinaryArithmeticTranslator
-    {
-        private static readonly InfixVisitor InfixVisitor = new InfixVisitor();
 
 #if !__IOS__
-        public static TDelegate Sql<TDelegate>(
-            this Expression<TDelegate> expression, string connection) where TDelegate : class
+        public static TDelegate TranslateToSql<TDelegate>(this Expression<TDelegate> expression, string connection)
         {
             DynamicMethod dynamicMethod = new DynamicMethod(
                 string.Empty,
                 expression.ReturnType,
                 expression.Parameters.Select(parameter => parameter.Type).ToArray(),
-                typeof(BinaryArithmeticTranslator).Module);
-            EmitIL(dynamicMethod.GetILGenerator(), InfixVisitor.VisitBody(expression), expression, connection);
+                MethodBase.GetCurrentMethod().Module);
+            EmitCil(dynamicMethod.GetILGenerator(), expression.InOrder());
             return (TDelegate)(object)dynamicMethod.CreateDelegate(typeof(TDelegate));
-        }
-#endif
 
-        private static void EmitIL<TDelegate>(
-            ILGenerator ilGenerator, string infixExpression, Expression<TDelegate> expression, string connection)
-        {
-            // Dictionary<string, double> dictionary = new Dictionary<string, double>();
-            ilGenerator.DeclareLocal(typeof(Dictionary<string, double>));
-            ilGenerator.Emit(
-                OpCodes.Newobj,
-                typeof(Dictionary<string, double>).GetConstructor(Array.Empty<Type>()));
-            ilGenerator.Emit(OpCodes.Stloc_0);
-
-            for (int index = 0; index < expression.Parameters.Count; index++)
+            void EmitCil(ILGenerator generator, string sql)
             {
-                // dictionary.Add($"@{expression.Parameters[i].Name}", args[i]);
-                ilGenerator.Emit(OpCodes.Ldloc_0); // dictionary.
-                ilGenerator.Emit(OpCodes.Ldstr, $"@{expression.Parameters[index].Name}");
-                ilGenerator.Emit(OpCodes.Ldarg_S, index);
-                ilGenerator.Emit(
-                    OpCodes.Callvirt,
-                    typeof(Dictionary<string, double>).GetMethod(
-                        nameof(Dictionary<string, double>.Add),
-                        BindingFlags.Instance | BindingFlags.Public | BindingFlags.InvokeMethod));
+                // Dictionary<string, double> dictionary = new Dictionary<string, double>();
+                generator.DeclareLocal(typeof(Dictionary<string, double>));
+                generator.Emit(
+                    OpCodes.Newobj,
+                    typeof(Dictionary<string, double>).GetConstructor(Array.Empty<Type>()));
+                generator.Emit(OpCodes.Stloc_0);
+
+                for (int index = 0; index < expression.Parameters.Count; index++)
+                {
+                    // dictionary.Add($"@{expression.Parameters[i].Name}", args[i]);
+                    generator.Emit(OpCodes.Ldloc_0); // dictionary.
+                    generator.Emit(OpCodes.Ldstr, $"@{expression.Parameters[index].Name}");
+                    generator.Emit(OpCodes.Ldarg_S, index);
+                    generator.Emit(
+                        OpCodes.Callvirt,
+                        typeof(Dictionary<string, double>).GetMethod(
+                            nameof(Dictionary<string, double>.Add),
+                            BindingFlags.Instance | BindingFlags.Public | BindingFlags.InvokeMethod));
+                }
+
+                // ExecuteSql(connection, expression, dictionary);
+                generator.Emit(OpCodes.Ldstr, connection);
+                generator.Emit(OpCodes.Ldstr, sql);
+                generator.Emit(OpCodes.Ldloc_0);
+                generator.Emit(
+                    OpCodes.Call,
+                    new Func<string, string, IDictionary<string, double>, double>(ExecuteSql).Method);
+
+                generator.Emit(OpCodes.Ret); // Returns the result.
             }
-
-            // BinaryArithmeticTanslator.ExecuteSql(connection, expression, dictionary);
-            ilGenerator.Emit(OpCodes.Ldstr, connection);
-            ilGenerator.Emit(OpCodes.Ldstr, infixExpression);
-            ilGenerator.Emit(OpCodes.Ldloc_0);
-            ilGenerator.Emit(
-                OpCodes.Call,
-                typeof(BinaryArithmeticTranslator).GetMethod(
-                    nameof(ExecuteScalar),
-                    BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.InvokeMethod));
-
-            // Returns the result of ExecuteSql.
-            ilGenerator.Emit(OpCodes.Ret);
         }
-    }
-
-    internal static partial class ExpressionTree
-    {
-        internal static void ExecuteSql()
-        {
-            Expression<Func<double, double, double>> expression1 = (a, b) => a * a + b * b;
-            Func<double, double, double> local1 = expression1.Compile();
-            local1(1, 2).WriteLine(); // 5
-#if !__IOS__
-            Func<double, double, double> remote1 = expression1.Sql(ConnectionStrings.AdventureWorks);
-            remote1(1, 2).WriteLine(); // 5
 #endif
 
+        internal static void TranslateAndExecute()
+        {
             Expression<Func<double, double, double, double, double, double>> expression2 =
-                (a, b, c, d, e) => a + b - c * d / 2 + e * 3;
-            Func<double, double, double, double, double, double> local2 = expression2.Compile();
-            local2(1, 2, 3, 4, 5).WriteLine(); // 12
+                (a, b, c, d, e) => a + b - c * d / 2D + e * 3D;
+            Func<double, double, double, double, double, double> local = expression2.Compile();
+            local(1, 2, 3, 4, 5).WriteLine(); // 12
 #if !__IOS__
-            Func<double, double, double, double, double, double> remote2 = expression2.Sql(ConnectionStrings.AdventureWorks);
-            remote2(1, 2, 3, 4, 5).WriteLine(); // 12
+            Func<double, double, double, double, double, double> remote = expression2.TranslateToSql(ConnectionStrings.AdventureWorks);
+            remote(1, 2, 3, 4, 5).WriteLine(); // 12
 #endif
         }
     }

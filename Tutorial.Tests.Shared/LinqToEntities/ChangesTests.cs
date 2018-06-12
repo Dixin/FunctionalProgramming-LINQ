@@ -10,7 +10,6 @@
 
     using Tutorial.LinqToEntities;
 #else
-    using System;
     using System.Linq;
     using System.Diagnostics;
 
@@ -18,8 +17,6 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using Tutorial.LinqToEntities;
-
-    using static TransactionHelper;
 #endif
 
     [TestClass]

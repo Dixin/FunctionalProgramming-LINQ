@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Reflection;
 using System.Resources;
+#if NETFX || WINDOWS_UWP
 using System.Runtime.InteropServices;
-
+#endif
 
 [assembly: AssemblyDescription("Code examples for https://weblogs.asp.net/dixin/linq-via-csharp.")]
 [assembly: AssemblyCopyright("Dixin Yan https://weblogs.asp.net/dixin")]

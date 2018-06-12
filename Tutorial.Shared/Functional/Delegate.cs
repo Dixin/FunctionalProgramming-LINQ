@@ -59,6 +59,13 @@
             result1.WriteLine(); // 2
         }
 
+        internal static void InstantiationWithConversion()
+        {
+            Func<int, int, int> func = (Func<int, int, int>)Math.Max;
+            int result1 = func(1, 2);
+            result1.WriteLine(); // 2
+        }
+
         internal static void Instantiation()
         {
             Func<int, int, int> func = Math.Max;

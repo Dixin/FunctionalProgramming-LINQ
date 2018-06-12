@@ -7,7 +7,6 @@
 #else
     using System.Data.SqlClient;
     using System.IO;
-
     using Microsoft.Extensions.Configuration;
 #endif
 

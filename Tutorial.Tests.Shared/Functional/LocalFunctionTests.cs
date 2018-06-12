@@ -5,7 +5,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
-    public class LocalFunctionsTests
+    public class LocalFunctionTests
     {
         [TestMethod]
         public void BinarySearchTest()

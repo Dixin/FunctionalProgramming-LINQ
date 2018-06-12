@@ -122,7 +122,7 @@
 
         public bool Equals(Data other) // Member of IEquatable<T>.
         {
-            return this.value == other.value;
+            return other != null && this.value == other.value;
         }
     }
 

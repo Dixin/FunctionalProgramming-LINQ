@@ -18,6 +18,13 @@
 
     using static Tutorial.LinqToObjects.EnumerableX;
 
+    public static partial class FuncPaitialApplicationExtensions
+    {
+        public static Func<TResult> Partial<T1, TResult>(
+            this Func<T1, TResult> function, T1 value1) =>
+            () => function(value1);
+    }
+
     [TestClass]
     public class MonadTests
     {

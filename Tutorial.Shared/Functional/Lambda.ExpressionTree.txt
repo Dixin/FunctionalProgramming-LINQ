@@ -46,7 +46,7 @@ Expression<Func<double, double, double, double, double, double>> (NodeType = Lam
     |       |     |_ParameterExpression (NodeType = Parameter, Type = double)
     |       |       |_Name = "d"
     |       |_Right
-    |         |_ConstantExpression (NodeType = Constant, Type = int)
+    |         |_ConstantExpression (NodeType = Constant, Type = double)
     |           |_Value = 2
     |_Right
       |_BinaryExpression (NodeType = Multiply, Type = double)
@@ -54,5 +54,5 @@ Expression<Func<double, double, double, double, double, double>> (NodeType = Lam
         | |_ParameterExpression (NodeType = Parameter, Type = double)
         |   |_Name = "e"
         |_Right
-          |_ConstantExpression (NodeType = Constant, Type = int)
+          |_ConstantExpression (NodeType = Constant, Type = double)
             |_Value = 3

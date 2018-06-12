@@ -35,7 +35,6 @@
     using System.Diagnostics;
     using System.Linq;
     using System.Linq.Expressions;
-    using System.Reflection;
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
 
@@ -328,7 +327,7 @@
                     Expression<Func<Product, bool>> predicateExpression = Expression.Lambda<Func<Product, bool>>(
                         Expression.Call(
                             instance: Expression.Property(productParameterExpression, nameof(Product.Name)),
-                            method: startsWithMethod.GetMethodInfo(),
+                            method: startsWithMethod.Method,
                             arguments: Expression.Constant(startWith, typeof(string))),
                         productParameterExpression);
                     return predicateExpression;
