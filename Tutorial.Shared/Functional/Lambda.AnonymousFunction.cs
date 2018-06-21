@@ -34,7 +34,7 @@
         [CompilerGenerated]
         private static bool CompiledIsPositive(int int32) { return int32 > 0; }
 
-        internal static void CompiledAnonymousFunction()
+        internal static void CompiledAnonymousMethod()
         {
             Func<int, bool> isPositive;
             if (cachedIsPositive == null)

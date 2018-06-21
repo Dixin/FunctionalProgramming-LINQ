@@ -36,7 +36,17 @@
                         ),
                         @string => $"{@string.Length}: {@string}"
                     )
-                ); // -> string
+                );
+        }
+
+        internal static void RangeVariable(IEnumerable<int> source)
+        {
+            IEnumerable<string> query =
+                from variable in source // variable is int.
+                where variable > 0 // variable is int.
+                select variable.ToString() /* variable is int. */ into variable // variable is string.
+                orderby variable.Length // variable is string.
+                select variable.ToUpperInvariant(); // variable is string.
         }
 
         internal static void QueryExpressionClause(
@@ -197,6 +207,16 @@
                     context => context.color.ToString()[0],
                     context => context.color
                 );
+        }
+
+        internal static void QueryExpressionToMethod(IEnumerable<int> source)
+        {
+            IEnumerable<int> positive = from int32 in source
+                                        where int32 > 0
+                                        select int32;
+            foreach (int int32 in positive)
+            {
+            }
         }
 
         private static TResult Select<TResult>(this int source, Func<int, TResult> selector) =>
