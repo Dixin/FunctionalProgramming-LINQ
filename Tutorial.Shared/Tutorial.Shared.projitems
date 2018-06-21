@@ -10,7 +10,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)ActionFunc.Compose.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ActionFunc.Forward.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CategoryTheory\Bifunctor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CategoryTheory\Category.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CategoryTheory\Functions.cs" />
@@ -36,7 +35,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Functional\Composition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\FirstClassFunction.Curry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\Lambda.ExpressionTree.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Functional\Composition.FluentApi.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\Delegate.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\FirstClassFunction.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\Immutability.cs" />
@@ -45,8 +43,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Functional\InputOutput.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\PatternMatching.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\PurreFunction.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Functional\Composition.QueryExpression.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Functional\Composition.QueryExpressionPattern.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Functional\Composition.Linq.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GettingStarted\Basics.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\CovarianceContravariance.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GettingStarted\Overview.Linq.cs" />
@@ -131,7 +128,6 @@
   <ItemGroup>
     <Content Include="$(MSBuildThisFileDirectory)Blog.htm" />
     <Content Include="$(MSBuildThisFileDirectory)BlogOriginal.htm" />
-    <Content Include="$(MSBuildThisFileDirectory)Functional\Composition.hs" />
     <Content Include="$(MSBuildThisFileDirectory)Functional\NamedFunction.Data.il" />
     <Content Include="$(MSBuildThisFileDirectory)Functional\CovarianceContravariance.Func.il" />
     <Content Include="$(MSBuildThisFileDirectory)Functional\Lambda.ExpressionTree.txt" />

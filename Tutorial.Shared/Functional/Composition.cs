@@ -2,24 +2,53 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
 
-    internal static partial class Functions
+    internal static partial class Compositions
     {
+        internal static void OutputAsInput<T, TResult1, TResult2>(
+            Func<TResult1, TResult2> second, // TResult1 -> TResult2
+            Func<T, TResult1> first) // T -> TResult1
+        {
+            Func<T, TResult2> composition = value => second(first(value)); // T -> TResult2
+        }
+
         internal static void OutputAsInput()
         {
-            string input = "-2";
-            int output1 = int.Parse(input); // string -> int
-            int output2 = Math.Abs(output1); // int -> int
-            double output3 = Convert.ToDouble(output2); // int -> double
-            double output4 = Math.Sqrt(output3); // double -> double
+            string @string = "-2";
+            int int32 = int.Parse(@string); // string -> int
+            int absolute = Math.Abs(int32); // int -> int
+            double @double = Convert.ToDouble(absolute); // int -> double
+            double squareRoot = Math.Sqrt(@double); // double -> double
+            squareRoot.WriteLine(); // 
         }
 
         // string -> double
-        internal static double Composition(string input) => 
-            Math.Sqrt(Convert.ToDouble(Math.Abs(int.Parse(input))));
+        internal static double Composition(string value) =>
+            Math.Sqrt(Convert.ToDouble(Math.Abs(int.Parse(value))));
 
-        internal static void Compose()
+        // Input: TResult1 -> TResult2, T -> TResult1.
+        // Output: T -> TResult2
+        public static Func<T, TResult2> After<T, TResult1, TResult2>(
+            this Func<TResult1, TResult2> second, Func<T, TResult1> first) =>
+            value => second(first(value));
+
+        // Input: T -> TResult1, TResult1 -> TResult2.
+        // Output: T -> TResult2
+        public static Func<T, TResult2> Then<T, TResult1, TResult2>(
+            this Func<T, TResult1> first, Func<TResult1, TResult2> second) =>
+            value => second(first(value));
+
+        internal static void Composition<T, TResult1, TResult2>(
+            Func<TResult1, TResult2> second, // TResult1 -> TResult2
+            Func<T, TResult1> first) // T -> TResult1
+        {
+            Func<T, TResult2> composition; // T -> TResult2
+            composition = second.After(first);
+            // Equivalent to:
+            composition = first.Then(second);
+        }
+
+        internal static void BackwardCompositionForwardComposition()
         {
             Func<string, int> parse = int.Parse; // string -> int
             Func<int, int> abs = Math.Abs; // int -> int
@@ -27,125 +56,299 @@
             Func<double, double> sqrt = Math.Sqrt; // double -> double
 
             // string -> double
-            Func<string, double> composition1 = sqrt.After(convert).After(abs).After(parse);
-            composition1("-2.0").WriteLine(); // 1.4142135623731
+            Func<string, double> backwardComposition = sqrt.After(convert).After(abs).After(parse);
+            backwardComposition("-2").WriteLine(); // 1.4142135623731
 
             // string -> double
-            Func<string, double> composition2 = parse.Then(abs).Then(convert).Then(sqrt);
-            composition2("-2.0").WriteLine(); // 1.4142135623731
+            Func<string, double> forwardComposition = parse.Then(abs).Then(convert).Then(sqrt);
+            forwardComposition("-2").WriteLine(); // 1.4142135623731
         }
 
-        internal static void Linq()
+        internal static void ListFunctions()
         {
-            Func<IEnumerable<int>, IEnumerable<int>> where = source => Enumerable.Where(source, int32 => int32 > 0);
-            Func<IEnumerable<int>, IEnumerable<int>> skip = filtered => Enumerable.Skip(filtered, 1);
-            Func<IEnumerable<int>, IEnumerable<int>> take = skipped => Enumerable.Take(skipped, 2);
-            IEnumerable<int> query = take(skip(where(new int[] { 4, 3, 2, 1, 0, -1 })));
-            foreach (int result in query) // Execute query.
-            {
-                result.WriteLine();
-            }
+            List<int> list = new List<int>() { -2, -1, 0, 1, 2 };
+            list.RemoveAt(0); // -> void
+            list = list.FindAll(int32 => int32 > 0); // -> List<T>
+            list.Reverse(); // -> void
+            list.ForEach(int32 => int32.WriteLine()); // -> void
+            list.Clear(); // -> void
+            list.Add(1); // -> void
         }
 
-        internal static void ComposeLinq()
+        // T -> List<T> -> List<T>
+        internal static Func<List<T>, List<T>> Add<T>(T value) =>
+            list =>
+                {
+                    list.Add(value);
+                    return list;
+                };
+
+        // List<T> -> List<T>
+        internal static List<T> Clear<T>(List<T> list)
         {
-            Func<IEnumerable<int>, IEnumerable<int>> composition =
-                new Func<IEnumerable<int>, IEnumerable<int>>(source => Enumerable.Where(source, int32 => int32 > 0))
-                    .Then(filtered => Enumerable.Skip(filtered, 1))
-                    .Then(skipped => Enumerable.Take(skipped, 2));
-            IEnumerable<int> query = composition(new int[] { 4, 3, 2, 1, 0, -1 });
-            foreach (int result in query) // Execute query.
-            {
-                result.WriteLine();
-            }
+            list.Clear();
+            return list;
         }
 
-        // Func<TSource, bool> -> IEnumerable<TSource> -> IEnumerable<TSource>
-        internal static Func<IEnumerable<TSource>, IEnumerable<TSource>> Where<TSource>(
-            Func<TSource, bool> predicate) => (IEnumerable<TSource> source) => Enumerable.Where(source, predicate);
+        // Predicate<T> -> List<T> -> List<T>
+        internal static Func<List<T>, List<T>> FindAll<T>(Predicate<T> match) =>
+            list => list.FindAll(match);
 
-        // int -> IEnumerable<TSource> -> IEnumerable<TSource>
-        internal static Func<IEnumerable<TSource>, IEnumerable<TSource>> Skip<TSource>(
-            int count) => source => Enumerable.Skip(source, count);
+        // Action<T> -> List<T> -> List<T>
+        internal static Func<List<T>, List<T>> ForEach<T>(Action<T> action) =>
+            list =>
+                {
+                    list.ForEach(action);
+                    return list;
+                };
 
-        // int -> IEnumerable<TSource> -> IEnumerable<TSource>
-        internal static Func<IEnumerable<TSource>, IEnumerable<TSource>> Take<TSource>(
-            int count) => source => Enumerable.Take(source, count);
+        // int -> List<T> -> List<T>
+        internal static Func<List<T>, List<T>> RemoveAt<T>(int index) =>
+            list =>
+                {
+                    list.RemoveAt(index);
+                    return list;
+                };
 
-        internal static void LinqWithPartialApplication()
+        // List<T> -> List<T>
+        internal static List<T> Reverse<T>(List<T> list)
         {
-            // IEnumerable<TSource> -> IEnumerable<TSource>
-            Func<IEnumerable<int>, IEnumerable<int>> where = Where<int>(int32 => int32 > 0);
-            Func<IEnumerable<int>, IEnumerable<int>> skip = Skip<int>(1);
-            Func<IEnumerable<int>, IEnumerable<int>> take = Take<int>(2);
-
-            IEnumerable<int> query = take(skip(where(new int[] { 4, 3, 2, 1, 0, -1 })));
-            foreach (int result in query) // Execute query.
-            {
-                result.WriteLine();
-            }
+            list.Reverse();
+            return list;
         }
 
-        internal static void ComposeLinqWithPartialApplication()
+        internal static void TransformationForComposition()
         {
-            Func<IEnumerable<int>, IEnumerable<int>> composition =
-                Where<int>(int32 => int32 > 0)
-                .Then(Skip<int>(1))
-                .Then(Take<int>(2));
+            // List<int> -> List<int>
+            Func<List<int>, List<int>> removeAtWithIndex = RemoveAt<int>(0);
+            Func<List<int>, List<int>> findAllWithPredicate = FindAll<int>(int32 => int32 > 0);
+            Func<List<int>, List<int>> reverse = Reverse;
+            Func<List<int>, List<int>> forEachWithAction = ForEach<int>(int32 => int32.WriteLine());
+            Func<List<int>, List<int>> clear = Clear;
+            Func<List<int>, List<int>> addWithValue = Add(1);
 
-            IEnumerable<int> query = composition(new int[] { 4, 3, 2, 1, 0, -1 });
-            foreach (int result in query) // Execute query.
-            {
-                result.WriteLine();
-            }
+            Func<List<int>, List<int>> backwordComposition =
+                addWithValue
+                    .After(clear)
+                    .After(forEachWithAction)
+                    .After(reverse)
+                    .After(findAllWithPredicate)
+                    .After(removeAtWithIndex);
+
+            Func<List<int>, List<int>> forwardComposition =
+                removeAtWithIndex
+                    .Then(findAllWithPredicate)
+                    .Then(reverse)
+                    .Then(forEachWithAction)
+                    .Then(clear)
+                    .Then(addWithValue);
         }
 
-        internal static void Forward()
+        internal static void ForwardComposition()
         {
-            "-2"
+            Func<List<int>, List<int>> forwardComposition =
+                RemoveAt<int>(0)
+                    .Then(FindAll<int>(int32 => int32 > 0))
+                    .Then(Reverse)
+                    .Then(ForEach<int>(int32 => int32.WriteLine()))
+                    .Then(Clear)
+                    .Then(Add(1));
+
+            List<int> list = new List<int>() { -2, -1, 0, 1, 2 };
+            List<int> result = forwardComposition(list);
+        }
+
+        // Input, T, T -> TResult.
+        // Output TResult.
+        public static TResult Forward<T, TResult>(this T value, Func<T, TResult> function) =>
+            function(value);
+
+        internal static void OutputAsInput<T, TResult1, TResult2>(
+            Func<TResult1, TResult2> second, // TResult1 -> TResult2
+            Func<T, TResult1> first, // T -> TResult1
+            T value)
+        {
+            TResult2 result = value.Forward(first).Forward(second);
+        }
+
+        internal static void ForwardPiping()
+        {
+            double result = "-2"
                 .Forward(int.Parse) // string -> int
                 .Forward(Math.Abs) // int -> int
                 .Forward(Convert.ToDouble) // int -> double
-                .Forward(Math.Sqrt) // double -> double
-                .Forward(Console.WriteLine); // double -> void
-
-            // Equivalent to:
-            Console.WriteLine(Math.Sqrt(Convert.ToDouble(Math.Abs(int.Parse("-2")))));
+                .Forward(Math.Sqrt); // double -> double
         }
 
-        internal static void ForwardAndNullConditional(IDictionary<string, object> dictionary, string key)
+        internal static void ForwardPipingWithPartialApplication()
         {
-            object value = dictionary[key];
-            DateTime? dateTime1;
-            if (value != null)
-            {
-                dateTime1 = Convert.ToDateTime(value);
-            }
-            else
-            {
-                dateTime1 = null;
-            }
-
-            // Equivalent to:
-            DateTime? dateTime2 = dictionary[key]?.Forward(Convert.ToDateTime);
-        }
-
-        internal static void ForwardLinqWithPartialApplication()
-        {
-            IEnumerable<int> source = new int[] { 4, 3, 2, 1, 0, -1 };
-            IEnumerable<int> query = source
-                .Forward(Where<int>(int32 => int32 > 0))
-                .Forward(Skip<int>(1))
-                .Forward(Take<int>(2));
-            foreach (int result in query) // Execute query.
-            {
-                result.WriteLine();
-            }
+            List<int> result = new List<int>() { -2, -1, 0, 1, 2 }
+                .Forward(RemoveAt<int>(1))
+                .Forward(FindAll<int>(int32 => int32 > 0))
+                .Forward(Reverse)
+                .Forward(ForEach<int>(int32 => int32.WriteLine()))
+                .Forward(Clear)
+                .Forward(Add(1));
         }
 
         internal static void InstanceMethodChaining(string @string)
         {
-            string result = @string.TrimStart().Substring(1, 10).Replace("a", "b").ToUpperInvariant();
+            string result = @string.Trim().Substring(1).Remove(10).ToUpperInvariant();
+        }
+
+        internal class FluentList<T>
+        {
+            internal FluentList(List<T> list) => this.List = list;
+
+            internal List<T> List { get; }
+
+            internal FluentList<T> Add(T value)
+            {
+                this.List.Add(value);
+                return this;
+            }
+
+            internal FluentList<T> Clear()
+            {
+                this.List.Clear();
+                return this;
+            }
+
+            internal FluentList<T> FindAll(Predicate<T> predicate) => new FluentList<T>(this.List.FindAll(predicate));
+
+            internal FluentList<T> ForEach(Action<T> action)
+            {
+                this.List.ForEach(action);
+                return this;
+            }
+
+            internal FluentList<T> RemoveAt(int index)
+            {
+                this.List.RemoveAt(index);
+                return this;
+            }
+
+            internal FluentList<T> Reverse()
+            {
+                this.List.Reverse();
+                return this;
+            }
+        }
+
+        internal static void InstanceMethodChaining()
+        {
+            List<int> list = new List<int>() { -2, -1, 0, 1, 2 };
+            FluentList<int> resultWrapper = new FluentList<int>(list)
+                .RemoveAt(0)
+                .FindAll(int32 => int32 > 0)
+                .Reverse()
+                .ForEach(int32 => int32.WriteLine())
+                .Clear()
+                .Add(1);
+            List<int> result = resultWrapper.List;
+        }
+
+        internal static List<T> ExtensionAdd<T>(this List<T> list, T item)
+        {
+            list.Add(item);
+            return list;
+        }
+
+        internal static List<T> ExtensionClear<T>(this List<T> list)
+        {
+            list.Clear();
+            return list;
+        }
+
+        internal static List<T> ExtensionFindAll<T>(this List<T> list, Predicate<T> predicate) =>
+            list.FindAll(predicate);
+
+        internal static List<T> ExtensionForEach<T>(this List<T> list, Action<T> action)
+        {
+            list.ForEach(action);
+            return list;
+        }
+
+        internal static List<T> ExtensionRemoveAt<T>(this List<T> list, int index)
+        {
+            list.RemoveAt(index);
+            return list;
+        }
+
+        internal static List<T> ExtensionReverse<T>(this List<T> list)
+        {
+            list.Reverse();
+            return list;
+        }
+
+        internal static void ExtensionMethodComposition()
+        {
+            List<int> result = new List<int>() { -2, -1, 0, 1, 2 }
+                .ExtensionRemoveAt(0)
+                .ExtensionFindAll(int32 => int32 > 0)
+                .ExtensionReverse()
+                .ExtensionForEach(int32 => int32.WriteLine())
+                .ExtensionClear()
+                .ExtensionAdd(1);
+        }
+
+        internal static void CompiledExtensionMethodComposition()
+        {
+            List<int> result =
+                ExtensionAdd(
+                    ExtensionClear(
+                        ExtensionForEach(
+                            ExtensionReverse(
+                                ExtensionFindAll(
+                                    ExtensionRemoveAt(
+                                        new List<int>() { -2, -1, 0, 1, 2 },
+                                        0
+                                    ),
+                                    int32 => int32 > 0
+                                )
+                            ),
+                            int32 => int32.WriteLine()
+                        )
+                    ),
+                    1
+                );
+        }
+
+        internal static int ParseInt32(this string @string) => int.Parse(@string);
+
+        internal static int Abs(this int int32) => Math.Abs(int32);
+
+        internal static double ToDouble(this int int32) => Convert.ToDouble(int32);
+
+        internal static double Sqrt(this double @double) => Math.Sqrt(@double);
+
+        internal static void ForwardPipingWithExtensionMethod()
+        {
+            double result = "-2"
+                .ParseInt32() // .Forward(int.Parse)
+                .Abs() // .Forward(Math.Abs)
+                .ToDouble() // .Forward(Convert.ToDouble)
+                .Sqrt(); // .Forward(Math.Sqrt);
+        }
+    }
+
+    internal interface IAnimal
+    {
+        IAnimal Eat();
+
+        IAnimal Move();
+    }
+
+    internal static class AnimalExtensions
+    {
+        internal static IAnimal Sleep(this IAnimal animal) => animal;
+    }
+
+    internal static partial class Compositions
+    {
+        internal static void FluentInterface(IAnimal animal)
+        {
+            IAnimal result = animal.Eat().Move().Sleep();
         }
     }
 }
@@ -153,87 +356,19 @@
 #if DEMO
 namespace System.Collections.Generic
 {
-    public interface IEnumerable<out T> : IEnumerable
+    public class List<T> : ICollection<T>, IEnumerable<T>, IEnumerable, IList<T>, IReadOnlyCollection<T>, IReadOnlyList<T>, ICollection, IList
     {
-        IEnumerator<T> GetEnumerator();
-    }
-}
+        public void Add(T item); // (List<T>, T) -> void
 
-namespace System.Linq
-{
-    using System.Collections.Generic;
+        public void Clear(); // List<T> -> void
 
-    public static class Enumerable
-    {
-        // (IEnumerable<TSource>, TSource -> bool) -> IEnumerable<TSource>
-        public static IEnumerable<TSource> Where<TSource>(
-            this IEnumerable<TSource> source, Func<TSource, bool> predicate);
+        public List<T> FindAll(Predicate<T> match); // (List<T>, Predicate<T>) -> List<T>
 
-        // (IEnumerable<TSource>, int) -> IEnumerable<TSource>
-        public static IEnumerable<TSource> Skip<TSource>(
-            this IEnumerable<TSource> source, int count);
+        public void ForEach(Action<T> action); // (List<T>, Action<T>) -> void
 
-        // (IEnumerable<TSource>, int) -> IEnumerable<TSource>
-        public static IEnumerable<TSource> Take<TSource>(
-            this IEnumerable<TSource> source, int count);
+        public void RemoveAt(int index); // (List<T>, index) -> void
 
-        // Other members.
-    }
-}
-
-namespace System.Linq
-{
-    using System.Collections;
-    using System.Collections.Generic;
-
-    public interface IOrderedEnumerable<TElement> : IEnumerable<TElement>, IEnumerable
-    {
-        IOrderedEnumerable<TElement> CreateOrderedEnumerable<TKey>(
-            Func<TElement, TKey> keySelector, IComparer<TKey> comparer, bool descending);
-    }
-
-    public static class Enumerable
-    {
-        public static IOrderedEnumerable<TSource> OrderBy<TSource, TKey>(
-            this IEnumerable<TSource> source, Func<TSource, TKey> keySelector);
-
-        public static IOrderedEnumerable<TSource> OrderByDescending<TSource, TKey>(
-            this IEnumerable<TSource> source, Func<TSource, TKey> keySelector);
-
-        public static IOrderedEnumerable<TSource> ThenBy<TSource, TKey>(
-            this IOrderedEnumerable<TSource> source, Func<TSource, TKey> keySelector);
-
-        public static IOrderedEnumerable<TSource> ThenByDescending<TSource, TKey>(
-            this IOrderedEnumerable<TSource> source, Func<TSource, TKey> keySelector);
-    }
-}
-
-namespace System.Linq
-{
-    public static class ParallelEnumerable
-    {
-        public static ParallelQuery<TSource> Where<TSource>(
-            this ParallelQuery<TSource> source, Func<TSource, bool> predicate);
-
-        public static OrderedParallelQuery<TSource> OrderBy<TSource, TKey>(
-            this ParallelQuery<TSource> source, Func<TSource, TKey> keySelector);
-
-        public static ParallelQuery<TResult> Select<TSource, TResult>(
-            this ParallelQuery<TSource> source, Func<TSource, TResult> selector);
-
-        // Other members.
-    }
-
-    public static class Queryable
-    {
-        public static IQueryable<TSource> Where<TSource>(
-            this IQueryable<TSource> source, Func<TSource, bool> predicate);
-
-        public static IOrderedQueryable<TSource> OrderBy<TSource, TKey>(
-            this IQueryable<TSource> source, Func<TSource, TKey> keySelector);
-
-        public static IQueryable<TResult> Select<TSource, TResult>(
-            this IQueryable<TSource> source, Func<TSource, TResult> selector);
+        public void Reverse(); // List<T> -> void
 
         // Other members.
     }

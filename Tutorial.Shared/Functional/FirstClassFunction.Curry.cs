@@ -163,17 +163,17 @@
             Func<int, int, int> add2Args = (a, b) => a + b;
 
             // int -> int
-            Func<int, int> add1ArgAnd1Constant = b => 1 + b; // Partially apply add2Args with a = 1.
+            Func<int, int> add1ArgAnd1Variable = b => 1 + b; // Partially apply add2Args with a = 1.
 
             // (int, int, int) -> void
             Action<int, int, int> add3Args = (a, b, c) => (a + b + c).WriteLine();
             add2Args(1, 2);
 
             // (int, int) -> void
-            Action<int, int> add2ArgsAnd1Constant = (b, c) => (1 + b + c).WriteLine();  // Partially apply add2Args with a = 1.
-            // add2ArgsAnd1Constant can be called with 2 arguments, or be partially applied again with b = 2:
+            Action<int, int> add2ArgsAnd1Variable = (b, c) => (1 + b + c).WriteLine();  // Partially apply add2Args with a = 1.
+            // add2ArgsAnd1Variable can be called with 2 arguments, or be partially applied again with b = 2:
             // int -> void
-            Action<int> add1ArgsAnd2Constant = c => (1 + 2 + c).WriteLine();
+            Action<int> add1ArgsAnd2Variable = c => (1 + 2 + c).WriteLine();
         }
 
         // Input: function of type (T1, T2) -> TResult, first parameter of type T1.

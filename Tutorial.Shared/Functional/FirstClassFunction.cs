@@ -104,8 +104,8 @@
             // Input: value of type int. output: function of type int -> int.
             Func<int, Func<int, int>> higherOrderAdd2Args = a =>
                 new Func<int, int>(b => a + b);
-            Func<int, int> add1ArgAnd1Constant = higherOrderAdd2Args(1); // Equivalent to: b => 1 + b.
-            int higherOrderResult = add1ArgAnd1Constant(2); // 3
+            Func<int, int> add1ArgAnd1Variable = higherOrderAdd2Args(1); // Equivalent to: b => 1 + b.
+            int higherOrderResult = add1ArgAnd1Variable(2); // 3
             // Equivalent to: int higherOrderResult = higherOrderAdd2Args(1)(2);
         }
 
@@ -120,9 +120,9 @@
             Func<int, Func<int, Func<int, int>>> higherOrderAdd3Args = a =>
                 new Func<int, Func<int, int>>(b =>
                     new Func<int, int>(c => a + b + c));
-            Func<int, Func<int, int>> higherOrderAdd2ArgsAnd1Constant = higherOrderAdd3Args(1); // Equivalent to: b => (c => 1 + b + c).
-            Func<int, int> add1ArgAnd2Constants = higherOrderAdd2ArgsAnd1Constant(2); // Equivalent to: c => 1 + 2 + c.
-            int higherOrderResult = add1ArgAnd2Constants(3); // 6
+            Func<int, Func<int, int>> higherOrderAdd2ArgsAnd1Variable = higherOrderAdd3Args(1); // Equivalent to: b => (c => 1 + b + c).
+            Func<int, int> add1ArgAnd2Variables = higherOrderAdd2ArgsAnd1Variable(2); // Equivalent to: c => 1 + 2 + c.
+            int higherOrderResult = add1ArgAnd2Variables(3); // 6
             // Equivalent to: int higherOrderResult = higherOrderAdd3Args(1)(2)(3);
         }
 
