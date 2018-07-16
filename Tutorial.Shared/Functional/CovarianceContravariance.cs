@@ -488,4 +488,3 @@ namespace System.Linq
     public interface IQueryable<out T> : IEnumerable<T>, IEnumerable, IQueryable { }
 }
 #endif
-

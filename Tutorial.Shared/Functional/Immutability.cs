@@ -12,36 +12,55 @@
 
     internal static partial class Immutability
     {
-        internal static void Const()
+        internal static void ConstantLocal()
         {
-            const int immutable1 = 1;
-            const int immutable2 = immutable1 + 10;
-            const string immutable3 = "https://weblogs.asp.net/dixin";
-            const object immutale4 = null;
-            const Uri immutable5 = null;
-#if DEMO
-            const Uri immutable6 = new Uri(immutable2); // Cannot be compiled.
-#endif
+            const int ImmutableInt32 = 1;
+            const int ImmutableInt32Sum = ImmutableInt32 + 2;
+            // Constant expression ImmutableInt32 + 2 is compiled to: 3.
+            const DayOfWeek ImmutableDayOfWeek = DayOfWeek.Saturday;
+            const decimal ImmutableDecimal = (1M + 2M) * 3M;
+            const string ImmutableString = "https://weblogs.asp.net/dixin";
+            const string ImmutableStringConcat = "https://" + "flickr.com/dixin";
+            const Uri ImmutableUri = null;
+            // Reassignment to above constant locals cannot be compiled.
 
-            double variable = Math.Abs(immutable2); // Compiled to Math.Abs(11)
+            int variableInt32 = Math.Max(ImmutableInt32, ImmutableInt32Sum);
+            // Compiled to: Math.Max(1, 3).
+            Trace.WriteLine(ImmutableString);
+            // Compiled to: Trace.WriteLine("https://weblogs.asp.net/dixin").
         }
-    }
 
-    internal static partial class Immutability
-    {
-        internal static void ForEach(IEnumerable<int> source)
+        internal enum Day
         {
-            foreach (int immutable in source)
-            {
-                // Cannot reassign to immutable.
-            }
+            Sun, Mon, Tue, Wed, Thu, Fri, Sat
+        }
+        // Compiled to:
+        internal enum CompiledDay : int
+        {
+            Sun = 0, Mon = 1, Tue = 2, Wed = 3, Thu = 4, Fri = 5, Sat = 6
+        }
+
+        internal static void Enumeration()
+        {
+            Trace.WriteLine((int)Day.Mon); // Compiled to: Trace.WriteLine(1).
+            Trace.WriteLine(Day.Mon + 2); // Compiled to: Trace.WriteLine(Day.Wed).
+            Trace.WriteLine((int)Day.Mon + Day.Thu); // Compiled to: Trace.WriteLine(Day.Fri).
+            Trace.WriteLine(Day.Sat - Day.Mon); // Compiled to: Trace.WriteLine(5).
         }
 
         internal static void Using(Func<IDisposable> disposableFactory)
         {
-            using (IDisposable immutable = disposableFactory())
+            using (IDisposable immutableDisposable = disposableFactory())
             {
-                // Cannot reassign to immutable.
+                // Reassignment to immutableDisposable cannot be compiled.
+            }
+        }
+
+        internal static void ForEach<T>(IEnumerable<T> sequence)
+        {
+            foreach (T immutableValue in sequence)
+            {
+                // Reassignment to immutableValue cannot be compiled.
             }
         }
     }
@@ -50,66 +69,249 @@
     {
         internal void InstanceMethod()
         {
-            // Cannot reassign to this.
+            // Reassignment to this cannot be compiled.
         }
     }
 
     internal static partial class Immutability
     {
-        internal static void ParameterAndReturn<T>(Span<T> span)
+        internal static void InputAndOutput<T>(Span<T> span)
         {
-            ref readonly T Last(in Span<T> immutableParameter)
+            ref readonly T First(in Span<T> immutableInput)
             {
-                // Cannot reassign to immutableParameter.
-                int length = immutableParameter.Length;
-                if (length > 0)
-                {
-                    return ref immutableParameter[length - 1];
-                }
-                throw new ArgumentException("Span is empty.", nameof(immutableParameter));
+                // Reassignment to immutableInput cannot be compiled.
+                return ref immutableInput[0];
             }
 
-            ref readonly T immutableReturn = ref Last(in span);
-            // Cannot reassign to immutableReturn.
+            ref readonly T immutableOutput = ref First(in span);
+            // Reassignment to immutableOutput cannot be compiled.
         }
 
-        internal static void ReadOnlyReference()
+        internal static void ImmutableAlias()
         {
             int value = 1;
-            int copyOfValue = value; // Assign by copy.
-            copyOfValue = 10; // After the assignment, value does not change.
-            ref int mutaleRefOfValue = ref value; // Assign by reference.
-            mutaleRefOfValue = 10; // After the reassignment, value changes too.
-            ref readonly int immutableRefOfValue = ref value; // Assign by readonly reference.
-#if DEMO
-            immutableRefOfValue = 0; // Cannot be compiled. Cannot reassign to immutableRefToValue.
-#endif
+            int copyOfValue = value; // Copy.
+            copyOfValue = 10; // After the assignment, value does not mutate.
+            ref int aliasOfValue = ref value; // Mutable alias.
+            aliasOfValue = 10; // After the reassignment, value mutates.
+            ref readonly int immutableAliasOfValue = ref value; // Immutable alias.
+            // Reassignment to immutableAliasOfValue cannot be compiled.
 
             Uri reference = new Uri("https://weblogs.asp.net/dixin");
-            Uri copyOfReference = reference; // Assign by copy.
-            copyOfReference = new Uri("https://flickr.com/dixin"); // After the assignment, reference does not change.
-            ref Uri mutableRefOfReference = ref reference; // Assign by reference.
-            mutableRefOfReference = new Uri("https://flickr.com/dixin"); // After the reassignment, reference changes too.
-            ref readonly Uri immutableRefOfReference = ref reference; // Assign by readonly reference.
-#if DEMO
-            immutableRefOfReference = null; // Cannot be compiled. Cannot reassign to immutableRefToValue.
-#endif
+            Uri copyOfReference = reference; // Copy.
+            copyOfReference = new Uri("https://flickr.com/dixin"); // After the assignment, reference does not mutate.
+            ref Uri aliasOfReference = ref reference; // Mutable alias.
+            aliasOfReference = new Uri("https://flickr.com/dixin"); // After the reassignment, reference mutates.
+            ref readonly Uri immutableAliasOfReference = ref reference; // Immutable alias.
+            // Reassignment to immutableAliasOfReference cannot be compiled.
         }
 
         internal static void QueryExpression(IEnumerable<int> source1, IEnumerable<int> source2)
         {
             IEnumerable<IGrouping<int, int>> query =
                 from immutable1 in source1
-                    // Cannot assign to immutable1.
+                    // Reassignment to immutable1 cannot be compiled.
                 join immutable2 in source2 on immutable1 equals immutable2 into immutable3
-                // Cannot assign to immutable2, immutable3.
+                // Reassignment to immutable2, immutable3 cannot be compiled.
                 let immutable4 = immutable1
-                // Cannot assign to immutable4.
+                // Reassignment to immutable4 cannot be compiled.
                 group immutable4 by immutable4 into immutable5
-                // Cannot assign to immutable5.
+                // Reassignment to immutable5 cannot be compiled.
                 select immutable5 into immutable6
-                // Cannot assign to immutable6.
+                // Reassignment to immutable6 cannot be compiled.
                 select immutable6;
+        }
+
+        internal partial class ImmutableDevice
+        {
+            private readonly string name;
+
+            private readonly decimal price;
+        }
+
+        internal partial class MutableDevice
+        {
+            internal string Name { get; set; }
+
+            internal decimal Price { get; set; }
+        }
+
+        internal partial class ImmutableDevice
+        {
+            internal ImmutableDevice(string name, decimal price)
+            {
+                this.Name = name;
+                this.Price = price;
+            }
+
+            internal string Name { get; }
+
+            internal decimal Price { get; }
+        }
+
+        internal static void DevicePriceDrop()
+        {
+            MutableDevice mutableDevice = new MutableDevice() { Name = "Surface Laptop", Price = 799M };
+            mutableDevice.Price -= 50M;
+
+            ImmutableDevice immutableDevice = new ImmutableDevice(name: "Surface Book", price: 1199M);
+            immutableDevice = new ImmutableDevice(name: immutableDevice.Name, price: immutableDevice.Price - 50M);
+        }
+
+        internal partial class MutableDevice
+        {
+            internal MutableDevice Discount()
+            {
+                this.Price = this.Price * 0.9M;
+                return this;
+            }
+        }
+
+        internal partial class ImmutableDevice
+        {
+            internal ImmutableDevice Discount() =>
+                new ImmutableDevice(name: this.Name, price: this.Price * 0.9M);
+        }
+
+        internal partial struct Complex
+        {
+            internal Complex(double real, double imaginary)
+            {
+                this.Real = real;
+                this.Imaginary = imaginary;
+            }
+
+            internal double Real { get; }
+
+            internal double Imaginary { get; }
+        }
+
+        internal partial struct Complex
+        {
+            internal Complex(Complex value) => this = value; // Can reassign to this.
+
+            internal Complex Value
+            {
+                get => this;
+                set => this = value; // Can reassign to this.
+            }
+
+            internal Complex ReplaceBy(Complex value) => this = value; // Can reassign to this.
+
+            internal Complex Mutate(double real, double imaginary) =>
+                this = new Complex(real, imaginary); // Can reassign to this.
+        }
+
+        internal static void Structure()
+        {
+            Complex complex = new Complex(1, 1);
+            complex.Real.WriteLine(); // 1
+            complex.ReplaceBy(new Complex(2, 2));
+            complex.Real.WriteLine(); // 2
+            complex.Mutate(3, 3);
+            complex.Real.WriteLine(); // 3
+        }
+
+        internal readonly partial struct ImmutableComplex
+        {
+            internal ImmutableComplex(double real, double imaginary)
+            {
+                this.Real = real;
+                this.Imaginary = imaginary;
+            }
+
+            internal ImmutableComplex(in ImmutableComplex value) =>
+                this = value; // Can reassign to this only in constructor.
+
+            internal double Real { get; }
+
+            internal double Imaginary { get; }
+
+            internal void InstanceMethod(in ImmutableComplex value)
+            {
+                // Cannot reassign to this.
+            }
+        }
+
+#if DEMO
+        [IsReadOnly]
+#endif
+        internal struct CompiledImmutableComplex
+        {
+            // Members.
+        }
+
+        internal static void AnonymousType()
+        {
+            var immutableDevice = new { Name = "Surface Book", Price = 1199M };
+        }
+
+        [CompilerGenerated]
+        [DebuggerDisplay(@"\{ Name = {Name}, Price = {Price} }", Type = "<Anonymous Type>")]
+        internal sealed class AnonymousType0<TName, TPrice>
+        {
+            [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+            private readonly TName name;
+
+            [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+            private readonly TPrice price;
+
+            [DebuggerHidden]
+            public AnonymousType0(TName name, TPrice price)
+            {
+                this.name = name;
+                this.price = price;
+            }
+
+            public TName Name => this.name;
+
+            public TPrice Price => this.price;
+
+            [DebuggerHidden]
+            public override bool Equals(object obj)
+            {
+                AnonymousType0<TName, TPrice> other = obj as AnonymousType0<TName, TPrice>;
+                return other != null
+                       && EqualityComparer<TName>.Default.Equals(this.name, other.name)
+                       && EqualityComparer<TPrice>.Default.Equals(this.price, other.price);
+            }
+
+            // Other members.
+        }
+
+        internal static void CompiledAnonymousType()
+        {
+            AnonymousType0<string, decimal> immutableDevice = new AnonymousType0<string, decimal>(
+                name: "Surface Book", price: 1199M);
+        }
+
+        internal static void ReuseAnonymousType()
+        {
+            var device1 = new { Name = "Surface Book", Price = 1199M };
+            var device2 = new { Name = "Surface Pro", Price = 899M };
+            var device3 = new { Name = "Xbox One", Price = 399 }; // Price is of type double.
+            var device4 = new { Price = 174.99M, Name = "Surface Laptop" }; // Price is before Name.
+            (device1.GetType() == device2.GetType()).WriteLine(); // True
+            (device1.GetType() == device3.GetType()).WriteLine(); // False
+            (device1.GetType() == device4.GetType()).WriteLine(); // False
+        }
+
+        internal static void PropertyInference(Uri uri, int value)
+        {
+            var anonymous1 = new { value, uri.Host };
+            var anonymous2 = new { value = value, Host = uri.Host };
+        }
+
+        internal static void AnonymousTypeParameter()
+        {
+            var source = // Compiled to: AnonymousType0<string, decimal>[] source =.
+                new[]
+                {
+                    new { Name = "Surface Book", Price = 1199M },
+                    new { Name = "Surface Pro", Price = 899M }
+                };
+            var query = // Compiled to: <AnonymousType0<string, decimal>> query =.
+                source.Where(device => device.Price > 0);
         }
 
         internal static void Let(IEnumerable<int> source)
@@ -122,207 +324,11 @@
 
         internal static void CompiledLet(IEnumerable<int> source)
         {
-            IEnumerable<double> query = source // from clause.
+            IEnumerable<double> query = source
                 .Select(immutable1 => new { immutable1, immutable2 = Math.Sqrt(immutable1) }) // let clause.
-                .Select(anonymous => anonymous.immutable1 + anonymous.immutable2); // select clause.
-        }
-    }
-
-    internal partial class ImmutableDevice
-    {
-        private readonly string name;
-
-        private readonly decimal price;
-    }
-
-    internal partial class MutableDevice
-    {
-        internal string Name { get; set; }
-
-        internal decimal Price { get; set; }
-    }
-
-    internal partial class ImmutableDevice
-    {
-        internal ImmutableDevice(string name, decimal price)
-        {
-            this.Name = name;
-            this.Price = price;
+                .Select(context => context.immutable1 + context.immutable2); // select clause.
         }
 
-        internal string Name { get; }
-
-        internal decimal Price { get; }
-    }
-
-    internal static partial class Immutability
-    {
-        internal static void State()
-        {
-            MutableDevice mutableDevice = new MutableDevice() { Name = "Microsoft Band 2", Price = 249.99M };
-            // Price drops.
-            mutableDevice.Price -= 50M;
-
-            ImmutableDevice immutableDevice = new ImmutableDevice(name: "Surface Book", price: 1349.00M);
-            // Price drops.
-            immutableDevice = new ImmutableDevice(name: immutableDevice.Name, price: immutableDevice.Price - 50M);
-        }
-    }
-
-    internal partial class MutableDevice
-    {
-        internal void Discount() => this.Price = this.Price * 0.9M;
-    }
-
-    internal partial class ImmutableDevice
-    {
-        internal ImmutableDevice Discount() => new ImmutableDevice(name: this.Name, price: this.Price * 0.9M);
-    }
-
-    internal partial struct Complex
-    {
-        internal Complex(double real, double imaginary)
-        {
-            this.Real = real;
-            this.Imaginary = imaginary;
-        }
-
-        internal double Real { get; }
-
-        internal double Imaginary { get; }
-    }
-
-    internal partial struct Complex
-    {
-        internal Complex(Complex value) => this = value; // Can reassign to this.
-
-        internal Complex Value
-        {
-            get => this;
-            set => this = value; // Can reassign to this.
-        }
-
-        internal Complex ReplaceBy(Complex value) => this = value; // Can reassign to this.
-
-        internal Complex Mutate(double real, double imaginary) =>
-            this = new Complex(real, imaginary); // Can reassign to this.
-    }
-
-    internal static partial class Immutability
-    {
-        internal static void Structure()
-        {
-            Complex complex1 = new Complex(1, 1);
-            Complex complex2 = new Complex(2, 2);
-            complex1.Real.WriteLine(); // 1
-            complex1.ReplaceBy(complex2);
-            complex1.Real.WriteLine(); // 2
-        }
-    }
-
-    internal readonly partial struct ImmutableComplex
-    {
-        internal ImmutableComplex(double real, double imaginary)
-        {
-            this.Real = real;
-            this.Imaginary = imaginary;
-        }
-
-        internal ImmutableComplex(in ImmutableComplex value) =>
-            this = value; // Can reassign to this only in constructor.
-
-        internal double Real { get; }
-
-        internal double Imaginary { get; }
-
-        internal void InstanceMethod(in ImmutableComplex value)
-        {
-            // Cannot reassign to this.
-        }
-    }
-
-    internal readonly partial struct ImmutableComplex
-    {
-        private static readonly ImmutableComplex zero = new ImmutableComplex(0.0, 0.0);
-
-        public static ref readonly ImmutableComplex Zero => ref zero;
-    }
-
-    internal static partial class Immutability
-    {
-        internal static void AnonymousType()
-        {
-            var immutableDevice = new { Name = "Surface Book", Price = 1349.00M };
-        }
-
-        internal static void CompiledAnonymousType()
-        {
-            AnonymousType0<string, decimal> immutableDevice = new AnonymousType0<string, decimal>(
-                name: "Surface Book", price: 1349.00M);
-        }
-
-        internal static void ReuseAnonymousType()
-        {
-            var device1 = new { Name = "Surface Book", Price = 1349.00M };
-            var device2 = new { Name = "Surface Pro 4", Price = 899.00M };
-            var device3 = new { Name = "Xbox One S", Price = 399.00 }; // Price is of type double.
-            var device4 = new { Price = 174.99M, Name = "Microsoft Band 2" };
-            (device1.GetType() == device2.GetType()).WriteLine(); // True
-            (device1.GetType() == device3.GetType()).WriteLine(); // False
-            (device1.GetType() == device4.GetType()).WriteLine(); // False
-        }
-
-        internal static void AnonymousTypeParameter()
-        {
-            var source = new[] // AnonymousType0<string, decimal>[].
-            {
-                new { Name = "Surface Book", Price = 1349.00M },
-                new { Name = "Surface Pro 4", Price = 899.00M }
-            };
-            var query = // IEnumerable<AnonymousType0<string, decimal>>.
-                source.Where(device => device.Price > 0);
-        }
-
-        internal static void PropertyInference(Uri uri, int value)
-        {
-            var anonymous1 = new { value, uri.Host };
-            var anonymous2 = new { value = value, Host = uri.Host };
-        }
-    }
-
-    [CompilerGenerated]
-    [DebuggerDisplay(@"\{ Name = {Name}, Price = {Price} }", Type = "<Anonymous Type>")]
-    internal sealed class AnonymousType0<TName, TPrice>
-    {
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly TName name;
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly TPrice price;
-
-        [DebuggerHidden]
-        public AnonymousType0(TName name, TPrice price)
-        {
-            this.name = name;
-            this.price = price;
-        }
-
-        public TName Name => this.name;
-
-        public TPrice Price => this.price;
-
-        [DebuggerHidden]
-        public override bool Equals(object value) =>
-            value is AnonymousType0<TName, TPrice> type
-            && type != null
-            && EqualityComparer<TName>.Default.Equals(this.name, type.name)
-            && EqualityComparer<TPrice>.Default.Equals(this.price, type.price);
-
-        // Other members.
-    }
-
-    internal static partial class Immutability
-    {
         internal static void LocalVariable(IEnumerable<int> source, string path)
         {
             var a = default(int); // int.
@@ -339,13 +345,14 @@
             var h = (Expression<Func<int, int>>)(int32 => int32 + 1);
         }
 
-        internal static void TupleAndList()
+        internal static void TypesOfValues()
         {
-            ValueTuple<string, decimal> tuple = new ValueTuple<string, decimal>("Surface Book", 1349M);
-            List<string> list = new List<string>() { "Surface Book", "1349.00M" };
+            ValueTuple<string, decimal> tuple = new ValueTuple<string, decimal>("Surface Book", 1199M);
+            string[] array = { "Surface Book", "1199M" };
+            List<string> list = new List<string>() { "Surface Book", "1199M" };
         }
 
-        internal static ValueTuple<string, decimal> Method(ValueTuple<string, decimal> values)
+        internal static ValueTuple<string, decimal> Function(ValueTuple<string, decimal> values)
         {
             ValueTuple<string, decimal> variable1;
             ValueTuple<string, decimal> variable2 = default;
@@ -354,7 +361,7 @@
         }
 
 #if DEMO
-        internal static var Method(var values) // Cannot be compiled.
+        internal static var Function(var values) // Cannot be compiled.
         {
             var variable1; // Cannot be compiled.
             var variable2 = default; // Cannot be compiled.
@@ -363,69 +370,70 @@
         }
 #endif
 
-        internal static void TupleTypeLiteral()
+        internal static void TupleLiteral()
         {
-            (string, decimal) tuple1 = ("Surface Pro 4", 899M);
+            (string, decimal) tuple1 = ("Surface Pro", 899M);
             // Compiled to: 
-            // ValueTuple<string, decimal> tuple1 = new ValueTuple<string, decimal>("Surface Pro 4", 899M);
+            // ValueTuple<string, decimal> tuple1 = new ValueTuple<string, decimal>("Surface Pro", 899M);
 
             (int, bool, (string, decimal)) tuple2 = (1, true, ("Surface Studio", 2999M));
             // ValueTuple<int, bool, ValueTuple<string, decimal>> tuple2 = 
-            //    new ValueTuple<int, bool, new ValueTuple<string, decimal>>(1, true, ("Surface Studio", 2999M))
+            //    new ValueTuple<int, bool, ValueTuple<string, decimal>>(1, true, new ValueTuple<string, decimal>("Surface Studio", 2999M));
         }
 
-        internal static (string, decimal) MethodReturnMultipleValues()
-        // internal static ValueTuple<string, decimal> MethodReturnMultipleValues()
+        internal static (string, decimal) OutputMultipleValues()
+        // Compiled to: internal static ValueTuple<string, decimal> OutputMultipleValues()
         {
-            string returnValue1 = default;
-            int returnValue2 = default;
+            string value1 = default;
+            int value2 = default;
 
-            (string, decimal) Function() => (returnValue1, returnValue2);
-            // ValueTuple<string, decimal> Function() => new ValueTuple<string, decimal>(returnValue1, returnValue2);
+            (string, decimal) Function() => (value1, value2);
+            // Compiled to: ValueTuple<string, decimal> Function() => new ValueTuple<string, decimal>(value1, value2);
 
-            Func<(string, decimal)> function = () => (returnValue1, returnValue2);
-            // Func<ValueTuple<string, decimal>> function = () => new ValueTuple<string, decimal>(returnValue1, returnValue2);
+            Func<(string, decimal)> function = () => (value1, value2);
+            // Compiled to: Func<ValueTuple<string, decimal>> function = () => new ValueTuple<string, decimal>(value1, value2);
 
-            return (returnValue1, returnValue2);
+            return (value1, value2);
+            // Compiled to : new ValueTuple<string, decimal>(value1, value2);
         }
 
         internal static void ElementName()
         {
-            (string Name, decimal Price) tuple1 = ("Surface Pro 4", 899M);
+            (string Name, decimal Price) tuple1 = ("Surface Pro", 899M);
             tuple1.Name.WriteLine();
             tuple1.Price.WriteLine();
             // Compiled to: 
-            // ValueTuple<string, decimal> tuple1 = new ValueTuple<string, decimal>("Surface Pro 4", 899M);
+            // ValueTuple<string, decimal> tuple1 = new ValueTuple<string, decimal>("Surface Pro", 899M);
             // TraceExtensions.WriteLine(tuple1.Item1);
-            // TraceExtensions.WriteLine(tuple1.Item2)
+            // TraceExtensions.WriteLine(tuple1.Item2);
 
-            (string Name, decimal Price) tuple2 = (ProductNanme: "Surface Book", ProductPrice: 1349M);
-            tuple2.Name.WriteLine(); // Element names on the right are ignore.
+            (string Name, decimal Price) tuple2 = (ProductNanme: "Surface Book", ProductPrice: 1199M);
+            tuple2.Name.WriteLine(); // Element names on the right side are ignored when there are element names on the left side.
 
             var tuple3 = (Name: "Surface Studio", Price: 2999M);
             tuple3.Name.WriteLine(); // Element names are available through var.
 
             ValueTuple<string, decimal> tuple4 = (Name: "Xbox One", Price: 179M);
-            tuple4.Item1.WriteLine(); // Element names are not available on ValueTuple<T1, T2>.
+            tuple4.Item1.WriteLine(); // Element names are not available on ValueTuple<T1, T2> type.
             tuple4.Item2.WriteLine();
 
             (string Name, decimal Price) Function((string Name, decimal Price) tuple)
             {
-                tuple.Name.WriteLine(); // Parameter element names are available in function.
+                tuple.Name.WriteLine(); // Input tuple’s element names are available in function.
                 return (tuple.Name, tuple.Price - 10M);
             };
-            var tuple5 = Function(("Xbox One S", 299M));
-            tuple5.Name.WriteLine(); // Return value element names are available through var.
+            var tuple5 = Function(("Xbox One", 299M));
+            tuple5.Name.WriteLine(); // Output tuple’s element names are available through var.
             tuple5.Price.WriteLine();
 
             Func<(string Name, decimal Price), (string Name, decimal Price)> function = tuple =>
             {
-                tuple.Name.WriteLine(); // Parameter element names are available in function.
+                tuple.Name.WriteLine(); // Input tuple’s element names are available in function.
                 return (tuple.Name, tuple.Price - 100M);
             };
-            var tuple6 = function(("HoloLens", 3000M));
-            tuple5.Name.WriteLine(); // Return value element names are available through var.
-            tuple5.Price.WriteLine();
+            (string ProductName, decimal ProductPrice) tuple6 = function(("HoloLens", 3000M));
+            tuple6.ProductName.WriteLine(); // Element names on the right side are ignored when there are element names on the left side.
+            tuple6.ProductPrice.WriteLine();
         }
 
         internal static void ElementInference(Uri uri, int value)
@@ -436,10 +444,10 @@
 
         internal static void DeconstructTuple()
         {
-            (string, decimal) GetProductInfo() => ("HoLoLens", 3000M);
-            var (name, price) = GetProductInfo();
-            name.WriteLine(); // name is string.
-            price.WriteLine(); // price is decimal.
+            (string, decimal) GetProduct() => ("HoloLens", 3000M);
+            var (name, price) = GetProduct();
+            name.WriteLine();
+            price.WriteLine();
         }
     }
 
@@ -467,21 +475,23 @@
     {
         internal static void DeconstructDevice()
         {
-            Device GetDevice() => new Device() { Name = "Surface studio", Description = "All-in-one PC.", Price = 2999M };
+            Device GetDevice() => new Device() { Name = "Surface Studio", Description = "All-in-one PC.", Price = 2999M };
             var (name, description, price) = GetDevice();
             // Compiled to:
             // string name; string description; decimal price;
             // surfaceStudio.Deconstruct(out name, out description, out price);
-            name.WriteLine(); // Surface studio
-            description.WriteLine(); // All-in-one PC.
-            price.WriteLine(); // 2999
+            name.WriteLine();
+            description.WriteLine();
+            price.WriteLine();
         }
 
         internal static void Discard()
         {
-            Device GetDevice() => new Device() { Name = "Surface studio", Description = "All-in-one PC.", Price = 2999M };
+            Device GetDevice() => new Device() { Name = "Surface Studio", Description = "All-in-one PC.", Price = 2999M };
             var (_, _, price1) = GetDevice();
+            price1.WriteLine();
             (_, _, decimal price2) = GetDevice();
+            price2.WriteLine();
         }
 
         internal static void TupleAssignment(int value1, int value2)
@@ -506,6 +516,7 @@
             return a;
         }
 
+#if DEMO
         internal class ImmutableDevice
         {
             internal ImmutableDevice(string name, decimal price) =>
@@ -515,6 +526,7 @@
 
             internal decimal Price { get; }
         }
+#endif
 
         internal static void ImmutableCollection()
         {
@@ -528,34 +540,45 @@
             List<int> mutableList = new List<int>() { 1, 2, 3 };
             ImmutableList<int> immutableList = ImmutableList.CreateRange(mutableList);
             ReadOnlyCollection<int> readOnlyCollection = new ReadOnlyCollection<int>(mutableList);
-            // ReadOnlyCollection<int> wraps a mutable source, just has no methods like Add, Remove, etc.
 
             mutableList.Add(4);
             immutableList.Count.WriteLine(); // 3
             readOnlyCollection.Count.WriteLine(); // 4
         }
 
-        internal static void Closure()
+        internal class Bundle
         {
-            int value = 1;
-            Action writeValue = () => value.WriteLine();
-            writeValue(); // 1
-            value = 2;
-            writeValue(); // 2
+            internal Bundle(MutableDevice device1, MutableDevice device2) =>
+                (this.Device1, this.Device2) = (device1, device2);
+
+            internal MutableDevice Device1 { get; }
+
+            internal MutableDevice Device2 { get; }
         }
 
-        internal static void Performance()
+        internal static void ShallowImmutability()
         {
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            (int, bool, string)[] tuples = Enumerable.Repeat(0, 1_000_000).Select(_ => (Int32: 1, Boolean: true, String: nameof(Performance))).ToArray();
-            stopwatch.Stop(); // 26
-            stopwatch.ElapsedMilliseconds.WriteLine();
+            MutableDevice device1 = new MutableDevice() { Name = "Surface Book", Price = 1199M };
+            MutableDevice device2 = new MutableDevice() { Name = "HoloLens", Price = 3000M };
+            Bundle bundle = new Bundle(device1, device2);
+            // Reassignment to bundle.Device1, bundle.Device2 cannot be compiled.
 
-            stopwatch = Stopwatch.StartNew();
-            var anonymous = Enumerable.Repeat(0, 1_000_000).Select(_ => new { Int32 = 1, Boolean = true, String = nameof(Performance) }).ToArray();
-            stopwatch.Stop(); // 114
-            stopwatch.ElapsedMilliseconds.WriteLine();
+            bundle.Device1.Name = "Surface Studio";
+            bundle.Device1.Price = 2999M;
+            bundle.Device2.Price -= 50M;
         }
+
+#if DEMO
+        internal class Bundle
+        {
+            internal Bundle(ImmutableDevice device1, ImmutableDevice device2) =>
+                (this.Device1, this.Device2) = (device1, device2);
+
+            internal ImmutableDevice Device1 { get; }
+
+            internal ImmutableDevice Device2 { get; }
+        }
+#endif
     }
 }
 
@@ -581,51 +604,24 @@ namespace System
 namespace System
 {
     using System.Collections;
-    using System.Collections.Generic;
-    using System.Text;
-
-    internal interface ITuple
-    {
-        string ToString(StringBuilder sb);
-
-        int GetHashCode(IEqualityComparer comparer);
-
-        int Size { get; }
-
-    }
+    using System.Runtime.CompilerServices;
 
     [Serializable]
-    public class Tuple<T1, T2> : IStructuralEquatable, IStructuralComparable, IComparable, ITuple
+    public class Tuple<T1, T2> : IStructuralEquatable, IStructuralComparable, IComparable, ITupleInternal, ITuple
     {
+        private readonly T1 m_Item1;
+
+        private readonly T2 m_Item2;
+
         public Tuple(T1 item1, T2 item2)
         {
-            this.Item1 = item1;
-            this.Item2 = item2;
+            this.m_Item1 = item1;
+            this.m_Item2 = item2;
         }
 
-        public T1 Item1 { get; }
+        public T1 Item1 => this.m_Item1;
 
-        public T2 Item2 { get; }
-
-        public override bool Equals(object obj) =>
-            ((IStructuralEquatable)this).Equals(obj, EqualityComparer<object>.Default);
-
-        bool IStructuralEquatable.Equals(object other, IEqualityComparer comparer) =>
-            other != null && other is Tuple<T1, T2> objTuple && objTuple != null
-            && comparer.Equals(this.Item1, objTuple.Item1) && comparer.Equals(this.Item2, objTuple.Item2);
-
-        int IComparable.CompareTo(object obj) =>
-            ((IStructuralComparable)this).CompareTo(obj, Comparer<object>.Default);
-
-        int IStructuralComparable.CompareTo(object other, IComparer comparer)
-        {
-            if(other is Tuple<T1, T2> otherTuple)
-            {
-                int compareResult = comparer.Compare(this.Item1, otherTuple.Item1);
-                return compareResult != 0 ? compareResult : comparer.Compare(this.Item2, otherTuple.Item2);
-            }
-            return 1;
-        }
+        public T2 Item2 => this.m_Item2;
 
         // Other members.
     }
@@ -634,23 +630,11 @@ namespace System
 namespace System
 {
     using System.Collections;
-    using System.Collections.Generic;
+    using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
 
-    internal interface ITupleInternal
-    {
-        int Size
-        {
-            get;
-        }
-
-        int GetHashCode(IEqualityComparer comparer);
-
-        string ToStringEnd();
-    }
-
     [StructLayout(LayoutKind.Auto)]
-    public struct ValueTuple<T1, T2> : IEquatable<ValueTuple<T1, T2>>, IStructuralEquatable, IStructuralComparable, IComparable, IComparable<ValueTuple<T1, T2>>, ITupleInternal
+    public struct ValueTuple<T1, T2> : IEquatable<ValueTuple<T1, T2>>, IStructuralEquatable, IStructuralComparable, IComparable, IComparable<ValueTuple<T1, T2>>, IValueTupleInternal, ITuple
     {
         public T1 Item1;
 
@@ -662,19 +646,8 @@ namespace System
             this.Item2 = item2;
         }
 
-        public override bool Equals(object obj) => obj is ValueTuple<T1, T2> tuple && this.Equals(tuple);
-
-        public bool Equals(ValueTuple<T1, T2> other) =>
-            EqualityComparer<T1>.Default.Equals(this.Item1, other.Item1)
-            && EqualityComparer<T2>.Default.Equals(this.Item2, other.Item2);
-
-        public int CompareTo(ValueTuple<T1, T2> other)
-        {
-            int compareItem1 = Comparer<T1>.Default.Compare(this.Item1, other.Item1);
-            return compareItem1 != 0 ? compareItem1 : Comparer<T2>.Default.Compare(this.Item2, other.Item2);
-        }
-
-        public override string ToString() => $"({this.Item1}, {this.Item2})";
+        public override string ToString() => 
+            "(" + this.Item1?.ToString() + ", " + this.Item2?.ToString() + ")";
 
         // Other members.
     }
