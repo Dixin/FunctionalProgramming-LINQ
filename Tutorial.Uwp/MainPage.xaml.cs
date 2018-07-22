@@ -18,14 +18,16 @@
         {
             SynchronizationContext synchronizationContext1 = SynchronizationContext.Current;
             ExecutionContext executionContext1 = ExecutionContext.Capture();
-            await Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(continueOnCapturedContext: true);
+            await Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(
+                continueOnCapturedContext: true);
             // Equivalent to: await Task.Delay(TimeSpan.FromSeconds(1));
 
             // Continuation is executed with captured runtime context.
             SynchronizationContext synchronizationContext2 = SynchronizationContext.Current;
             Debug.WriteLine(synchronizationContext1 == synchronizationContext2); // True
             this.Button.Background = new SolidColorBrush(Colors.Blue); // UI update works.
-            await Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(continueOnCapturedContext: false);
+            await Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(
+                continueOnCapturedContext: false);
 
             // Continuation is executed without captured runtime context.
             SynchronizationContext synchronizationContext3 = SynchronizationContext.Current;

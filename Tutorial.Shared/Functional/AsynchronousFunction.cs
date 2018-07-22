@@ -15,9 +15,9 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-    internal static partial class Functions
+    internal static partial class AsyncFunctions
     {
-        internal static void CreateTask(string readPath, string writePath)
+        internal static void ConstructTask(string readPath, string writePath)
         {
             Thread.CurrentThread.ManagedThreadId.WriteLine(); // 10
             Task<string> task = new Task<string>(() =>
@@ -41,10 +41,7 @@
             });
             continuationTask.Wait();
         }
-    }
 
-    internal static partial class Functions
-    {
         internal static void Write(string path, string contents) => File.WriteAllText(path, contents);
 
         internal static string Read(string path) => File.ReadAllText(path);
@@ -141,7 +138,7 @@
 
         internal static async Task WriteAsync(string path, string contents)
         {
-            // File.WriteAllText:
+            // File.WriteAllText implementation:
             // using (StreamWriter writer = new StreamWriter(new FileStream(
             //    path: path, mode: FileMode.Create, access: FileAccess.Write,
             //    share: FileShare.Read, bufferSize: 4096, useAsync: false)))
@@ -158,7 +155,7 @@
 
         internal static async Task<string> ReadAsync(string path)
         {
-            // File.ReadAllText:
+            // File.ReadAllText implementation:
             // using (StreamReader reader = new StreamReader(new FileStream(
             //    path: path, mode: FileMode.Open, access: FileAccess.Read, 
             //    share: FileShare.Read, bufferSize: 4096, useAsync: false)))
@@ -172,52 +169,46 @@
                 return await reader.ReadToEndAsync();
             }
         }
-    }
 
-    internal static partial class Functions
-    {
-        private static StringBuilder logs = new StringBuilder();
+        private static readonly StringBuilder Logs = new StringBuilder();
 
-        private static StringWriter logWriter = new StringWriter(logs);
+        private static readonly StringWriter LogWriter = new StringWriter(Logs);
 
         private static async void CollectionChangedAsync(object sender, NotifyCollectionChangedEventArgs e) =>
-            await logWriter.WriteLineAsync(e.Action.ToString());
+            await LogWriter.WriteLineAsync(e.Action.ToString());
 
-        internal static void EventHandler()
+        internal static void AddEventHandler()
         {
             ObservableCollection<int> collection = new ObservableCollection<int>();
             collection.CollectionChanged += CollectionChangedAsync;
             collection.Add(1); // Fires CollectionChanged event.
         }
-    }
 
-    internal static partial class Functions
-    {
         internal static async Task AwaitTasks(string path)
         {
-            // string contents = await ReadAsync(path);
             Task<string> task1 = ReadAsync(path);
             string contents = await task1;
+            // Equivalent to: string contents = await ReadAsync(path);
 
-            // await WriteAsync(path, contents);
             Task task2 = WriteAsync(path, contents);
             await task2;
+            // Equivalent to: await WriteAsync(path, contents);
 
-            // await Task.Run(() => { });
             Task task3 = Task.Run(() => { });
             await task3;
+            // Equivalent to: await Task.Run(() => { });
 
-            // int result = await Task.Run(() => 0);
             Task<int> task4 = Task.Run(() => 0);
             int result = await task4;
+            // Equivalent to: int result = await Task.Run(() => 0);
 
-            // await Task.Delay(TimeSpan.FromSeconds(10));
             Task task5 = Task.Delay(TimeSpan.FromSeconds(10));
             await task5;
+            // Equivalent to: await Task.Delay(TimeSpan.FromSeconds(10));
 
-            // result = await Task.FromResult(result);
             Task<int> task6 = Task.FromResult(result);
             result = await task6;
+            // Equivalent to: result = await Task.FromResult(result);
         }
 
         internal static async Task HotColdTasks(string path)
@@ -229,49 +220,40 @@
 
             Task coldTask = new Task(() => { });
             await coldTask;
-            coldTask.Status.WriteLine(); // Never executes.
+            coldTask.Status.WriteLine(); // Never execute.
         }
-    }
 
-    public interface IAwaitable
-    {
-        IAwaiter GetAwaiter();
-    }
+        public interface IAwaitable
+        {
+            IAwaiter GetAwaiter();
+        }
 
-    public interface IAwaiter : INotifyCompletion
-    {
-        bool IsCompleted { get; }
+        public interface IAwaiter : INotifyCompletion
+        {
+            bool IsCompleted { get; }
 
-        void GetResult(); // No result.
-    }
+            void GetResult(); // No result.
+        }
 
-    public interface IAwaitable<TResult>
-    {
-        IAwaiter<TResult> GetAwaiter();
-    }
+        public interface IAwaitable<TResult>
+        {
+            IAwaiter<TResult> GetAwaiter();
+        }
 
-    public interface IAwaiter<TResult> : INotifyCompletion
-    {
-        bool IsCompleted { get; }
+        public interface IAwaiter<TResult> : INotifyCompletion
+        {
+            bool IsCompleted { get; }
 
-        TResult GetResult(); // TResult result.
-    }
+            TResult GetResult(); // TResult result.
+        }
 
 #if DEMO
-    public static partial class ActionExtensions
-    {
         public static TaskAwaiter GetAwaiter(this Action action) => Task.Run(action).GetAwaiter();
-    }
 
-    public static partial class FuncExtensions
-    {
         public static TaskAwaiter<TResult> GetAwaiter<TResult>(this Func<TResult> function) =>
             Task.Run(function).GetAwaiter();
-    }
 #endif
 
-    internal static partial class Functions
-    {
         internal static async Task AwaitFunctions(string readPath, string writePath)
         {
             Func<string> read = () => File.ReadAllText(readPath);
@@ -413,51 +395,45 @@
             void IAsyncStateMachine.SetStateMachine(IAsyncStateMachine asyncStateMachine) =>
                 this.Builder.SetStateMachine(asyncStateMachine);
         }
-    }
 
-    public static partial class ActionExtensions
-    {
         public static IAwaiter GetAwaiter(this Action action) => new ActionAwaiter(Task.Run(action));
-    }
 
-    public class ActionAwaiter : IAwaiter
-    {
-        private readonly (SynchronizationContext, TaskScheduler, ExecutionContext) runtimeContext =
-            RuntimeContext.Capture();
+        public class ActionAwaiter : IAwaiter
+        {
+            private readonly (SynchronizationContext, TaskScheduler, ExecutionContext) runtimeContext;
 
-        private readonly Task task;
+            private readonly Task task;
 
-        public ActionAwaiter(Task task) => this.task = task;
+            public ActionAwaiter(Task task) =>
+                (this.task, this.runtimeContext) = (task, RuntimeContext.Capture()); // Capture runtime context when initialized.
 
-        public bool IsCompleted => this.task.IsCompleted;
+            public bool IsCompleted => this.task.IsCompleted;
 
-        public void GetResult() => this.task.Wait();
+            public void GetResult() => this.task.Wait();
 
-        public void OnCompleted(Action continuation) => this.task.ContinueWith(task =>
-            this.runtimeContext.Execute(continuation));
-    }
+            public void OnCompleted(Action continuation) => this.task.ContinueWith(task =>
+                this.runtimeContext.Execute(continuation)); // Execute continuation on captured runtime context.
+        }
 
-    public static partial class FuncExtensions
-    {
         public static IAwaiter<TResult> GetAwaiter<TResult>(this Func<TResult> function) =>
             new FuncAwaiter<TResult>(Task.Run(function));
-    }
 
-    public class FuncAwaiter<TResult> : IAwaiter<TResult>
-    {
-        private readonly (SynchronizationContext, TaskScheduler, ExecutionContext) runtimeContext =
-            RuntimeContext.Capture();
+        public class FuncAwaiter<TResult> : IAwaiter<TResult>
+        {
+            private readonly (SynchronizationContext, TaskScheduler, ExecutionContext) runtimeContext =
+                RuntimeContext.Capture();
 
-        private readonly Task<TResult> task;
+            private readonly Task<TResult> task;
 
-        public FuncAwaiter(Task<TResult> task) => this.task = task;
+            public FuncAwaiter(Task<TResult> task) => (this.task, this.runtimeContext) = (task, RuntimeContext.Capture()); // Capture runtime context when initialized.
 
-        public bool IsCompleted => this.task.IsCompleted;
+            public bool IsCompleted => this.task.IsCompleted;
 
-        public TResult GetResult() => this.task.Result;
+            public TResult GetResult() => this.task.Result;
 
-        public void OnCompleted(Action continuation) => this.task.ContinueWith(task =>
-            this.runtimeContext.Execute(continuation));
+            public void OnCompleted(Action continuation) => this.task.ContinueWith(task =>
+                this.runtimeContext.Execute(continuation)); // Execute continuation on captured runtime context.
+        }
     }
 
     public static class RuntimeContext
@@ -491,14 +467,12 @@
             executionContext.Run(continuation);
         }
 
-        public static void Run(this ExecutionContext executionContext, Action continuation)
+        private static void Run(this ExecutionContext executionContext, Action continuation)
         {
             if (executionContext != null)
             {
                 ExecutionContext.Run(
-                    executionContext: executionContext,
-                    callback: executionContextState => continuation(),
-                    state: null);
+                    executionContext: executionContext, callback: state => continuation(), state: null);
             }
             else
             {
@@ -507,29 +481,33 @@
         }
     }
 
-    public class BackgroundThreadTaskScheduler : TaskScheduler
+    internal static partial class AsyncFunctions
     {
-        protected override IEnumerable<Task> GetScheduledTasks() => throw new NotImplementedException();
+        public class BackgroundThreadTaskScheduler : TaskScheduler
+        {
+            protected override IEnumerable<Task> GetScheduledTasks() => throw new NotImplementedException();
 
-        protected override void QueueTask(Task task) =>
-            new Thread(() => this.TryExecuteTask(task)) { IsBackground = true }.Start();
+            protected override void QueueTask(Task task) =>
+                new Thread(() => this.TryExecuteTask(task)) { IsBackground = true }.Start();
 
-        protected override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued) =>
-            this.TryExecuteTask(task);
-    }
+            protected override bool TryExecuteTaskInline(
+                Task task, bool taskWasPreviouslyQueued) =>
+                this.TryExecuteTask(task);
+        }
 
-    internal static partial class Functions
-    {
-        internal static async Task ConfigureRuntimeContextCapture(string readPath, string writePath)
+        internal static async Task ConfigureRuntimeContextCapture(
+            string readPath, string writePath)
         {
             TaskScheduler taskScheduler1 = TaskScheduler.Current;
-            string contents = await ReadAsync(readPath).ConfigureAwait(continueOnCapturedContext: true);
+            string contents = await ReadAsync(readPath).ConfigureAwait(
+                continueOnCapturedContext: true);
             // Equivalent to: await ReadAsync(readPath);
 
             // Continuation is executed with captured runtime context.
             TaskScheduler taskScheduler2 = TaskScheduler.Current;
             object.ReferenceEquals(taskScheduler1, taskScheduler2).WriteLine(); // True
-            await WriteAsync(writePath, contents).ConfigureAwait(continueOnCapturedContext: false);
+            await WriteAsync(writePath, contents).ConfigureAwait(
+                continueOnCapturedContext: false);
 
             // Continuation is executed without captured runtime context.
             TaskScheduler taskScheduler3 = TaskScheduler.Current;
@@ -538,14 +516,145 @@
 
         internal static async Task CallConfigureContextCapture(string readPath, string writePath)
         {
-            Task<Task> task = new Task<Task>(() => ConfigureRuntimeContextCapture(readPath, writePath));
+            Task<Task> task = new Task<Task>(() => 
+                ConfigureRuntimeContextCapture(readPath, writePath));
             task.Start(new BackgroundThreadTaskScheduler());
             await task.Unwrap(); // Equivalent to: await await task;
         }
 
-        internal static async Task AsyncLambda(string readPath, string writePath)
+        [AsyncMethodBuilder(typeof(AsyncFuncAwaitableMethodBuilder<>))]
+        public class FuncAwaitable<TResult> : IAwaitable<TResult>
         {
-            Func<string, Task<string>> readAsync = async (path) =>
+            private readonly Func<TResult> function;
+
+            public FuncAwaitable(Func<TResult> function) => this.function = function;
+
+            public IAwaiter<TResult> GetAwaiter() => new FuncAwaiter<TResult>(Task.Run(this.function));
+        }
+
+        public class AsyncFuncAwaitableMethodBuilder<TResult>
+        {
+            private AsyncTaskMethodBuilder<TResult> taskMethodBuilder;
+
+            private TResult result;
+
+            private bool hasResult;
+
+            private bool useBuilder;
+
+            public static AsyncFuncAwaitableMethodBuilder<TResult> Create() =>
+                new AsyncFuncAwaitableMethodBuilder<TResult>()
+                {
+                    taskMethodBuilder = AsyncTaskMethodBuilder<TResult>.Create()
+                };
+
+            public void Start<TStateMachine>(ref TStateMachine stateMachine) 
+                where TStateMachine : IAsyncStateMachine =>
+                this.taskMethodBuilder.Start(ref stateMachine);
+
+            public void SetStateMachine(IAsyncStateMachine stateMachine) =>
+                this.taskMethodBuilder.SetStateMachine(stateMachine);
+
+            public void SetResult(TResult result)
+            {
+                if (this.useBuilder)
+                {
+                    this.taskMethodBuilder.SetResult(result);
+                }
+                else
+                {
+                    this.result = result;
+                    this.hasResult = true;
+                }
+            }
+
+            public void SetException(Exception exception) => 
+                this.taskMethodBuilder.SetException(exception);
+
+            public FuncAwaitable<TResult> Task
+            {
+                get
+                {
+                    if (this.hasResult)
+                    {
+                        TResult result = this.result;
+                        return new FuncAwaitable<TResult>(() => result);
+                    }
+
+                    this.useBuilder = true;
+                    Task<TResult> task = this.taskMethodBuilder.Task;
+                    return new FuncAwaitable<TResult>(() => task.Result);
+                }
+            }
+
+            public void AwaitOnCompleted<TAwaiter, TStateMachine>(
+                ref TAwaiter awaiter, ref TStateMachine stateMachine)
+                where TAwaiter : INotifyCompletion where TStateMachine : IAsyncStateMachine
+            {
+                this.useBuilder = true;
+                this.taskMethodBuilder.AwaitOnCompleted(ref awaiter, ref stateMachine);
+            }
+
+            public void AwaitUnsafeOnCompleted<TAwaiter, TStateMachine>(
+                ref TAwaiter awaiter, ref TStateMachine stateMachine)
+                where TAwaiter : ICriticalNotifyCompletion where TStateMachine : IAsyncStateMachine
+            {
+                this.useBuilder = true;
+                this.taskMethodBuilder.AwaitUnsafeOnCompleted(ref awaiter, ref stateMachine);
+            }
+        }
+
+        internal static async FuncAwaitable<T> AsyncFunctionWithFuncAwaitable<T>(T value)
+        {
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            return value;
+        }
+
+        internal static async Task CallAsyncFunctionWithFuncAwaitable<T>(T value)
+        {
+            T result = await AsyncFunctionWithFuncAwaitable(value);
+        }
+
+        private static readonly Dictionary<string, byte[]> Cache =
+            new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
+
+        internal static async Task<byte[]> DownloadAsyncTask(string uri)
+        {
+            // All code compiled to async state machine. When URI is cached, async state machine is still started.
+            if (Cache.TryGetValue(uri, out byte[] cachedResult))
+            {
+                return cachedResult;
+            }
+            using (HttpClient httpClient = new HttpClient())
+            {
+                byte[] result = await httpClient.GetByteArrayAsync(uri);
+                Cache.Add(uri, result);
+                return result;
+            }
+        }
+
+        internal static ValueTask<byte[]> DownloadAsyncValueTask(string uri)
+        {
+            // Not compiled to async state machine. When URI is cached, no async state machine is started.
+            return Cache.TryGetValue(uri, out byte[] cachedResult)
+                ? new ValueTask<byte[]>(cachedResult)
+                : new ValueTask<byte[]>(DownloadAsync());
+
+            async Task<byte[]> DownloadAsync()
+            {
+                // Compiled to async state machine.
+                using (HttpClient httpClient = new HttpClient())
+                {
+                    byte[] result = await httpClient.GetByteArrayAsync(uri);
+                    Cache.Add(uri, result);
+                    return result;
+                }
+            }
+        }
+
+        internal static async Task AsyncLambdaExpression(string readPath, string writePath)
+        {
+            Func<string, Task<string>> readAsync = async path =>
             {
                 using (StreamReader reader = new StreamReader(new FileStream(
                     path: path, mode: FileMode.Open, access: FileAccess.Read,
@@ -568,7 +677,7 @@
             await writeAsync(writePath, result);
         }
 
-        internal static async Task AsyncAnonymous(string readPath, string writePath)
+        internal static async Task ConstructTaskWithAsyncAnonymousFunction(string readPath, string writePath)
         {
             Task<Task<string>> task1 = new Task<Task<string>>(async () => await ReadAsync(readPath));
             task1.Start(); // Cold task needs to be started.
@@ -579,139 +688,13 @@
             await task2.Unwrap(); // Equivalent to: await await task2;
         }
 
-        internal static async Task RunAsync(string readPath, string writePath)
+        internal static async Task RunAsyncWithAutoUnwrap(string readPath, string writePath)
         {
             Task<string> task1 = Task.Run(async () => await ReadAsync(readPath)); // Automatically unwrapped.
             string contents = await task1; // Task.Run returns hot task..
 
             Task task2 = Task.Run(async () => await WriteAsync(writePath, contents)); // Automatically unwrapped.
             await task2; // Task.Run returns hot task.
-        }
-
-        internal static async FuncAwaitable<T> ReturnFuncAwaitable<T>(T value)
-        {
-            await Task.Delay(TimeSpan.FromSeconds(1));
-            return value;
-        }
-
-        internal static async Task CallReturnFuncAwaitable<T>(T value)
-        {
-            T result = await ReturnFuncAwaitable(value);
-        }
-
-        private static Dictionary<string, byte[]> cache = 
-            new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
-
-        internal static async Task<byte[]> DownloadAsyncTask(string uri)
-        {
-            if (cache.TryGetValue(uri, out byte[] cachedResult))
-            {
-                return cachedResult;
-            }
-            using (HttpClient httpClient = new HttpClient())
-            {
-                byte[] result = await httpClient.GetByteArrayAsync(uri);
-                cache.Add(uri, result);
-                return result;
-            }
-        }
-
-        internal static ValueTask<byte[]> DownloadAsyncValueTask(string uri)
-        {
-            return cache.TryGetValue(uri, out byte[] cachedResult)
-                ? new ValueTask<byte[]>(cachedResult)
-                : new ValueTask<byte[]>(DownloadAsync());
-
-            async Task<byte[]> DownloadAsync()
-            {
-                using (HttpClient httpClient = new HttpClient())
-                {
-                    byte[] result = await httpClient.GetByteArrayAsync(uri);
-                    cache.Add(uri, result);
-                    return result;
-                }
-            }
-        }
-    }
-
-    [AsyncMethodBuilder(typeof(AsyncFuncAwaitableMethodBuilder<>))]
-    public class FuncAwaitable<TResult> : IAwaitable<TResult>
-    {
-        private readonly Func<TResult> function;
-
-        public FuncAwaitable(Func<TResult> function) => this.function = function;
-
-        public IAwaiter<TResult> GetAwaiter() => new FuncAwaiter<TResult>(Task.Run(this.function));
-    }
-
-    public class AsyncFuncAwaitableMethodBuilder<TResult>
-    {
-        private AsyncTaskMethodBuilder<TResult> taskMethodBuilder;
-
-        private TResult result;
-
-        private bool hasResult;
-
-        private bool useBuilder;
-
-        public static AsyncFuncAwaitableMethodBuilder<TResult> Create() =>
-            new AsyncFuncAwaitableMethodBuilder<TResult>()
-            {
-                taskMethodBuilder = AsyncTaskMethodBuilder<TResult>.Create()
-            };
-
-        public void Start<TStateMachine>(ref TStateMachine stateMachine) where TStateMachine : IAsyncStateMachine =>
-            this.taskMethodBuilder.Start(ref stateMachine);
-
-        public void SetStateMachine(IAsyncStateMachine stateMachine) =>
-            this.taskMethodBuilder.SetStateMachine(stateMachine);
-
-        public void SetResult(TResult result)
-        {
-            if (this.useBuilder)
-            {
-                this.taskMethodBuilder.SetResult(result);
-            }
-            else
-            {
-                this.result = result;
-                this.hasResult = true;
-            }
-        }
-
-        public void SetException(Exception exception) => this.taskMethodBuilder.SetException(exception);
-
-        public FuncAwaitable<TResult> Task
-        {
-            get
-            {
-                if (this.hasResult)
-                {
-                    TResult result = this.result;
-                    return new FuncAwaitable<TResult>(() => result);
-                }
-                else
-                {
-                    this.useBuilder = true;
-                    Task<TResult> task = this.taskMethodBuilder.Task;
-                    return new FuncAwaitable<TResult>(() => task.Result);
-                }
-            }
-        }
-
-        public void AwaitOnCompleted<TAwaiter, TStateMachine>(ref TAwaiter awaiter, ref TStateMachine stateMachine)
-            where TAwaiter : INotifyCompletion where TStateMachine : IAsyncStateMachine
-        {
-            this.useBuilder = true;
-            this.taskMethodBuilder.AwaitOnCompleted(ref awaiter, ref stateMachine);
-        }
-
-        public void AwaitUnsafeOnCompleted<TAwaiter, TStateMachine>(
-            ref TAwaiter awaiter, ref TStateMachine stateMachine)
-            where TAwaiter : ICriticalNotifyCompletion where TStateMachine : IAsyncStateMachine
-        {
-            this.useBuilder = true;
-            this.taskMethodBuilder.AwaitUnsafeOnCompleted(ref awaiter, ref stateMachine);
         }
     }
 }
@@ -754,7 +737,8 @@ namespace System.Threading.Tasks
 
         public Task ContinueWith(Action<Task<TResult>> continuationAction);
 
-        public Task<TNewResult> ContinueWith<TNewResult>(Func<Task<TResult>, TNewResult> continuationFunction);
+        public Task<TNewResult> ContinueWith<TNewResult>(
+            Func<Task<TResult>, TNewResult> continuationFunction);
 
         // Other members.
     }

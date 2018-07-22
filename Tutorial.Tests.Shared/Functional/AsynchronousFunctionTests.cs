@@ -13,14 +13,14 @@
         public async Task AsyncAwaitTest()
         {
             object value = new object();
-            object result = await Functions.CompiledAsync(value);
+            object result = await AsyncFunctions.CompiledAsync(value);
             Assert.AreEqual(value, result);
         }
 
         [TestMethod]
         public async Task FuncAwaitableTest()
         {
-            int result = await Functions.ReturnFuncAwaitable(1);
+            int result = await AsyncFunctions.ReturnFuncAwaitable(1);
             Assert.AreEqual(1, result);
         }
     }

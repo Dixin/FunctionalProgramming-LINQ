@@ -13,82 +13,83 @@
         [Pure]
         internal static bool IsPositive(int int32) => int32 > 0;
 
-        internal static bool IsNegative(int int32) // Impure.
+        // Impure.
+        internal static bool IsNegative(int int32)
         {
             Console.WriteLine(int32); // Side effect: console I/O.
             return int32 < 0;
         }
-    }
 
-    [Pure]
-    internal static class Pure
-    {
-        internal static int Increase(int int32) => int32 + 1;
+        [Pure]
+        internal static class PureFunctions
+        {
+            // Pure.
+            internal static int Increase(int int32) => int32 + 1;
 
-        internal static int Decrease(int int32) => int32 - 1;
-    }
+            // Pure.
+            internal static int Decrease(int int32) => int32 - 1;
+        }
 
-    internal static partial class Purity
-    {
-        internal static int PureContracts(int int32)
+        internal static int DoubleWithPureContracts(int int32)
         {
             Contract.Requires<ArgumentOutOfRangeException>(IsPositive(int32)); // Function precondition.
             Contract.Ensures(IsPositive(Contract.Result<int>())); // Function post condition.
 
-            return int32 + 0; // Function logic.
+            return int32 + int32; // Function body.
         }
 
-        internal static int ImpureContracts(int int32)
+        internal static int DoubleWithImpureContracts(int int32)
         {
             Contract.Requires<ArgumentOutOfRangeException>(IsNegative(int32)); // Function precondition.
             Contract.Ensures(IsNegative(Contract.Result<int>())); // Function post condition.
 
-            return int32 + 0; // Function logic.
+            return int32 + int32; // Function body.
         }
 
-        internal static void PureFunction(string contractsAssemblyDirectory, string gacDirectory = @"C:\Windows\Microsoft.NET\assembly")
+        internal static void FunctionCount(
+            string contractsAssemblyDirectory, string assemblyDirectory)
         {
-            string[] contractAssemblyFiles = Directory
-                .EnumerateFiles(contractsAssemblyDirectory, "*.dll")
-                .ToArray();
-            string pureAttribute = typeof(PureAttribute).FullName;
-            // Query the count of all public function members with [Pure] in all public class in all contract assemblies.
-            int pureFunctionCount = contractAssemblyFiles
-                .Select(assemblyContractFile => AssemblyDefinition.ReadAssembly(assemblyContractFile))
-                .SelectMany(assemblyContract => assemblyContract.Modules)
-                .SelectMany(moduleContract => moduleContract.GetTypes())
-                .Where(typeContract => typeContract.IsPublic)
-                .SelectMany(typeContract => typeContract.Methods)
-                .Count(functionMemberContract => functionMemberContract.IsPublic
-                    && functionMemberContract.CustomAttributes.Any(attribute =>
-                        attribute.AttributeType.FullName.Equals(pureAttribute, StringComparison.Ordinal)));
-            pureFunctionCount.WriteLine(); // 2473
+            bool HasPureAttribute(ICustomAttributeProvider member) =>
+                member.CustomAttributes.Any(attribute =>
+                    attribute.AttributeType.FullName.Equals(typeof(PureAttribute).FullName, StringComparison.Ordinal));
 
-            string[] assemblyFiles = new string[] { "GAC_64", "GAC_MSIL" }
-                .Select(platformDirectory => Path.Combine(gacDirectory, platformDirectory))
-                .SelectMany(assemblyDirectory => Directory
-                    .EnumerateFiles(assemblyDirectory, "*.dll", SearchOption.AllDirectories))
+            string[] contractsAssemblyPaths = Directory
+                .EnumerateFiles(contractsAssemblyDirectory, "*.Contracts.dll")
                 .ToArray();
-            // Query the count of all public function members in all public class in all FCL assemblies.
-            int functionCount = contractAssemblyFiles
-                .Select(contractAssemblyFile => assemblyFiles.First(assemblyFile => Path.GetFileName(contractAssemblyFile)
-                    .Replace(".Contracts", string.Empty)
-                    .Equals(Path.GetFileName(assemblyFile), StringComparison.OrdinalIgnoreCase)))
-                .Select(assemblyFile => AssemblyDefinition.ReadAssembly(assemblyFile))
+            // Query the count of pure functions in all contracts assemblies, including all public functions in public type with [Pure], and all public function members with [Pure] in public types.
+            int pureFunctionCount = contractsAssemblyPaths
+                .Select(AssemblyDefinition.ReadAssembly)
+                .SelectMany(contractsAssembly => contractsAssembly.Modules)
+                .SelectMany(contractsModule => contractsModule.GetTypes())
+                .Where(contractsType => contractsType.IsPublic)
+                .SelectMany(contractsType => HasPureAttribute(contractsType)
+                    ? contractsType.Methods.Where(contractsFunction => contractsFunction.IsPublic)
+                    : contractsType.Methods.Where(contractsFunction =>
+                        contractsFunction.IsPublic && HasPureAttribute(contractsFunction)))
+                .Count();
+            pureFunctionCount.WriteLine(); // 2223
+
+            // Query the count of all public functions in public types in all FCL assemblies.
+            int functionCount = contractsAssemblyPaths
+                .Select(contractsAssemblyPath => Path.Combine(
+                    assemblyDirectory,
+                    Path.ChangeExtension(Path.GetFileNameWithoutExtension(contractsAssemblyPath), "dll")))
+                .Select(AssemblyDefinition.ReadAssembly)
                 .SelectMany(assembly => assembly.Modules)
                 .SelectMany(module => module.GetTypes())
                 .Where(type => type.IsPublic)
                 .SelectMany(type => type.Methods)
-                .Count(functionMember => functionMember.IsPublic);
-            functionCount.WriteLine(); // 83447
+                .Count(function => function.IsPublic);
+            functionCount.WriteLine(); // 82566
         }
 
-        [Pure] // Incorrect.
+        [Pure] // Incorrect. No error or warning.
         internal static ProcessStartInfo Initialize(ProcessStartInfo processStart)
         {
             processStart.RedirectStandardInput = false;
             processStart.RedirectStandardOutput = false;
             processStart.RedirectStandardError = false;
+            Console.WriteLine($"Initialized.");
             return processStart;
         }
     }
