@@ -56,14 +56,16 @@
         internal static void CallReadWrite(string path, string contents)
         {
             Write(path, contents); // Blocking.
-            // Sync operation is completed with no result.
+            // When the underlying write operation is done, the call is completed with no result.
             string result = Read(path); // Blocking.
-            // Sync operation is completed with result available.
+            // When the underlying read operation is done, the call is completed with result available.
 
-            Task writeTask = WriteAsync(path, contents); // Non blocking.
-            // Async operation is scheduled, and will be completed in the future with no result.
-            Task<string> readTask = ReadAsync(path); // Non blocking.
-            // Async operation is scheduled, and will be completed in the future, then result will be available.
+            Task writeTask = WriteAsync(path, contents); // Non-blocking.
+            // When the task is constructed and started, the call is completed immediately.
+            // The underlying write operation is scheduled, and will be completed in the future with no result.
+            Task<string> readTask = ReadAsync(path); // Non-blocking.
+            // When the task is constructed and started, the call is completed immediately.
+            // The underlying read operation is scheduled, and will be completed in the future with result available.
         }
 
         internal static void Action() { }
@@ -90,13 +92,13 @@
         {
             try
             {
-                connection.Open(); // Return void.
+                connection.Open(); // Output void.
                 using (DbCommand command = connection.CreateCommand())
                 {
                     command.CommandText = "SELECT 1;";
-                    using (DbDataReader reader = command.ExecuteReader()) // Return DbDataReader.
+                    using (DbDataReader reader = command.ExecuteReader()) // Output DbDataReader.
                     {
-                        if (reader.Read()) // Return bool.
+                        if (reader.Read()) // Output bool.
                         {
                             return (int)reader[0];
                         }
@@ -106,22 +108,23 @@
             }
             catch (SqlException exception)
             {
-                logWriter.WriteLine(exception.ToString()); // Return void.
+                logWriter.WriteLine(exception.ToString()); // Output void.
                 throw new InvalidOperationException("Failed to call sync functions.", exception);
             }
         }
 
-        internal static async Task<int> QueryAsync(DbConnection connection, StreamWriter logWriter)
+        internal static async Task<int> QueryAsync(
+            DbConnection connection, StreamWriter logWriter) // Output Task<int> instead of int.
         {
             try
             {
-                await connection.OpenAsync(); // Return Task.
+                await connection.OpenAsync(); // Output Task.
                 using (DbCommand command = connection.CreateCommand())
                 {
                     command.CommandText = "SELECT 1;";
-                    using (DbDataReader reader = await command.ExecuteReaderAsync()) // Return Task<DbDataReader>.
+                    using (DbDataReader reader = await command.ExecuteReaderAsync()) // Output Task<DbDataReader>.
                     {
-                        if (await reader.ReadAsync()) // Return Task<bool>.
+                        if (await reader.ReadAsync()) // Output Task<bool>.
                         {
                             return (int)reader[0];
                         }
@@ -131,7 +134,7 @@
             }
             catch (SqlException exception)
             {
-                await logWriter.WriteLineAsync(exception.ToString()); // Return Task.
+                await logWriter.WriteLineAsync(exception.ToString()); // Output Task.
                 throw new InvalidOperationException("Failed to call async functions.", exception);
             }
         }
@@ -174,6 +177,7 @@
 
         private static readonly StringWriter LogWriter = new StringWriter(Logs);
 
+        // (object, NotifyCollectionChangedEventArgs) –> void.
         private static async void CollectionChangedAsync(object sender, NotifyCollectionChangedEventArgs e) =>
             await LogWriter.WriteLineAsync(e.Action.ToString());
 
@@ -642,7 +646,7 @@
 
             async Task<byte[]> DownloadAsync()
             {
-                // Compiled to async state machine.
+                // Compiled to async state machine. When URI is not cached, async state machine is started.
                 using (HttpClient httpClient = new HttpClient())
                 {
                     byte[] result = await httpClient.GetByteArrayAsync(uri);
@@ -683,7 +687,7 @@
             task1.Start(); // Cold task needs to be started.
             string contents = await task1.Unwrap(); // Equivalent to: string contents = await await task1;
 
-            Task<Task> task2 = new Task<Task>(async () => await WriteAsync(writePath, null));
+            Task<Task> task2 = new Task<Task>(async () => await WriteAsync(writePath, contents));
             task2.Start(); // Cold task needs to be started.
             await task2.Unwrap(); // Equivalent to: await await task2;
         }
@@ -691,10 +695,10 @@
         internal static async Task RunAsyncWithAutoUnwrap(string readPath, string writePath)
         {
             Task<string> task1 = Task.Run(async () => await ReadAsync(readPath)); // Automatically unwrapped.
-            string contents = await task1; // Task.Run returns hot task..
+            string contents = await task1; // Hot task..
 
             Task task2 = Task.Run(async () => await WriteAsync(writePath, contents)); // Automatically unwrapped.
-            await task2; // Task.Run returns hot task.
+            await task2; // Hot task.
         }
     }
 }
@@ -813,6 +817,7 @@ namespace System.Collections.ObjectModel
 
 namespace System.Collections.Specialized
 {
+    // (object, NotifyCollectionChangedEventArgs) –> void.
     public delegate void NotifyCollectionChangedEventHandler(object sender, NotifyCollectionChangedEventArgs e);
 }
 

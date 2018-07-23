@@ -20,7 +20,7 @@
         [TestMethod]
         public async Task FuncAwaitableTest()
         {
-            int result = await AsyncFunctions.ReturnFuncAwaitable(1);
+            int result = await AsyncFunctions.AsyncFunctionWithFuncAwaitable(1);
             Assert.AreEqual(1, result);
         }
     }

@@ -8,26 +8,23 @@
 
     using Mono.Cecil;
 
-    internal static partial class Purity
+    internal static partial class PureFunctions
     {
         [Pure]
         internal static bool IsPositive(int int32) => int32 > 0;
-
-        // Impure.
-        internal static bool IsNegative(int int32)
+        
+        internal static bool IsNegative(int int32) // Impure.
         {
             Console.WriteLine(int32); // Side effect: console I/O.
             return int32 < 0;
         }
 
         [Pure]
-        internal static class PureFunctions
+        internal static class AllFunctionsArePure
         {
-            // Pure.
-            internal static int Increase(int int32) => int32 + 1;
+            internal static int Increase(int int32) => int32 + 1; // Pure.
 
-            // Pure.
-            internal static int Decrease(int int32) => int32 - 1;
+            internal static int Decrease(int int32) => int32 - 1; // Pure.
         }
 
         internal static int DoubleWithPureContracts(int int32)
@@ -121,6 +118,67 @@ namespace System
 
             return default;
         }
+    }
+}
+
+namespace System.Linq
+{
+    using System.Collections.Generic;
+    using System.Linq.Expressions;
+
+    public static class Enumerable
+    {
+        public static IEnumerable<TSource> Where<TSource>(
+            this IEnumerable<TSource> source, Func<TSource, bool> predicate);
+
+        public static IEnumerable<TResult> Select<TSource, TResult>(
+            this IEnumerable<TSource> source, Func<TSource, TResult> selector);
+
+        public static IOrderedEnumerable<TSource> OrderBy<TSource, TKey>(
+            this IEnumerable<TSource> source, Func<TSource, TKey> keySelector);
+
+        // Other members.
+    }
+
+    public static class Queryable
+    {
+        public static IQueryable<TSource> Where<TSource>(
+            this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate);
+
+        public static IQueryable<TResult> Select<TSource, TResult>(
+            this IQueryable<TSource> source, Expression<Func<TSource, TResult>> selector);
+
+        public static IOrderedQueryable<TSource> ThenBy<TSource, TKey>(
+            this IOrderedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector);
+
+        // Other members.
+    }
+}
+
+namespace System.Linq
+{
+    using System.Collections.Generic;
+
+    public static class Enumerable
+    {
+        public static TSource[] ToArray<TSource>(this IEnumerable<TSource> source);
+
+        public static List<TSource> ToList<TSource>(this IEnumerable<TSource> source);
+    }
+}
+
+namespace System.Linq
+{
+    using System.Collections.Generic;
+
+    public static class Enumerable
+    {
+        public static TSource First<TSource>(this IEnumerable<TSource> source);
+    }
+
+    public static class Queryable
+    {
+        public static TSource First<TSource>(this IQueryable<TSource> source);
     }
 }
 #endif
