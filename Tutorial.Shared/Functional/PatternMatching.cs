@@ -5,33 +5,6 @@
 
     internal static partial class PatternMatching
     {
-        internal static void IsConstantPattern(object @object)
-        {
-            bool test1 = @object is null;
-            bool test2 = @object is default(int);
-            bool test3 = @object is DayOfWeek.Saturday - DayOfWeek.Monday;
-            bool test4 = @object is "https://" + "flickr.com/dixin";
-            bool test5 = @object is nameof(test5);
-        }
-
-        internal static void CompiledIsConstantPattern(object @object)
-        {
-            bool test1 = @object == null;
-            bool test2 = object.Equals(0, @object);
-            bool test3 = object.Equals(5, @object);
-            bool test4 = object.Equals("https://flickr.com/dixin", @object);
-            bool test5 = object.Equals("test5", @object);
-        }
-
-        internal static void IsConstantPatternWithDefault(object @object)
-        {
-#if DEMO
-// https://github.com/dotnet/roslyn/issues/25450
-// https://github.com/dotnet/roslyn/issues/23499
-            bool test6 = @object is default; // Cannot be compiled. use default(Type).
-#endif
-        }
-
         internal static void IsTypePattern(object @object)
         {
             if (@object is Uri reference)
@@ -137,6 +110,33 @@
             {
                 object.ReferenceEquals(@object, match).WriteLine();
             }
+        }
+
+        internal static void IsConstantPattern(object @object)
+        {
+            bool test1 = @object is null;
+            bool test2 = @object is default(int);
+            bool test3 = @object is DayOfWeek.Saturday - DayOfWeek.Monday;
+            bool test4 = @object is "https://" + "flickr.com/dixin";
+            bool test5 = @object is nameof(test5);
+        }
+
+        internal static void CompiledIsConstantPattern(object @object)
+        {
+            bool test1 = @object == null;
+            bool test2 = object.Equals(0, @object);
+            bool test3 = object.Equals(5, @object);
+            bool test4 = object.Equals("https://flickr.com/dixin", @object);
+            bool test5 = object.Equals("test5", @object);
+        }
+
+        internal static void IsConstantPatternWithDefault(object @object)
+        {
+#if DEMO
+            // https://github.com/dotnet/roslyn/issues/25450
+            // https://github.com/dotnet/roslyn/issues/23499
+            bool test6 = @object is default; // Cannot be compiled. use default(Type).
+#endif
         }
 
         internal static DateTime ToDateTime<TConvertible>(object @object) 
