@@ -1,81 +1,67 @@
 ﻿namespace Tutorial.Functional
 {
     using System;
+    using System.IO;
 
     internal static partial class PatternMatching
     {
-        internal static void IsConstantValue(object @object)
+        internal static void IsConstantPattern(object @object)
         {
-            // Type test:
-            bool test1 = @object is string;
-            // Constant value test:
-            bool test5 = @object is null; // Compiled to: @object == null
-            bool test2 = @object is int.MinValue; // Compiled to: object.Equals(int.MinValue, @object)
-            bool test3 = @object is DayOfWeek.Monday; // Compiled to: object.Equals(DayOfWeek.Monday, @object)
-            bool test4 = @object is "test"; // Compiled to: object.Equals("test", @object)
+            bool test1 = @object is null;
+            bool test2 = @object is default(int);
+            bool test3 = @object is DayOfWeek.Saturday - DayOfWeek.Monday;
+            bool test4 = @object is "https://" + "flickr.com/dixin";
+            bool test5 = @object is nameof(test5);
+        }
 
+        internal static void CompiledIsConstantPattern(object @object)
+        {
+            bool test1 = @object == null;
+            bool test2 = object.Equals(0, @object);
+            bool test3 = object.Equals(5, @object);
+            bool test4 = object.Equals("https://flickr.com/dixin", @object);
+            bool test5 = object.Equals("test5", @object);
+        }
+
+        internal static void IsConstantPatternWithDefault(object @object)
+        {
 #if DEMO
-            // https://github.com/dotnet/roslyn/issues/25450
-            // https://github.com/dotnet/roslyn/issues/23499
-            bool test6 = @object is default; // Compiled to: @object == mull
+// https://github.com/dotnet/roslyn/issues/25450
+// https://github.com/dotnet/roslyn/issues/23499
+            bool test6 = @object is default; // Cannot be compiled. use default(Type).
 #endif
         }
-    }
 
-    internal static partial class PatternMatching
-    {
-        internal static void CompiledIsConstantValue(object @object)
+        internal static void IsTypePattern(object @object)
         {
-            if (object.Equals(int.MinValue, @object))
+            if (@object is Uri reference)
             {
-                @object.WriteLine();
+                reference.AbsolutePath.WriteLine();
             }
-            if (object.Equals(null, @object))
+
+            if (@object is DateTime value)
             {
-                @object.WriteLine();
-            }
-            if (object.Equals(DayOfWeek.Monday, @object))
-            {
-                @object.WriteLine();
+                value.ToString("o").WriteLine();
             }
         }
 
-        internal static void IsReferenceType(object @object)
+        internal static void CompiledIsTypePattern(object @object)
         {
-            if (@object is Uri uri)
+            Uri reference = @object as Uri;
+            if (reference != null)
             {
-                uri.AbsolutePath.WriteLine();
+                reference.AbsolutePath.WriteLine();
+            }
+
+            DateTime? nullableValue = @object as DateTime?;
+            DateTime value = nullableValue.GetValueOrDefault();
+            if (nullableValue.HasValue)
+            {
+                value.ToString("o").WriteLine();
             }
         }
 
-        internal static void CompiledIsReferenceType(object @object)
-        {
-            Uri uri = @object as Uri;
-            if (uri != null)
-            {
-                uri.AbsolutePath.WriteLine();
-            }
-        }
-
-        internal static void IsValueType(object @object)
-        {
-            if (@object is DateTime dateTime)
-            {
-                dateTime.ToString("o").WriteLine();
-            }
-        }
-
-        internal static void CompiledIsValueType(object @object)
-        {
-            DateTime? nullableDateTime = @object as DateTime?;
-            DateTime dateTime = nullableDateTime.GetValueOrDefault();
-            if (nullableDateTime.HasValue)
-            {
-                dateTime.ToString("o").WriteLine();
-            }
-        }
-
-        internal static void IsWithCondition(object @object)
+        internal static void IsWithTest(object @object)
         {
             if (@object is string @string && TimeSpan.TryParse(@string, out TimeSpan timeSpan))
             {
@@ -83,14 +69,7 @@
             }
         }
 
-        internal static void OpenType<T1, T2>(object @object, T1 open1)
-        {
-            if (@object is T1 open) { }
-            if (open1 is Uri uri) { }
-            if (open1 is T2 open2) { }
-        }
-
-        internal static void CompiledIsWithCondition(object @object)
+        internal static void CompiledIsWithTest(object @object)
         {
             string @string = @object as string;
             if (@string != null && TimeSpan.TryParse(@string, out TimeSpan timeSpan))
@@ -98,18 +77,51 @@
                 timeSpan.TotalMilliseconds.WriteLine();
             }
         }
-    }
 
-#if DEMO
-    internal partial class Data : IEquatable<Data>
-    {
-        public override bool Equals(object obj) => 
-            obj is Data data && this.Equals(data);
-    }
-#endif
+        internal static void IsWithOpenType<TOpen1, TOpen2, TOpen3, TOpen4>(
+            IDisposable disposable, TOpen2 open2, TOpen3 open3)
+        {
+            if (disposable is TOpen1 open1)
+            {
+                open1.WriteLine();
+            }
 
-    internal static partial class PatternMatching
-    {
+            if (open2 is FileInfo file)
+            {
+                file.WriteLine();
+            }
+
+            if (open3 is TOpen4 open4)
+            {
+                open4.WriteLine();
+            }
+        }
+
+        internal static void CompiledIsWithOpenType<TOpen1, TOpen2, TOpen3, TOpen4>(
+            IDisposable disposable, TOpen2 open2, TOpen3 open3)
+        {
+            object disposableObject = (object)disposable;
+            if (disposableObject is TOpen1)
+            {
+                TOpen1 open1 = (TOpen1)disposableObject;
+                open1.WriteLine();
+            }
+
+            object open2Object = (object)open2;
+            FileInfo file = open2Object as FileInfo;
+            if (file != null)
+            {
+                file.WriteLine();
+            }
+
+            object open3Object = (object)open3;
+            if (open3Object is TOpen4)
+            {
+                TOpen4 open4 = (TOpen4)open3Object;
+                open4.WriteLine();
+            }
+        }
+
         internal static void IsAnyType(object @object)
         {
             if (@object is var match)
@@ -127,11 +139,12 @@
             }
         }
 
-        internal static DateTime ToDateTime(object @object)
+        internal static DateTime ToDateTime<TConvertible>(object @object) 
+            where TConvertible : IConvertible
         {
             switch (@object)
             {
-                // Match constant @object.
+                // Match null reference.
                 case null:
                     throw new ArgumentNullException(nameof(@object));
                 // Match value type.
@@ -146,20 +159,22 @@
                 // Match reference type with condition.
                 case int[] date when date.Length == 3 && date[0] > 0 && date[1] > 0 && date[2] > 0:
                     return new DateTime(year: date[0], month: date[1], day: date[2]);
-                // Match reference type.
-                case IConvertible convertible:
+                // Match generics open type.
+                case TConvertible convertible:
                     return convertible.ToDateTime(provider: null);
-                case var _: // default:
+                // Match anything else. Equivalent to default case.
+                case var _:
                     throw new ArgumentOutOfRangeException(nameof(@object));
             }
         }
 
-        internal static DateTime CompiledToDateTime(object @object)
+        internal static DateTime CompiledToDateTime<TConvertible>(object @object)
+            where TConvertible : IConvertible
         {
             // case null:
             if (@object == null)
             {
-                throw new ArgumentNullException("@object");
+                throw new ArgumentNullException("object");
             }
 
             // case DateTime dateTIme:
@@ -170,42 +185,38 @@
                 return dateTime;
             }
 
-            // case long ticks
+            // case long ticks:
             long? nullableInt64 = @object as long?;
             long ticks = nullableInt64.GetValueOrDefault();
-            // when ticks >= 0:
-            if (nullableInt64.HasValue && ticks >= 0L)
+            if (nullableInt64.HasValue && ticks >= 0L) // when clause.
             {
                 return new DateTime(ticks);
             }
 
-            // case string text 
+            // case string text:
             string @string = @object as string;
-            // when DateTime.TryParse(text, out DateTime dateTime):
-            if (@string != null && DateTime.TryParse(@string, out DateTime parsedDateTime))
+            if (@string != null && DateTime.TryParse(@string, out DateTime parsedDateTime)) // when cluase.
             {
                 return parsedDateTime;
             }
 
-            // case int[] date
+            // case int[] date:
             int[] date = @object as int[];
-            // when date.Length == 3 && date[0] >= 0 && date[1] >= 0 && date[2] >= 0:
-            if (date != null && date.Length == 3 && date[0] >= 0 && date[1] >= 0 && date[2] >= 0)
+            if (date != null && date.Length == 3 && date[0] >= 0 && date[1] >= 0 && date[2] >= 0) // when clause.
             {
                 return new DateTime(date[0], date[1], date[2]);
             }
 
-            // case IConvertible convertible:
-            IConvertible convertible = @object as IConvertible;
-            if (convertible != null)
+            // case TConvertible convertible:
+            object convertibleObject = (object)@object;
+            if (convertibleObject is TConvertible)
             {
+                TConvertible convertible = (TConvertible)convertibleObject;
                 return convertible.ToDateTime(null);
             }
 
             // case var _:
-            // or
-            // default:
-            throw new ArgumentOutOfRangeException("@object");
+            throw new ArgumentOutOfRangeException("object");
         }
     }
 }
@@ -213,18 +224,52 @@
 #if DEMO
 namespace System
 {
-    using System.Runtime.CompilerServices;
-
-    [Serializable]
     public class Object
     {
         public static bool Equals(object objA, object objB) =>
             objA == objB || (objA != null && objB != null && objA.Equals(objB));
+    }
+}
 
-        public virtual bool Equals(object obj) =>
-            RuntimeHelpers.Equals(this, obj);
+namespace System
+{
+    public readonly partial struct DateTime
+    {
+        public override bool Equals(object value)
+        {
+            if (value is DateTime)
+            {
+                return this.InternalTicks == ((DateTime)value).InternalTicks;
+            }
+            return false;
+        }
+    }
 
-        // Other members.
+    public struct TimeSpan
+    {
+        public override bool Equals(object value)
+        {
+            if (value is TimeSpan)
+            {
+                return this._ticks == ((TimeSpan)value)._ticks;
+            }
+            return false;
+        }
+    }
+}
+
+namespace System
+{
+    public readonly partial struct DateTime
+    {
+        public override bool Equals(object value) => 
+            value is DateTime dateTime && this.InternalTicks == dateTime.InternalTicks;
+    }
+
+    public struct TimeSpan
+    {
+        public override bool Equals(object value) => 
+            value is TimeSpan timeSpan && this._ticks == timeSpan._ticks;
     }
 }
 #endif
