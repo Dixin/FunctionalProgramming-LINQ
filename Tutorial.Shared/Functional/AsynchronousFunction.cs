@@ -160,7 +160,7 @@
         {
             // File.ReadAllText implementation:
             // using (StreamReader reader = new StreamReader(new FileStream(
-            //    path: path, mode: FileMode.Open, access: FileAccess.Read, 
+            //    path: path, mode: FileMode.Open, access: FileAccess.Read,
             //    share: FileShare.Read, bufferSize: 4096, useAsync: false)))
             // {
             //    return reader.ReadToEnd();
@@ -520,7 +520,7 @@
 
         internal static async Task CallConfigureContextCapture(string readPath, string writePath)
         {
-            Task<Task> task = new Task<Task>(() => 
+            Task<Task> task = new Task<Task>(() =>
                 ConfigureRuntimeContextCapture(readPath, writePath));
             task.Start(new BackgroundThreadTaskScheduler());
             await task.Unwrap(); // Equivalent to: await await task;
@@ -552,7 +552,7 @@
                     taskMethodBuilder = AsyncTaskMethodBuilder<TResult>.Create()
                 };
 
-            public void Start<TStateMachine>(ref TStateMachine stateMachine) 
+            public void Start<TStateMachine>(ref TStateMachine stateMachine)
                 where TStateMachine : IAsyncStateMachine =>
                 this.taskMethodBuilder.Start(ref stateMachine);
 
@@ -572,7 +572,7 @@
                 }
             }
 
-            public void SetException(Exception exception) => 
+            public void SetException(Exception exception) =>
                 this.taskMethodBuilder.SetException(exception);
 
             public FuncAwaitable<TResult> Task

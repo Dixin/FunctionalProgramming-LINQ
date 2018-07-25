@@ -17,7 +17,9 @@
 
         internal static void AnonymousMethod()
         {
+#pragma warning disable SA1130 // Use lambda syntax
             Func<int, bool> isPositive = delegate (int int32) { return int32 > 0; };
+#pragma warning restore SA1130 // Use lambda syntax
             bool result = isPositive(0);
         }
 
@@ -112,7 +114,9 @@
         {
             public static readonly Functions Singleton = new Functions();
 
+#pragma warning disable SA1307 // Accessible fields must begin with upper-case letter
             public static Func<int, bool> cachedIsPositive;
+#pragma warning restore SA1307 // Accessible fields must begin with upper-case letter
 
             internal bool IsPositive(int int32) { return int32 > 0; }
         }

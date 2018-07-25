@@ -55,7 +55,7 @@
             ParameterExpression parameterExpression = Expression.Parameter(type: typeof(int), name: "int32"); // int32 parameter.
             Expression<Func<int, bool>> isPositiveExpression = Expression.Lambda<Func<int, bool>>(
                 body: Expression.Block( // ... => {
-                                        // Console.WriteLine(int32);
+                    // Console.WriteLine(int32);
                     arg0: Expression.Call(method: new Action<int>(Console.WriteLine).Method, arg0: parameterExpression),
                     // return int32 > 0;
                     arg1: Expression.GreaterThan(left: parameterExpression, right: Expression.Constant(value: 0, type: typeof(int)))), // }
@@ -165,14 +165,14 @@
             // ldarg.s 1
             // add
             // ldarg.s 2
-            // ldarg.s 3 
-            // mul 
-            // ldc.r8 2 
-            // div 
-            // sub 
-            // ldarg.s 4 
-            // ldc.r8 3 
-            // mul 
+            // ldarg.s 3
+            // mul
+            // ldc.r8 2
+            // div
+            // sub
+            // ldarg.s 4
+            // ldc.r8 3
+            // mul
             // add
         }
 

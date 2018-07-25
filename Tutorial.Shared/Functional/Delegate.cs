@@ -249,7 +249,9 @@
         {
             private EventHandler<DownloadEventArgs> completedGroup;
 
+#pragma warning disable SA1300 // Element must begin with upper-case letter
             internal void add_Completed(EventHandler<DownloadEventArgs> function)
+#pragma warning restore SA1300 // Element must begin with upper-case letter
             {
                 EventHandler<DownloadEventArgs> oldGroup;
                 EventHandler<DownloadEventArgs> group = this.completedGroup;

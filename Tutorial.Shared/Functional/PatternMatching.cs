@@ -139,7 +139,7 @@
 #endif
         }
 
-        internal static DateTime ToDateTime<TConvertible>(object @object) 
+        internal static DateTime ToDateTime<TConvertible>(object @object)
             where TConvertible : IConvertible
         {
             switch (@object)

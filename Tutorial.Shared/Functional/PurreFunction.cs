@@ -12,7 +12,7 @@
     {
         [Pure]
         internal static bool IsPositive(int int32) => int32 > 0;
-        
+
         internal static bool IsNegative(int int32) // Impure.
         {
             Console.WriteLine(int32); // Side effect: console I/O.

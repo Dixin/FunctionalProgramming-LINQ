@@ -156,12 +156,16 @@
 
         internal class Closure
         {
+#pragma warning disable SA1400 // Access modifier must be declared
             int field = 1; // Outside function Add.
+#pragma warning restore SA1400 // Access modifier must be declared
 
             internal void Add()
             {
                 int local = 2; // Inside function Add.
+#pragma warning disable SA1101 // Prefix local calls with this
                 (local + field).WriteLine(); // local + this.field.
+#pragma warning restore SA1101 // Prefix local calls with this
             }
         }
 

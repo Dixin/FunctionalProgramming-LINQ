@@ -165,7 +165,7 @@
             // Equivalent to: Trace.WriteLine(value);
 
             values.WriteLines();
-            // Equivalent to: 
+            // Equivalent to:
             // foreach (Uri value in values)
             // {
             //    Trace.WriteLine(value);

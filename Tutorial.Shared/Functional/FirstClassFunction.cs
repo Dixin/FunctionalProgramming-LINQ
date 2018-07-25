@@ -94,6 +94,7 @@
         {
             Data[] filtered = Array.FindAll(array, data => data != null);
         }
+
         internal static void Add2ArgsFirstOrderToHigherOrder()
         {
             // (int, int) -> int
@@ -214,12 +215,14 @@
 
         internal class OuterClass
         {
+#pragma warning disable SA1400 // Access modifier must be declared
             const int Outer = 1;
 
             class InnerClass
             {
                 const int Inner = 2;
                 int sum = Inner + Outer;
+#pragma warning restore SA1400 // Access modifier must be declared
             }
         }
 
@@ -246,7 +249,7 @@
 
         internal partial class Data
         {
-            public override bool Equals(object obj) => 
+            public override bool Equals(object obj) =>
                 object.ReferenceEquals(this, obj) || this.Value == (obj as Data)?.Value;
 
             public override int GetHashCode() => this.Value.GetHashCode();
