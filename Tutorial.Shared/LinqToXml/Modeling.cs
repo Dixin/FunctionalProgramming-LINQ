@@ -202,7 +202,7 @@
 
             XStreamingElement deferredParent = new XStreamingElement("parent", ChildElementsFactory()); // Deferred.
             deferredParent.ToString(SaveOptions.DisableFormatting).WriteLine();
-            // 0 1 2 3 4 
+            // 0 1 2 3 4
             // <parent><child>0</child><child>1</child><child>2</child><child>3</child><child>4</child></parent>
         }
 

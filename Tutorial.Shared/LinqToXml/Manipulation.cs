@@ -47,14 +47,14 @@
         internal static void Manipulate()
         {
             XElement child = new XElement("child");
-            child.Changing += (sender, e) => 
+            child.Changing += (sender, e) =>
                 $"Before {e.ObjectChange}: ({sender.GetType().Name} {sender}) => {child}".WriteLine();
-            child.Changed += (sender, e) => 
+            child.Changed += (sender, e) =>
                 $"After {e.ObjectChange}: ({sender.GetType().Name} {sender}) => {child}".WriteLine();
             XElement parent = new XElement("parent");
-            parent.Changing += (sender, e) => 
+            parent.Changing += (sender, e) =>
                 $"Before {e.ObjectChange}: ({sender.GetType().Name} {sender}) => {parent.ToString(SaveOptions.DisableFormatting)}".WriteLine();
-            parent.Changed += (sender, e) => 
+            parent.Changed += (sender, e) =>
                 $"After {e.ObjectChange}: ({sender.GetType().Name} {sender}) => {parent.ToString(SaveOptions.DisableFormatting)}".WriteLine();
 
             child.Value = "value1";
@@ -106,9 +106,9 @@
         internal static void SetAttributeValue()
         {
             XElement element = new XElement("element");
-            element.Changing += (sender, e) => 
+            element.Changing += (sender, e) =>
                 $"Before {e.ObjectChange}: ({sender.GetType().Name} {sender}) => {element}".WriteLine();
-            element.Changed += (sender, e) => 
+            element.Changed += (sender, e) =>
                 $"After {e.ObjectChange}: ({sender.GetType().Name} {sender}) => {element}".WriteLine();
 
             element.SetAttributeValue("attribute", "value1"); // Equivalent to: child1.Add(new XAttribute("attribute", "value1"));
@@ -127,9 +127,9 @@
         internal static void SetElementValue()
         {
             XElement parent = new XElement("parent");
-            parent.Changing += (sender, e) => 
+            parent.Changing += (sender, e) =>
                 $"Before {e.ObjectChange}: {sender} => {parent.ToString(SaveOptions.DisableFormatting)}".WriteLine();
-            parent.Changed += (sender, e) => 
+            parent.Changed += (sender, e) =>
                 $"After {e.ObjectChange}: {sender} => {parent.ToString(SaveOptions.DisableFormatting)}".WriteLine();
 
             parent.SetElementValue("child", string.Empty); // Add child element.
@@ -200,7 +200,7 @@
                 .ForEach(element =>
                 {
                     $"{element.XPath()} - {element.GetSchemaInfo()?.Validity}".WriteLine();
-                    element.Attributes().WriteLines(attribute => 
+                    element.Attributes().WriteLines(attribute =>
                         $"{attribute.XPath()} - {attribute.GetSchemaInfo()?.Validity.ToString() ?? "null"}");
                 });
             // /rss - Invalid

@@ -49,8 +49,8 @@
                 .Distinct();
 
         public static IEnumerable<XAttribute> AllAttributes(this XContainer source) =>
-            (source is XElement element 
-                ? element.DescendantsAndSelf() 
+            (source is XElement element
+                ? element.DescendantsAndSelf()
                 : source.Descendants())
                 .SelectMany(elementOrDescendant => elementOrDescendant.Attributes());
 

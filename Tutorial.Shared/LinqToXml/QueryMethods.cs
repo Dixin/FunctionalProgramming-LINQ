@@ -14,7 +14,7 @@
         internal static void ParentAndAncestors()
         {
             XElement element = new XElement("element");
-            new XDocument(new XElement("grandparent", new XElement("parent", element)));
+            XDocument document = new XDocument(new XElement("grandparent", new XElement("parent", element)));
 
             element.Parent.Name.WriteLine(); // parent
             element
@@ -113,7 +113,7 @@
         {
             XElement element1 = new XElement("element");
             XElement element2 = new XElement("element");
-            new XDocument(new XElement("grandparent", new XElement("parent", element1, element2)));
+            XDocument document = new XDocument(new XElement("grandparent", new XElement("parent", element1, element2)));
 
             element1.IsBefore(element2).WriteLine(); // True
             XNode.DocumentOrderComparer.Compare(element1, element2).WriteLine(); // -1
