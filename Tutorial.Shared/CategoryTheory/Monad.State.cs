@@ -38,7 +38,7 @@
                     TState newState = value.State;
                     return (selector(value.Value), newState); // Output new state.
                 };
-                // Equivalent to:            
+                // Equivalent to:
                 // source.SelectMany(value => selector(value).State<TState, TResult>(), (value, result) => result);
     }
 

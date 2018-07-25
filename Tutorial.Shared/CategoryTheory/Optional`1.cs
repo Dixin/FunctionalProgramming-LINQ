@@ -2,7 +2,9 @@
 {
     using System;
 
+#pragma warning disable CA1815 // Override equals and operator equals on value types
     public readonly struct Optional<T>
+#pragma warning restore CA1815 // Override equals and operator equals on value types
     {
         private readonly Lazy<(bool, T)> factory;
 

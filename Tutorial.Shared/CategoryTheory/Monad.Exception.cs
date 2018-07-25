@@ -89,7 +89,7 @@
 
         public static Try<T> Catch<T, TException>(
             this Try<T> source, Func<TException, Try<T>> handler, Func<TException, bool> when = null)
-            where TException : Exception => 
+            where TException : Exception =>
                 new Try<T>(() =>
                 {
                     if (source.HasException && source.Exception is TException exception && exception != null
@@ -134,7 +134,9 @@
         internal static string Factorial(string value)
         {
             Func<string, int?> stringToNullableInt32 = @string =>
+#pragma warning disable SA1000 // Keywords must be spaced correctly
                 string.IsNullOrEmpty(@string) ? default : Convert.ToInt32(@string);
+#pragma warning restore SA1000 // Keywords must be spaced correctly
             Try<int> query = from nullableInt32 in Try(() => stringToNullableInt32(value)) // Try<int32?>
                              from result in TryStrictFactorial(nullableInt32) // Try<int>.
                              from unit in Try(() => result.WriteLine()) // Try<Unit>.

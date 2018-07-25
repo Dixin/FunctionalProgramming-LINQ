@@ -269,7 +269,9 @@
         {
             bool flag = false;
             return from value in source
+#pragma warning disable SA1312 // Variable names must begin with lower-case letter
                    let _ = !flag && !predicate(value) && (flag = true)
+#pragma warning restore SA1312 // Variable names must begin with lower-case letter
                    from result in value.ToEnumerable(flag)
                    select result;
         }
@@ -288,7 +290,9 @@
         {
             bool flag = true;
             return from value in source
+#pragma warning disable SA1312 // Variable names must begin with lower-case letter
                    let _ = predicate(value) || (flag = false)
+#pragma warning restore SA1312 // Variable names must begin with lower-case letter
                    from result in value.ToEnumerable(flag)
                    select result;
         }
@@ -316,8 +320,12 @@
             int firstIndex = 0;
             int secondIndex = 0;
             return from firstValue in first
+#pragma warning disable SA1003 // Symbols must be spaced correctly
                    let currentFirstIndex = firstIndex++
+#pragma warning restore SA1003 // Symbols must be spaced correctly
+#pragma warning disable SA1312 // Variable names must begin with lower-case letter
                    let _ = secondIndex = 0
+#pragma warning restore SA1312 // Variable names must begin with lower-case letter
                    from secondResult in
                        (from secondValue in second
                             // where firstIndex2 == secondIndex++

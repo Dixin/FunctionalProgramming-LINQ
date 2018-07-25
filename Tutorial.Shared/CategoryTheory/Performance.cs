@@ -6,10 +6,10 @@
     using System.Linq;
     using System.Runtime.CompilerServices;
 
+    using static Tutorial.LinqToObjects.EnumerableX;
+
     using CustomLinq = Tutorial.LinqToObjects.EnumerableExtensions;
     using EnumerableX = Tutorial.LinqToObjects.EnumerableX;
-
-    using static Tutorial.LinqToObjects.EnumerableX;
 
     public static partial class EnumerableExtensions
     {
@@ -107,7 +107,7 @@
             Func<IEnumerable<T1>, Func<T1, T2>, IEnumerable<T1>> action,
             Func<T1, T2> arg2,
             int count = DefaultCount,
-            Stopwatch stopwatch = null) => 
+            Stopwatch stopwatch = null) =>
                 Run(() => args1.ForEach(arg1 => action(arg1, arg2).ForEach()), count);
 
         public static long Run<T>(
@@ -119,19 +119,19 @@
             Func<IEnumerable<T1>, Func<T1, T2>, IEnumerable<T1>> action,
             Func<T1, T2> arg2,
             int count = DefaultCount,
-            Stopwatch stopwatch = null) => 
+            Stopwatch stopwatch = null) =>
                 Run(() => action(arg1, arg2).ForEach(), count);
     }
 
     public static class ArrayHelper
     {
-        public static int[][] RandomArrays(int minValue, int maxValue, int minLength, int maxLength, int count) => 
+        public static int[][] RandomArrays(int minValue, int maxValue, int minLength, int maxLength, int count) =>
             Enumerable
                 .Range(0, count)
                 .Select(_ => RandomArray(minValue, maxValue, minLength, maxLength))
                 .ToArray();
 
-        public static int[] RandomArray(int minValue, int maxValue, int minLength, int maxLength) => 
+        public static int[] RandomArray(int minValue, int maxValue, int minLength, int maxLength) =>
             EnumerableX
                 .RandomInt32(minValue, maxValue).Take(new Random().Next(minLength, maxLength))
                 .ToArray();
@@ -192,7 +192,7 @@
             Random random = new Random();
             for (int i = 0; i < count; i++)
             {
-                yield return new ValuePerson(name: Guid.NewGuid().ToString(), age: random.Next(0, 100),description:LongString);
+                yield return new ValuePerson(name: Guid.NewGuid().ToString(), age: random.Next(0, 100), description: LongString);
             }
         }
 
@@ -443,10 +443,16 @@
             int minAge1, int maxAge1, int minAge2, int maxAge2,
             string minName1, string maxName1, string minName2, string maxName2)
                 => source.Where(new Predicate
-                    {
-                        MinAge1 = minAge1, MinAge2 = minAge2, MaxAge1 = maxAge1, MaxAge2 = maxAge2,
-                        MinName1 = minName1, MaxName1 = maxName1, MinName2 = minName2, MaxName2 = maxName2
-                    }.WithLambda).ToArray();
+                {
+                    MinAge1 = minAge1,
+                    MinAge2 = minAge2,
+                    MaxAge1 = maxAge1,
+                    MaxAge2 = maxAge2,
+                    MinName1 = minName1,
+                    MaxName1 = maxName1,
+                    MinName2 = minName2,
+                    MaxName2 = maxName2
+                }.WithLambda).ToArray();
     }
 
     internal static partial class Filter
@@ -459,12 +465,12 @@
             string maxName1 = Guid.NewGuid().ToString();
             string minName2 = Guid.NewGuid().ToString();
             string maxName2 = Guid.NewGuid().ToString();
-            
-                $@"{nameof(WithoutLambda)}: {array1.Run(values =>
-                    WithoutLambda(values, 10, 20, 30, 40, minName1, maxName1, minName2, maxName2))}".WriteLine();
-            
-                $@"{nameof(WithLambda)}: {array2.Run(values =>
-                    WithLambda(values, 10, 20, 30, 40, minName1, maxName1, minName2, maxName2))}".WriteLine();
+
+            $@"{nameof(WithoutLambda)}: {array1.Run(values =>
+                WithoutLambda(values, 10, 20, 30, 40, minName1, maxName1, minName2, maxName2))}".WriteLine();
+
+            $@"{nameof(WithLambda)}: {array2.Run(values =>
+                WithLambda(values, 10, 20, 30, 40, minName1, maxName1, minName2, maxName2))}".WriteLine();
         }
     }
 }

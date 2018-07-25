@@ -126,7 +126,7 @@
         {
             Func<int, long, double, bool> selector = (x, y, z) => x + y + z > 0;
             // Curry selector.
-            Func<int, Func<long, Func<double, bool>>> curriedSelector = 
+            Func<int, Func<long, Func<double, bool>>> curriedSelector =
                 selector.Curry(); // 1 arity: x => (y => z => x + y + z > 0)
             // Partially apply selector with xs.
             IEnumerable<Func<long, Func<double, bool>>> applyWithXs = xs.Select(curriedSelector);
@@ -220,11 +220,11 @@
 
             // Associativity preservation: source1.Multiply(source2).Multiply(source3).Select(Associator) == source1.Multiply(source2.Multiply(source3)).
             source1.Multiply(source2).Multiply(source3).Select(Associator).WriteLines();
-                // (0, (@, True)) (0, (@, False)) (0, (#, True)) (0, (#, False))
-                // (1, (@, True)) (1, (@, False)) (1, (#, True)) (1, (#, False))
+            // (0, (@, True)) (0, (@, False)) (0, (#, True)) (0, (#, False))
+            // (1, (@, True)) (1, (@, False)) (1, (#, True)) (1, (#, False))
             source1.Multiply(source2.Multiply(source3)).WriteLines();
-                // (0, (@, True)) (0, (@, False)) (0, (#, True)) (0, (#, False))
-                // (1, (@, True)) (1, (@, False)) (1, (#, True)) (1, (#, False))
+            // (0, (@, True)) (0, (@, False)) (0, (#, True)) (0, (#, False))
+            // (1, (@, True)) (1, (@, False)) (1, (#, True)) (1, (#, False))
             // Left unit preservation: unit.Multiply(source).Select(LeftUnitor) == source.
             unit.Multiply(source).Select(LeftUnitor).WriteLines(); // 0 1 2 3 4
             // Right unit preservation: source == source.Multiply(unit).Select(RightUnitor).
@@ -250,15 +250,15 @@
             new Func<int, int>(Functions.Id).Enumerable().Apply(source).WriteLines(); // 0 1 2 3 4
             // Composition preservation: o.Wrap().Apply(selectorWrapper2).Apply(selectorWrapper1).Apply(source) == selectorWrapper2.Apply(selectorWrapper1.Apply(source)).
             o.Enumerable().Apply(selectorWrapper2).Apply(selectorWrapper1).Apply(source).WriteLines();
-                // 0.0  0.5  1.0  1.5  2.0
-                // 0.0  1.0  1.4  1.7  2.0 
-                // 0.00 0.50 1.00 1.50 2.00
-                // 0.00 1.00 1.41 1.73 2.00
+            // 0.0  0.5  1.0  1.5  2.0
+            // 0.0  1.0  1.4  1.7  2.0
+            // 0.00 0.50 1.00 1.50 2.00
+            // 0.00 1.00 1.41 1.73 2.00
             selectorWrapper2.Apply(selectorWrapper1.Apply(source)).WriteLines();
-                // 0.0  0.5  1.0  1.5  2.0
-                // 0.0  1.0  1.4  1.7  2.0 
-                // 0.00 0.50 1.00 1.50 2.00
-                // 0.00 1.00 1.41 1.73 2.00
+            // 0.0  0.5  1.0  1.5  2.0
+            // 0.0  1.0  1.4  1.7  2.0
+            // 0.00 0.50 1.00 1.50 2.00
+            // 0.00 1.00 1.41 1.73 2.00
             // Homomorphism: selector.Wrap().Apply(value.Wrap()) == selector(value).Wrap().
             selector.Enumerable().Apply(value.Enumerable()).WriteLines(); // 2.23606797749979
             selector(value).Enumerable().WriteLines(); // 2.23606797749979
@@ -451,11 +451,11 @@
         {
             (string, int) source = ("a", 1);
             Func<int, double> selector = int32 => Math.Sqrt(int32);
-            (string, Func<int, double>) selectorWrapper1 = 
+            (string, Func<int, double>) selectorWrapper1 =
                 ("b", new Func<int, double>(int32 => Math.Sqrt(int32)));
             (string, Func<double, string>) selectorWrapper2 =
                 ("c", new Func<double, string>(@double => @double.ToString("0.00")));
-            Func<Func<double, string>, Func<Func<int, double>, Func<int, string>>> o = 
+            Func<Func<double, string>, Func<Func<int, double>, Func<int, string>>> o =
                 new Func<Func<double, string>, Func<int, double>, Func<int, string>>(Tutorial.FuncExtensions.o).Curry();
             int value = 5;
 

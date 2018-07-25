@@ -42,7 +42,7 @@
                 new Writer<TEntry, TResult>(() =>
                 {
                     Writer<TEntry, TSelector> result = selector(source.Value);
-                    return (source.Monoid.Multiply(source.Content, result.Content), 
+                    return (source.Monoid.Multiply(source.Content, result.Content),
                         resultSelector(source.Value, result.Value));
                 });
 

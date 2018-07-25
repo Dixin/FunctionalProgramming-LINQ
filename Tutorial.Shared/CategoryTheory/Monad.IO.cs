@@ -91,13 +91,13 @@
         {
             using (HttpClient httpClient = new HttpClient())
             {
-                IO<Task> query = from unit1 in IO(() => Console.WriteLine("URI:")) // IO<Unit>. 
+                IO<Task> query = from unit1 in IO(() => Console.WriteLine("URI:")) // IO<Unit>.
                                  from uri in IO(Console.ReadLine) // IO<string>.
                                  from unit2 in IO(() => Console.WriteLine("File path:")) // IO<Unit>.
                                  from filePath in IO(Console.ReadLine) // IO<string>.
                                  from downloadStreamTask in IO(async () =>
                                      await httpClient.GetStreamAsync(uri)) // IO<Task<Stream>>.
-                                 from writeFileTask in IO(async () => 
+                                 from writeFileTask in IO(async () =>
                                      await (await downloadStreamTask).CopyToAsync(File.Create(filePath))) // IO<Task>.
                                  from messageTask in IO(async () =>
                                      {
