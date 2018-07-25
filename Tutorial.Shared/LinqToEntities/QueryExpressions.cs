@@ -193,7 +193,7 @@
                                         select product;
             IQueryable<Product> inner = from product in adventureWorks.Products
                                         where product.ListPrice < 100
-                                        select product; ;
+                                        select product;
             var bundles =
                 from outerProduct in outer
                 from innerProduct in inner
@@ -208,7 +208,7 @@
                                         select product;
             IQueryable<Product> inner = from product in adventureWorks.Products
                                         where product.ListPrice < 100
-                                        select product; ;
+                                        select product;
             var bundles =
                 from outerProduct in outer
                 join innerProduct in inner

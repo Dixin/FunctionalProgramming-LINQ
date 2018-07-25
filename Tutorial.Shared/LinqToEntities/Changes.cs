@@ -178,7 +178,7 @@
             {
                 ProductCategory category = adventureWorks.ProductCategories.Find(categoryId);
                 adventureWorks.ChangeTracker.Entries().Count().WriteLine(); // 1
-                adventureWorks.ProductCategories.Remove(category);// Track deletion.
+                adventureWorks.ProductCategories.Remove(category); // Track deletion.
                 adventureWorks.ChangeTracker.Entries().Count(tracking => tracking.State == EntityState.Deleted)
                     .WriteLine(); // 1
                 adventureWorks.SaveChanges();
@@ -218,7 +218,7 @@
                 //    WHERE [ProductSubcategoryID] = @p0;
                 //    SELECT @@ROWCOUNT;
                 //    ',N'@p0 int',@p0=49
-
+                //
                 //    exec sp_executesql N'SET NOCOUNT ON;
                 //    DELETE FROM [Production].[ProductCategory]
                 //    WHERE [ProductCategoryID] = @p1;
@@ -240,7 +240,7 @@
 #if EF
                 // InvalidOperationException: The object cannot be deleted because it was not found in the ObjectStateManager.
 #else
-                // DbUpdateException: An error occurred while updating the entries. 
+                // DbUpdateException: An error occurred while updating the entries.
                 // ---> SqlException: The DELETE statement conflicted with the REFERENCE constraint "FK_ProductSubcategory_ProductCategory_ProductCategoryID". The conflict occurred in database "C:\DATA\GITHUB\DATA\ADVENTUREWORKS_DATA.MDF", table "Production.ProductSubcategory", column 'ProductCategoryID'. The statement has been terminated.
 #endif
             } // Unit of work.

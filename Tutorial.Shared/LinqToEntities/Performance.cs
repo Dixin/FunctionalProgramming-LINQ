@@ -84,32 +84,32 @@
 
                 // SELECT Count(*)
                 // FROM INFORMATION_SCHEMA.TABLES AS t
-                // WHERE t.TABLE_SCHEMA + '.' + t.TABLE_NAME IN ('HumanResources.Employee','Person.Person','Production.ProductCategory','Production.ProductSubcategory','Production.Product','Production.ProductProductPhoto','Production.ProductPhoto','Production.TransactionHistory','HumanResources.vEmployee') 
+                // WHERE t.TABLE_SCHEMA + '.' + t.TABLE_NAME IN ('HumanResources.Employee','Person.Person','Production.ProductCategory','Production.ProductSubcategory','Production.Product','Production.ProductProductPhoto','Production.ProductPhoto','Production.TransactionHistory','HumanResources.vEmployee')
                 //    OR t.TABLE_NAME = 'EdmMetadata'
 
-                // exec sp_executesql N'SELECT 
+                // exec sp_executesql N'SELECT
                 //    [GroupBy1].[A1] AS [C1]
-                //    FROM ( SELECT 
+                //    FROM ( SELECT
                 //        COUNT(1) AS [A1]
                 //        FROM [dbo].[__MigrationHistory] AS [Extent1]
                 //        WHERE [Extent1].[ContextKey] = @p__linq__0
                 //    )  AS [GroupBy1]',N'@p__linq__0 nvarchar(4000)',@p__linq__0=N'Tutorial.LinqToEntities.AdventureWorks'
 
-                // SELECT 
+                // SELECT
                 //    [GroupBy1].[A1] AS [C1]
-                //    FROM ( SELECT 
+                //    FROM ( SELECT
                 //        COUNT(1) AS [A1]
                 //        FROM [dbo].[__MigrationHistory] AS [Extent1]
                 //    )  AS [GroupBy1]
 
-                // SELECT TOP (1) 
-                //    [Extent1].[Id] AS [Id], 
+                // SELECT TOP (1)
+                //    [Extent1].[Id] AS [Id],
                 //    [Extent1].[ModelHash] AS [ModelHash]
                 //    FROM [dbo].[EdmMetadata] AS [Extent1]
                 //    ORDER BY [Extent1].[Id] DESC
 
-                // SELECT 
-                //    [Extent1].[ProductCategoryID] AS [ProductCategoryID], 
+                // SELECT
+                //    [Extent1].[ProductCategoryID] AS [ProductCategoryID],
                 //    [Extent1].[Name] AS [Name]
                 //    FROM [Production].[ProductCategory] AS [Extent1]
             }
@@ -259,7 +259,9 @@
         internal static void Find(AdventureWorks adventureWorks)
         {
             Product[] products = adventureWorks.Products
+#pragma warning disable CA1307 // Specify StringComparison
                 .Where(entity => entity.Name.StartsWith("Road")).ToArray(); // Execute query.
+#pragma warning restore CA1307 // Specify StringComparison
             Product product = adventureWorks.Products.Find(999); // No database query.
             object.ReferenceEquals(products.Last(), product).WriteLine(); // True
         }
@@ -334,7 +336,9 @@
                 };
 
             Func<string, Expression<Func<Product, bool>>> getPredicateWithVariable =
+#pragma warning disable CA1307 // Specify StringComparison
                 startWith => product => product.Name.StartsWith(startWith);
+#pragma warning restore CA1307 // Specify StringComparison
 
             using (AdventureWorks adventureWorks = new AdventureWorks())
             {

@@ -215,7 +215,7 @@
             IQueryable<ProductCategory> source = adventureWorks.ProductCategories;
             IQueryable<ProductCategory> categories = source
                 .Where(category => category.ProductCategoryID < 0)
-                .DefaultIfEmpty(@default); ; // Define query.
+                .DefaultIfEmpty(@default); // Define query.
             categories.WriteLines( // Execute query.
                 category => category?.Name); // ProductCategory
 #if EF
@@ -1896,7 +1896,7 @@
             // SELECT [product].[ProductID], [product].[ListPrice], [product].[Name], [product].[ProductSubcategoryID]
             // FROM [Production].[Product] AS [product]
             // WHERE [product].[ProductSubcategoryID] = 7
-            //.ArgumentException: Expression of type 'Tutorial.LinqToEntities.Product' cannot be used for parameter of type 'Microsoft.EntityFrameworkCore.Storage.ValueBuffer' of method 'Boolean Contains[ValueBuffer](System.Collections.Generic.IEnumerable`1[Microsoft.EntityFrameworkCore.Storage.ValueBuffer], Microsoft.EntityFrameworkCore.Storage.ValueBuffer)' Parameter name: arg1
+            // ArgumentException: Expression of type 'Tutorial.LinqToEntities.Product' cannot be used for parameter of type 'Microsoft.EntityFrameworkCore.Storage.ValueBuffer' of method 'Boolean Contains[ValueBuffer](System.Collections.Generic.IEnumerable`1[Microsoft.EntityFrameworkCore.Storage.ValueBuffer], Microsoft.EntityFrameworkCore.Storage.ValueBuffer)' Parameter name: arg1
 
 #endif
         }

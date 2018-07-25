@@ -38,7 +38,7 @@
                         return $"({VisitNode(binary.Left)} / {VisitNode(binary.Right)})";
 
                     default:
-                        throw new ArgumentOutOfRangeException(nameof(node));
+                        throw new ArgumentOutOfRangeException(nameof(expression));
                 }
             }
 

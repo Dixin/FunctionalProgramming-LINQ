@@ -22,7 +22,6 @@ namespace Tutorial.LinqToEntities
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
 
-
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.ChangeTracking;
     using Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling;

@@ -48,7 +48,7 @@ namespace Tutorial.LinqToEntities
             {
                 exception.WriteLine();
                 // System.Data.Entity.Infrastructure.DbUpdateException: An error occurred while updating the entries. See the inner exception for details.
-                // ---> System.Data.Entity.Core.UpdateException: An error occurred while updating the entries. See the inner exception for details. 
+                // ---> System.Data.Entity.Core.UpdateException: An error occurred while updating the entries. See the inner exception for details.
                 // ---> System.Data.SqlClient.SqlException: The UPDATE statement conflicted with the FOREIGN KEY constraint "FK_ProductSubcategory_ProductCategory_ProductCategoryID". The conflict occurred in database "D:\ONEDRIVE\WORKS\DRAFTS\CODESNIPPETS\DATA\ADVENTUREWORKS_DATA.MDF", table "Production.ProductCategory", column 'ProductCategoryID'. The statement has been terminated.
                 adventureWorks.Entry(category).Reload();
                 category.Name.WriteLine(); // Accessories

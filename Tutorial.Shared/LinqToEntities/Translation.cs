@@ -652,11 +652,11 @@
     {
         public partial class ApiCompilationFilter : EvaluatableExpressionFilterBase
         {
-            private static readonly PropertyInfo dateTimeUtcNow = typeof(DateTime)
+            private static readonly PropertyInfo DateTimeUtcNow = typeof(DateTime)
                 .GetProperty(nameof(DateTime.UtcNow));
 
             public override bool IsEvaluatableMember(MemberExpression memberExpression) =>
-                memberExpression.Member != dateTimeUtcNow;
+                memberExpression.Member != DateTimeUtcNow;
         }
     }
 

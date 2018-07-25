@@ -131,23 +131,23 @@
                 source.ForEach(); // Execute query.
             }
             // 2017-01-11T22:15:43.4625876-08:00 Debug 2 Microsoft.EntityFrameworkCore.Query.Internal.SqlServerQueryCompilationContextFactory
-            // Compiling query model: 
+            // Compiling query model:
             // 'from ProductCategory <generated>_0 in DbSet<ProductCategory>
             // select <generated>_0'
 
             // 2017-01-11T22:15:43.4932882-08:00 Debug 3 Microsoft.EntityFrameworkCore.Query.Internal.SqlServerQueryCompilationContextFactory
-            // Optimized query model: 
+            // Optimized query model:
             // 'from ProductCategory <generated>_0 in DbSet<ProductCategory>
             // select <generated>_0'
 
             // 2017-01-11T22:15:43.6179834-08:00 Debug 5 Microsoft.EntityFrameworkCore.Query.Internal.SqlServerQueryCompilationContextFactory
             // TRACKED: True
             // (QueryContext queryContext) => IEnumerable<ProductCategory> _ShapedQuery(
-            //    queryContext: queryContext, 
-            //    shaperCommandContext: SelectExpression: 
+            //    queryContext: queryContext,
+            //    shaperCommandContext: SelectExpression:
             //        SELECT [p].[ProductCategoryID], [p].[Name]
             //        FROM [Production].[ProductCategory] AS [p]
-            //    , 
+            //    ,
             //    shaper: UnbufferedEntityShaper<ProductCategory>
             // )
 

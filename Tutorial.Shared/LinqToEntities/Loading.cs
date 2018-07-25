@@ -296,29 +296,30 @@
             // ORDER BY [p].[ProductID]
         }
 #endif
+
         internal static void LazyLoading(AdventureWorks adventureWorks)
         {
             ProductSubcategory subcategory = adventureWorks.ProductSubcategories.First(); // Execute query.
-            // SELECT TOP (1) 
-            //    [c].[ProductSubcategoryID] AS [ProductSubcategoryID], 
-            //    [c].[Name] AS [Name], 
+            // SELECT TOP (1)
+            //    [c].[ProductSubcategoryID] AS [ProductSubcategoryID],
+            //    [c].[Name] AS [Name],
             //    [c].[ProductCategoryID] AS [ProductCategoryID]
             //    FROM [Production].[ProductSubcategory] AS [c]
             subcategory.Name.WriteLine();
 
             ProductCategory category = subcategory.ProductCategory; // Execute query.
-            // exec sp_executesql N'SELECT 
-            //    [Extent1].[ProductCategoryID] AS [ProductCategoryID], 
+            // exec sp_executesql N'SELECT
+            //    [Extent1].[ProductCategoryID] AS [ProductCategoryID],
             //    [Extent1].[Name] AS [Name]
             //    FROM [Production].[ProductCategory] AS [Extent1]
             //    WHERE [Extent1].[ProductCategoryID] = @EntityKeyValue1',N'@EntityKeyValue1 int',@EntityKeyValue1=1
             category.Name.WriteLine();
 
             ICollection<Product> products = subcategory.Products; // Execute query.
-            // exec sp_executesql N'SELECT 
-            //    [Extent1].[ProductID] AS [ProductID], 
-            //    [Extent1].[Name] AS [Name], 
-            //    [Extent1].[ListPrice] AS [ListPrice], 
+            // exec sp_executesql N'SELECT
+            //    [Extent1].[ProductID] AS [ProductID],
+            //    [Extent1].[Name] AS [Name],
+            //    [Extent1].[ListPrice] AS [ListPrice],
             //    [Extent1].[ProductSubcategoryID] AS [ProductSubcategoryID]
             //    FROM [Production].[Product] AS [Extent1]
             //    WHERE [Extent1].[ProductSubcategoryID] = @EntityKeyValue1',N'@EntityKeyValue1 int',@EntityKeyValue1=1
@@ -328,22 +329,22 @@
         internal static void MultipleLazyLoading(AdventureWorks adventureWorks)
         {
             ProductSubcategory[] subcategories = adventureWorks.ProductSubcategories.ToArray(); // Execute query.
-            // SELECT 
-            //    [Extent1].[ProductSubcategoryID] AS [ProductSubcategoryID], 
-            //    [Extent1].[Name] AS [Name], 
+            // SELECT
+            //    [Extent1].[ProductSubcategoryID] AS [ProductSubcategoryID],
+            //    [Extent1].[Name] AS [Name],
             //    [Extent1].[ProductCategoryID] AS [ProductCategoryID]
             //    FROM [Production].[ProductSubcategory] AS [Extent1]
 
-            subcategories.WriteLines(subcategory => 
+            subcategories.WriteLines(subcategory =>
                 $"{subcategory.Name} ({subcategory.ProductCategory.Name})"); // Execute query.
-            // exec sp_executesql N'SELECT 
-            //    [Extent1].[ProductCategoryID] AS [ProductCategoryID], 
+            // exec sp_executesql N'SELECT
+            //    [Extent1].[ProductCategoryID] AS [ProductCategoryID],
             //    [Extent1].[Name] AS [Name]
             //    FROM [Production].[ProductCategory] AS [Extent1]
             //    WHERE [Extent1].[ProductCategoryID] = @EntityKeyValue1',N'@EntityKeyValue1 int',@EntityKeyValue1=1
 
-            // exec sp_executesql N'SELECT 
-            //    [Extent1].[ProductCategoryID] AS [ProductCategoryID], 
+            // exec sp_executesql N'SELECT
+            //    [Extent1].[ProductCategoryID] AS [ProductCategoryID],
             //    [Extent1].[Name] AS [Name]
             //    FROM [Production].[ProductCategory] AS [Extent1]
             //    WHERE [Extent1].[ProductCategoryID] = @EntityKeyValue1',N'@EntityKeyValue1 int',@EntityKeyValue1=2
@@ -355,7 +356,7 @@
         {
             IQueryable<ProductSubcategory> subcategories = adventureWorks.ProductSubcategories;
             subcategories
-                .ForEach(subcategory =>  // Reading subcategories is in progress.
+                .ForEach(subcategory => // Reading subcategories is in progress.
                     $"{subcategory.ProductCategory.Name}/{subcategory.Name}: {subcategory.Products.Count}".WriteLine());
             // EntityCommandExecutionException: There is already an open DataReader relational with this Command which must be closed first.
         }
