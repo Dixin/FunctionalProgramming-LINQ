@@ -246,7 +246,6 @@ namespace Tutorial.GettingStarted
     using System.Net;
     using System.Runtime.CompilerServices;
 
-
     internal static partial class Basics
     {
         internal partial class Point
@@ -332,11 +331,13 @@ namespace Tutorial.GettingStarted
             ValuePoint[] valueArrayOnHeap = new ValuePoint[] { new ValuePoint(7, 8) };
 
 #if NETSTANDARD2_0 || __IOS__
-            Span<ValuePoint> valueArrayOnStack = stackalloc[] { new ValuePoint(9, 10) };
+            Span<ValuePoint> valueArrayOnStack = stackalloc ValuePoint[] { new ValuePoint(9, 10) };
 #endif
         }
 
+#pragma warning disable SA1206 // Declaration keywords must follow order
         internal ref struct OnStackOnly { }
+#pragma warning restore SA1206 // Declaration keywords must follow order
 
 #if DEMO
         internal static void Allocation()
@@ -810,8 +811,10 @@ namespace Tutorial.GettingStarted
     {
         internal Subcategory(string name, Category category)
         {
+#pragma warning disable CA1507 // Use nameof to express symbol names
             this.Name = !string.IsNullOrWhiteSpace(name) ? name : throw new ArgumentNullException("name");
             this.Category = category ?? throw new ArgumentNullException("category");
+#pragma warning restore CA1507 // Use nameof to express symbol names
         }
 
         internal Category Category { get; }
@@ -825,13 +828,17 @@ namespace Tutorial.GettingStarted
         {
             if (string.IsNullOrWhiteSpace(name))
             {
+#pragma warning disable CA1507 // Use nameof to express symbol names
                 throw new ArgumentNullException("name");
+#pragma warning restore CA1507 // Use nameof to express symbol names
             }
             this.Name = name;
 
             if (category == null)
             {
+#pragma warning disable CA1507 // Use nameof to express symbol names
                 throw new ArgumentNullException("category");
+#pragma warning restore CA1507 // Use nameof to express symbol names
             }
             this.Category = category;
         }
@@ -847,7 +854,9 @@ namespace Tutorial.GettingStarted
         {
             if (count < 0)
             {
+#pragma warning disable CA1507 // Use nameof to express symbol names
                 throw new ArgumentOutOfRangeException("count");
+#pragma warning restore CA1507 // Use nameof to express symbol names
             }
         }
 

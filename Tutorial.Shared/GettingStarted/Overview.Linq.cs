@@ -7,11 +7,9 @@
     using System.Net;
     using System.Xml.Linq;
 
-    using Newtonsoft.Json.Linq;
-
-    using Tutorial.LinqToEntities;
-
     using global::LinqToTwitter;
+    using Newtonsoft.Json.Linq;
+    using Tutorial.LinqToEntities;
 
     internal static partial class Overview
     {
