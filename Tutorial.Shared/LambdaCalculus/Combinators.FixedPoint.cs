@@ -69,7 +69,7 @@ namespace Tutorial.LambdaCalculus
                     (_ => One.Add(divideBy(dividend.Subtract(divisor))(divisor)))
                     (_ => Zero);
 
-        public static readonly Func<Numeral, Func<Numeral, Numeral>> 
+        public static readonly Func<Numeral, Func<Numeral, Numeral>>
             DivideBy = Z(DivideByHelper);
     }
 

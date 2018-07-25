@@ -6,7 +6,7 @@
 
     public static partial class Functions<T1, T2>
     {
-        public static readonly Func<T1, Func<T2, T2>> 
+        public static readonly Func<T1, Func<T2, T2>>
             Sequence = value1 => value2 => value2;
     }
 

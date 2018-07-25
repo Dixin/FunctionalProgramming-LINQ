@@ -107,7 +107,7 @@
 
     public static partial class ChurchNumeral
     {
-        // DivideBySelfReference = dividend => divisor => 
+        // DivideBySelfReference = dividend => divisor =>
         //    If(dividend >= divisor)
         //        (_ => 1 + DivideBySelfReference(dividend - divisor)(divisor))
         //        (_ => 0);
@@ -147,7 +147,7 @@
         }
 
         // Decrease = n => n(tuple => tuple.Shift(Increase))(0, 0).Item1();
-        public static readonly Func<Numeral, Numeral> 
+        public static readonly Func<Numeral, Numeral>
             DecreaseWithSwap = n =>
                 ((Tuple<Numeral, Numeral>)n
                     (tuple => ((Tuple<Numeral, Numeral>)tuple).Shift(Increase))

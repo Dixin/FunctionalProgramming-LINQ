@@ -31,7 +31,9 @@
 
         public Expression Function { get; }
 
+#pragma warning disable CS0108 // Member hides inherited member; missing new keyword
         public Expression Variable { get; }
+#pragma warning restore CS0108 // Member hides inherited member; missing new keyword
 
         public override ExpressionType NodeType { get; } = ExpressionType.Invoke;
 

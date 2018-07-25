@@ -9,15 +9,15 @@ namespace Tutorial.LambdaCalculus
 
     public static partial class ChurchTuple<T1, T2>
     {
-        public static readonly Func<T1, Func<T2, Tuple<T1, T2>>> 
+        public static readonly Func<T1, Func<T2, Tuple<T1, T2>>>
             Create = item1 => item2 => f => f(item1)(item2);
 
         // Item1 = tuple => tuple(True)
-        public static readonly Func<Tuple<T1, T2>, T1> 
+        public static readonly Func<Tuple<T1, T2>, T1>
             Item1 = tuple => (T1)(object)tuple(True); // Bug: http://stackoverflow.com/questions/37392566/
 
         // Item2 = tuple => tuple(False)
-        public static readonly Func<Tuple<T1, T2>, T2> 
+        public static readonly Func<Tuple<T1, T2>, T2>
             Item2 = tuple => (T2)(object)tuple(False); // Bug: http://stackoverflow.com/questions/37392566/
     }
 

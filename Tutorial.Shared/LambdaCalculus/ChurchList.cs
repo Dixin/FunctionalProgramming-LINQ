@@ -14,11 +14,11 @@ namespace Tutorial.LambdaCalculus
             Create = value => next => new ListNode<T>(ChurchTuple<T, ListNode<T>>.Create(value)(next));
 
         // Value = node => node.Item1()
-        public static readonly Func<ListNode<T>, T> 
+        public static readonly Func<ListNode<T>, T>
             Value = node => new Tuple<T, ListNode<T>>(node).Item1();
 
         // Next = node => node.Item2()
-        public static readonly Func<ListNode<T>, ListNode<T>> 
+        public static readonly Func<ListNode<T>, ListNode<T>>
             Next = node => new Tuple<T, ListNode<T>>(node).Item2();
     }
 
@@ -29,7 +29,7 @@ namespace Tutorial.LambdaCalculus
             Null = new ListNode<T>(False);
 
         // IsNull = node => node(value => next => _ => False)(True)
-        public static readonly Func<ListNode<T>, Boolean> 
+        public static readonly Func<ListNode<T>, Boolean>
             IsNull = node => node(value => next => new Func<Boolean, Boolean>(_ => False))(True);
 
         public static readonly Func<ListNode<T>, Func<Numeral, ListNode<T>>>

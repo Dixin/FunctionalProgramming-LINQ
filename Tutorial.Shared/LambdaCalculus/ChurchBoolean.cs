@@ -43,10 +43,10 @@ namespace Tutorial.LambdaCalculus
             And = a => b => a(b)(new Boolean(@true => @false => @false));
 #endif
 
-        public static readonly Func<Boolean, Func<Boolean, Boolean>> 
+        public static readonly Func<Boolean, Func<Boolean, Boolean>>
             Or = a => b => a(True)(b);
 
-        public static readonly Func<Boolean, Boolean> 
+        public static readonly Func<Boolean, Boolean>
             Not = boolean => boolean(False)(True);
 
         public static readonly Func<Boolean, Func<Boolean, Boolean>>
@@ -93,8 +93,10 @@ namespace Tutorial.LambdaCalculus
         // EagerIf = condition => then => @else => condition(then)(@else)
         public static readonly Func<Boolean, Func<dynamic, Func<dynamic, dynamic>>>
             EagerIf = condition => then => @else =>
+#pragma warning disable SA1025 // Code must not contain multiple whitespace in a row
                 condition    // if (condition)
                     (then)   // then { ... }
+#pragma warning restore SA1025 // Code must not contain multiple whitespace in a row
                     (@else); // else { ... }
 
         // If = condition => thenFactory => elseFactory => condition(thenFactory, elseFactory)(Id)

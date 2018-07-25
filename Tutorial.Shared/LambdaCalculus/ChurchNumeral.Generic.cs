@@ -3,8 +3,8 @@
     using System;
     using System.Diagnostics.CodeAnalysis;
 
-    using static NumeralWrapper;
     using static ChurchBoolean;
+    using static NumeralWrapper;
 
     // Curried from T Numeral<T>(Func<T, T> f, T x).
     // Numeral<T> is the alias for FuncFunc<T, T>, Func<T, T>>.
@@ -74,7 +74,7 @@
         public static NumeralWrapper Pow(this NumeralWrapper mantissa, NumeralWrapper exponent) =>
             exponent.Invoke<NumeralWrapper>(mantissa.Multiply)(One);
 
-        // _DivideBy = dividend => divisor => 
+        // _DivideBy = dividend => divisor =>
         // If(dividend.IsGreaterOrEqual(divisor))
         //    (_ => One + (dividend - divisor)._DivideBy(divisor))
         //    (_ => Zero);

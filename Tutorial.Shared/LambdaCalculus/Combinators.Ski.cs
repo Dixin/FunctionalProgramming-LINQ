@@ -77,7 +77,11 @@
             Increase = S(Compose);
 
         public static readonly Func<dynamic, dynamic>
+#pragma warning disable SA1307 // Accessible fields must begin with upper-case letter
+#pragma warning disable SA1311 // Static readonly fields must begin with upper-case letter
             ω = S(I)(I);
+#pragma warning restore SA1311 // Static readonly fields must begin with upper-case letter
+#pragma warning restore SA1307 // Accessible fields must begin with upper-case letter
 
 #if DEMO
         public static readonly Func<dynamic, dynamic>

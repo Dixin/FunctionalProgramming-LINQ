@@ -74,7 +74,7 @@
                 .Format();
 
         // / = dividend => divisor => If(divisor.IsZero())(_ => 0)(_ => dividend.DivideBy(divisor))
-        private static readonly Func<Numeral, Func<Numeral, Numeral>> 
+        private static readonly Func<Numeral, Func<Numeral, Numeral>>
             DivideByIgnoreZero = dividend => divisor =>
                 If(divisor.IsZero())
                     (_ => Zero)
