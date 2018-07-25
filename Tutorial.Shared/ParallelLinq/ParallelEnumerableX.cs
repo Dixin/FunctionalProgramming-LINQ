@@ -38,7 +38,7 @@
                             }
                         }
                     }
-                    finally 
+                    finally
                     {
                         countdownEvent.Signal();
                     }

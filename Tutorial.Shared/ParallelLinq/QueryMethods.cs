@@ -22,10 +22,10 @@ namespace Tutorial.ParallelLinq
     using System.Reflection;
     using System.Threading;
 
-    using Stopwatch = System.Diagnostics.Stopwatch;
-
     using static Functions;
     using static Tutorial.LinqToObjects.EnumerableX;
+
+    using Stopwatch = System.Diagnostics.Stopwatch;
 #endif
 
     internal static partial class QueryMethods
@@ -150,7 +150,6 @@ namespace Tutorial.ParallelLinq
                 });
         }
 
-        //  using static Functions;
         internal static void WhereSelect()
         {
             Enumerable

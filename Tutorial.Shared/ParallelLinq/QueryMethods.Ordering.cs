@@ -12,7 +12,7 @@
 
     internal static partial class QueryMethods
     {
-        internal static void SelectWithIndex() => 
+        internal static void SelectWithIndex() =>
             new StaticPartitioner<int>(Enumerable.Range(0, Environment.ProcessorCount * 2))
                 .AsParallel()
                 .Select((value, index) => $"[{index}]={value}")
@@ -83,7 +83,7 @@
             int[] source = Enumerable.Range(0, count).ToArray(); // 0 ... 15.
 
             int elementAt = new StaticPartitioner<int>(source).AsParallel().Select(value => value + ComputingWorkload())
-                .ElementAt(count / 2).WriteLine() // Expected: 8, 
+                .ElementAt(count / 2).WriteLine() // Expected: 8,
                 .WriteLine(); // Actual: 2.
 
             int first = new StaticPartitioner<int>(source).AsParallel().Select(value => value + ComputingWorkload())

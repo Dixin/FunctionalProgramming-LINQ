@@ -44,7 +44,7 @@ namespace Tutorial.ParallelLinq
         public void Dispose()
         {
             DateTime end = DateTime.Now;
-            $"Timestamp: {end.ToString("o")}, thread: {Thread.CurrentThread.ManagedThreadId}, category: {this.category}, span: {this.spanName}, duration: {end - start}".WriteLine();
+            $"Timestamp: {end.ToString("o")}, thread: {Thread.CurrentThread.ManagedThreadId}, category: {this.category}, span: {this.spanName}, duration: {end - this.start}".WriteLine();
         }
     }
 
@@ -54,7 +54,7 @@ namespace Tutorial.ParallelLinq
 
         public MarkerSeries(string markSeriesName) => this.markSeriesName = markSeriesName;
 
-        public Span EnterSpan(int category, string spanName) => new Span(category, spanName, markSeriesName);
+        public Span EnterSpan(int category, string spanName) => new Span(category, spanName, this.markSeriesName);
     }
 #endif
 
@@ -210,7 +210,6 @@ namespace Tutorial.ParallelLinq
             Func<TAccumulate, TAccumulate, TAccumulate> combineAccumulatorsFunc,
             Func<TAccumulate, TResult> resultSelector,
             string span = nameof(ParallelEnumerable.Aggregate))
-
         {
             MarkerSeries markerSeries = Markers.CreateMarkerSeries(span);
             return aggregate(
@@ -241,7 +240,6 @@ namespace Tutorial.ParallelLinq
             Func<TAccumulate, TAccumulate, TAccumulate> combineAccumulatorsFunc,
             Func<TAccumulate, TResult> resultSelector,
             string span = nameof(ParallelEnumerable.Aggregate))
-
         {
             MarkerSeries markerSeries = Markers.CreateMarkerSeries(span);
             return aggregate(

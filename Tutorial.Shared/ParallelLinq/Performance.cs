@@ -53,7 +53,7 @@
     {
         internal static void OrderByTestForCount()
         {
-            OrderByTest(keySelector: value => value, count: 5, run: 10_000);    
+            OrderByTest(keySelector: value => value, count: 5, run: 10_000);
             // Sequential:11    Parallel:1422
             OrderByTest(keySelector: value => value, count: 5_000, run: 100);
             // Sequential:114   Parallel:107
@@ -64,15 +64,15 @@
         internal static void OrderByTestForKeySelector()
         {
             OrderByTest(
-                keySelector: value => value + ComputingWorkload(iteration: 1), 
+                keySelector: value => value + ComputingWorkload(iteration: 1),
                 count: Environment.ProcessorCount, run: 100_000);
             // Sequential:37   Parallel:2218
             OrderByTest(
-                keySelector: value => value + ComputingWorkload(iteration: 10_000), 
+                keySelector: value => value + ComputingWorkload(iteration: 10_000),
                 count: Environment.ProcessorCount, run: 1_000);
             // Sequential:115  Parallel:125
             OrderByTest(
-                keySelector: value => value + ComputingWorkload(iteration: 100_000), 
+                keySelector: value => value + ComputingWorkload(iteration: 100_000),
                 count: Environment.ProcessorCount, run: 100);
             // Sequential:1240 Parallel:555
         }
@@ -105,7 +105,7 @@
 
         internal static void RunDownloadSmallFilesTest()
         {
-            string[] thumbnails = 
+            string[] thumbnails =
                 XDocument.Load("https://www.flickr.com/services/feeds/photos_public.gne?id=64715861@N07&format=rss2")
                 .Descendants((XNamespace)"http://search.yahoo.com/mrss/" + "thumbnail")
                 .Attributes("url")
@@ -116,7 +116,7 @@
 
         internal static void RunDownloadLargeFilesTest()
         {
-            string[] contents = 
+            string[] contents =
                 XDocument.Load("https://www.flickr.com/services/feeds/photos_public.gne?id=64715861@N07&format=rss2")
                 .Descendants((XNamespace)"http://search.yahoo.com/mrss/" + "content")
                 .Attributes("url")
