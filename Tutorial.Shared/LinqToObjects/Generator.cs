@@ -77,7 +77,7 @@
             // {
             //    while (index++ < count)
             //    {
-            //        TSource result = value; 
+            //        TSource result = value;
             //    }
             // }
             // finally { }
@@ -209,7 +209,7 @@
             // {
             //    while (index++ < count)
             //    {
-            //        TSource result = value; 
+            //        TSource result = value;
             //    }
             // }
             // finally { }

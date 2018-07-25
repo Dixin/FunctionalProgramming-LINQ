@@ -37,7 +37,7 @@
 
         public HashSet<T> AddRange(IEnumerable<T> values)
         {
-            foreach(T value in values)
+            foreach (T value in values)
             {
                 this.Add(value);
             }

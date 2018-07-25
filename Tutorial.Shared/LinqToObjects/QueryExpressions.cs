@@ -26,8 +26,8 @@ namespace Tutorial.LinqToObjects
     using System.Reflection;
     using System.Resources;
 
-    using Tutorial.Resources;
     using Tutorial.Functional;
+    using Tutorial.Resources;
 #endif
 
     internal static class QueryExpressions
@@ -194,21 +194,21 @@ namespace Tutorial.LinqToObjects
                                           select person;
         }
 
-        private static readonly int[] rows = { 1, 2, 3 };
+        private static readonly int[] Rows = { 1, 2, 3 };
 
-        private static readonly string[] columns = { "A", "B", "C", "D" };
+        private static readonly string[] Columns = { "A", "B", "C", "D" };
 
         internal static void CrossJoin()
         {
-            IEnumerable<string> cells = from row in rows
-                                        from column in columns
+            IEnumerable<string> cells = from row in Rows
+                                        from column in Columns
                                         select $"{column}{row}";
         }
 
         internal static void CrossJoinWithJoin()
         {
-            IEnumerable<string> cells = from row in rows
-                                        join column in columns on true equals true
+            IEnumerable<string> cells = from row in Rows
+                                        join column in Columns on true equals true
                                         select $"{column}{row}";
         }
 

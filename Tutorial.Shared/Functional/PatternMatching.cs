@@ -174,7 +174,9 @@
             // case null:
             if (@object == null)
             {
+#pragma warning disable CA1507 // Use nameof to express symbol names
                 throw new ArgumentNullException("object");
+#pragma warning restore CA1507 // Use nameof to express symbol names
             }
 
             // case DateTime dateTIme:
@@ -216,7 +218,9 @@
             }
 
             // case var _:
+#pragma warning disable CA1507 // Use nameof to express symbol names
             throw new ArgumentOutOfRangeException("object");
+#pragma warning restore CA1507 // Use nameof to express symbol names
         }
     }
 }

@@ -16,7 +16,7 @@
                 .Where(int32 => int32 > 0);
         }
 
-        internal static IEnumerable<AssemblyDefinition> Libraries(string directory) => 
+        internal static IEnumerable<AssemblyDefinition> Libraries(string directory) =>
             Directory.EnumerateFiles(directory, "*.dll").TrySelect(AssemblyDefinition.ReadAssembly);
 
         internal static IEnumerable<byte[]> ReadAll(IEnumerable<string> fileUris) =>

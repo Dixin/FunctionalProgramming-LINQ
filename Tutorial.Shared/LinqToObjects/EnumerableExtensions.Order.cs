@@ -31,13 +31,13 @@
         public static IOrderedEnumerable<TSource> ThenBy<TSource, TKey>(
             this IOrderedEnumerable<TSource> source,
             Func<TSource, TKey> keySelector,
-            IComparer<TKey> comparer = null) => 
+            IComparer<TKey> comparer = null) =>
                 source.CreateOrderedEnumerable(keySelector, comparer, descending: false);
 
         public static IOrderedEnumerable<TSource> ThenByDescending<TSource, TKey>(
             this IOrderedEnumerable<TSource> source,
             Func<TSource, TKey> keySelector,
-            IComparer<TKey> comparer = null) => 
+            IComparer<TKey> comparer = null) =>
                 source.CreateOrderedEnumerable(keySelector, comparer, descending: true);
     }
 
@@ -58,7 +58,7 @@
             Func<TSource, TKey> keySelector,
             IComparer<TKey> comparer,
             bool descending = false,
-            // previousGetComparison is only specified in CreateOrderedEnumerable, 
+            // previousGetComparison is only specified in CreateOrderedEnumerable,
             // and CreateOrderedEnumerable is only called by ThenBy/ThenByDescending.
             // When OrderBy/OrderByDescending is called, previousGetComparison is not specified.
             Func<TSource[], Func<int, int, int>> previousGetComparison = null)
@@ -88,8 +88,8 @@
             Func<int, int, int> comparison = this.GetComparison(values);
             Array.Sort(indexMap, (index1, index2) => // index1 < index2
             {
-                // Format compareResult. 
-                // When compareResult is 0 (equal), return index1 - index2, 
+                // Format compareResult.
+                // When compareResult is 0 (equal), return index1 - index2,
                 // so that indexMap[index1] is before indexMap[index2],
                 // 2 equal values' original order is preserved.
                 int compareResult = comparison(index1, index2);
@@ -136,7 +136,7 @@
             Func<int, int, int> previousComparison = this.previousGetComparison(values);
             return (index1, index2) =>
             {
-                // Only when previousCompareResult is equal, 
+                // Only when previousCompareResult is equal,
                 // ThenBy/ThenByDescending needs to compare keys of 2 values.
                 int previousCompareResult = previousComparison(index1, index2);
                 return previousCompareResult == 0

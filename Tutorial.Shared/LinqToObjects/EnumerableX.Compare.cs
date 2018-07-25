@@ -51,10 +51,10 @@
             Func<TKey, TKey, bool> equals,
             Func<TKey, int> getHashCode = null) =>
                 outer.Join(
-                    inner, 
-                    outerKeySelector, 
-                    innerKeySelector, 
-                    resultSelector, 
+                    inner,
+                    outerKeySelector,
+                    innerKeySelector,
+                    resultSelector,
                     ToEqualityComparer(equals, getHashCode));
 
         public static IEnumerable<TResult> GroupJoin<TOuter, TInner, TKey, TResult>(
@@ -125,14 +125,14 @@
             this IEnumerable<TSource> source,
             TSource value,
             Func<TSource, TSource, bool> equals,
-            Func<TSource, int> getHashCode = null) => 
+            Func<TSource, int> getHashCode = null) =>
                 source.Contains(value, ToEqualityComparer(equals, getHashCode));
 
         public static bool SequenceEqual<TSource>(
             this IEnumerable<TSource> first,
             IEnumerable<TSource> second,
             Func<TSource, TSource, bool> equals,
-            Func<TSource, int> getHashCode = null) => 
+            Func<TSource, int> getHashCode = null) =>
                 first.SequenceEqual(second, ToEqualityComparer(equals, getHashCode));
     }
 

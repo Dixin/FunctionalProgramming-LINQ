@@ -56,7 +56,7 @@
                                 int increaseToLength = usedLength * 2; // Array is full, double its length.
                                 if ((uint)increaseToLength > MaxLength)
                                 {
-                                    increaseToLength = MaxLength <= usedLength ? usedLength + 1 : MaxLength;
+                                    increaseToLength = usedLength >= MaxLength ? usedLength + 1 : MaxLength;
                                 }
                                 Array.Resize(ref array, increaseToLength);
                             }
@@ -1385,7 +1385,6 @@
             }
             return min;
         }
-
 
         public static decimal Min<TSource>(this IEnumerable<TSource> source, Func<TSource, decimal> selector) =>
             source.Select(selector).Min();

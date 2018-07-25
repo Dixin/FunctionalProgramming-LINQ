@@ -12,7 +12,7 @@
     {
         private readonly Func<Exception, bool> isTransient;
 
-        public ExceptionDetection(Func<Exception, bool> isTransient = null) => 
+        public ExceptionDetection(Func<Exception, bool> isTransient = null) =>
             this.isTransient = isTransient ?? (_ => true);
 
         public bool IsTransient(Exception exception) => this.isTransient(exception);
@@ -43,7 +43,7 @@
             int? retryCount = null,
             TimeSpan? retryInterval = null,
             bool? firstFastRetry = null,
-            [CallerMemberName] string name = null) => 
+            [CallerMemberName] string name = null) =>
                 new FixedInterval(
                     name,
                     retryCount ?? RetryStrategy.DefaultClientRetryCount,
@@ -107,11 +107,11 @@
                 });
 
         public static IEnumerable<TSource> Catch<TSource>(
-            this IEnumerable<TSource> source, Func<Exception, bool> handler = null) => 
+            this IEnumerable<TSource> source, Func<Exception, bool> handler = null) =>
                 source.Catch<TSource, Exception>(handler);
 
         public static IEnumerable<TSource> Catch<TSource>(
-            this IEnumerable<TSource> source, Action<Exception> handler = null) => 
+            this IEnumerable<TSource> source, Action<Exception> handler = null) =>
                 source.Catch<TSource, Exception>(handler);
 
         public static IEnumerable<TResult> TrySelect<TSource, TResult, TException>(
@@ -155,7 +155,7 @@
         public static IEnumerable<TResult> TrySelect<TSource, TResult>(
             this IEnumerable<TSource> source,
             Func<TSource, int, TResult> selector,
-            Func<Exception, bool?> @catch = null) => 
+            Func<Exception, bool?> @catch = null) =>
                 source.TrySelect<TSource, TResult, Exception>(selector, @catch);
 
         public static IEnumerable<TResult> RetrySelect<TSource, TResult, TException>(
@@ -164,7 +164,7 @@
             RetryStrategy retryStrategy = null,
             Func<Exception, bool> isTransient = null,
             EventHandler<RetryingEventArgs> retryingHandler = null,
-            Func<TException, bool?> @catch = null) where TException : Exception => 
+            Func<TException, bool?> @catch = null) where TException : Exception =>
                 source.TrySelect(
                     (value, index) => Execute(() => selector(value, index), retryStrategy, isTransient, retryingHandler),
                     @catch);
@@ -178,7 +178,7 @@
             TimeSpan? retryInterval = null,
             bool? firstFastRetry = true,
             Func<TException, bool?> @catch = null,
-            [CallerMemberName] string retryStrategyName = null) where TException : Exception => 
+            [CallerMemberName] string retryStrategyName = null) where TException : Exception =>
                 source.RetrySelect(
                     selector,
                     FixedInterval(retryCount, retryInterval, firstFastRetry, retryStrategyName),
@@ -192,7 +192,7 @@
             RetryStrategy retryStrategy = null,
             Func<Exception, bool> isTransient = null,
             EventHandler<RetryingEventArgs> retryingHandler = null,
-            Func<Exception, bool?> @catch = null) => 
+            Func<Exception, bool?> @catch = null) =>
                 source.RetrySelect<TSource, TResult, Exception>(
                     selector, retryStrategy, isTransient, retryingHandler, @catch);
 
@@ -205,7 +205,7 @@
             TimeSpan? retryInterval = null,
             bool? firstFastRetry = true,
             Func<Exception, bool?> @catch = null,
-            [CallerMemberName] string retryStrategyName = null) => 
+            [CallerMemberName] string retryStrategyName = null) =>
                 source.RetrySelect(
                     selector,
                     FixedInterval(retryCount, retryInterval, firstFastRetry, retryStrategyName),
@@ -252,7 +252,7 @@
         public static IEnumerable<TResult> TrySelect<TSource, TResult>(
             this IEnumerable<TSource> source,
             Func<TSource, TResult> selector,
-            Func<Exception, bool?> @catch = null) => 
+            Func<Exception, bool?> @catch = null) =>
                 source.TrySelect<TSource, TResult, Exception>(selector, @catch);
 
         public static IEnumerable<TResult> RetrySelect<TSource, TResult, TException>(
@@ -261,7 +261,7 @@
             RetryStrategy retryStrategy = null,
             Func<Exception, bool> isTransient = null,
             EventHandler<RetryingEventArgs> retryingHandler = null,
-            Func<TException, bool?> @catch = null) where TException : Exception => 
+            Func<TException, bool?> @catch = null) where TException : Exception =>
                 source.TrySelect(
                     value => Execute(() => selector(value), retryStrategy, isTransient, retryingHandler),
                     @catch);
@@ -275,7 +275,7 @@
             TimeSpan? retryInterval = null,
             bool? firstFastRetry = true,
             Func<TException, bool?> @catch = null,
-            [CallerMemberName] string retryStrategyName = null) where TException : Exception => 
+            [CallerMemberName] string retryStrategyName = null) where TException : Exception =>
                 source.RetrySelect(
                     selector,
                     FixedInterval(retryCount, retryInterval, firstFastRetry, retryStrategyName),
@@ -289,7 +289,7 @@
             RetryStrategy retryStrategy = null,
             Func<Exception, bool> isTransient = null,
             EventHandler<RetryingEventArgs> retryingHandler = null,
-            Func<Exception, bool?> @catch = null) => 
+            Func<Exception, bool?> @catch = null) =>
                 source.RetrySelect<TSource, TResult, Exception>(
                     selector, retryStrategy, isTransient, retryingHandler, @catch);
 
@@ -302,7 +302,7 @@
             TimeSpan? retryInterval = null,
             bool? firstFastRetry = true,
             Func<Exception, bool?> @catch = null,
-            [CallerMemberName] string retryStrategyName = null) => 
+            [CallerMemberName] string retryStrategyName = null) =>
                 source.RetrySelect(
                     selector,
                     FixedInterval(retryCount, retryInterval, firstFastRetry, retryStrategyName),

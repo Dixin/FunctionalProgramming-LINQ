@@ -166,7 +166,7 @@
             Func<TSource, TKey> keySelector,
             IFormatProvider formatProvider = null)
             where TKey : IConvertible =>
-                // Excel STDEV.P function: 
+                // Excel STDEV.P function:
                 // https://support.office.com/en-us/article/STDEV-P-function-6e917c05-31a0-496f-ade7-4f4e7462f285
                 Math.Sqrt(source.VariancePopulation(keySelector, formatProvider));
 
@@ -278,10 +278,10 @@
 
         #region Quantifiers
 
-        public static bool IsNullOrEmpty<TSource>(this IEnumerable<TSource> source) => 
+        public static bool IsNullOrEmpty<TSource>(this IEnumerable<TSource> source) =>
             source == null || !source.Any();
 
-        public static bool IsNotNullOrEmpty<TSource>(this IEnumerable<TSource> source) => 
+        public static bool IsNotNullOrEmpty<TSource>(this IEnumerable<TSource> source) =>
             source != null && source.Any();
 
         #endregion

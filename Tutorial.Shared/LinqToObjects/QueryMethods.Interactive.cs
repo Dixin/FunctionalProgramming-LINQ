@@ -203,12 +203,12 @@
         {
             IEnumerable<IList<int>> buffers1 = Enumerable.Range(0, 5).Buffer(2, 1);
             // {
-            //    { 0, 1 }, { 1, 2 }, { 2, 3 }, { 3, 4 }, { 4 }   
+            //    { 0, 1 }, { 1, 2 }, { 2, 3 }, { 3, 4 }, { 4 }
             // }
 
             IEnumerable<IList<int>> buffers2 = Enumerable.Range(0, 5).Buffer(2, 2); // Equivalent to Buffer(2).
             // {
-            //    { 0, 1 }, { 2, 3 }, { 4 }   
+            //    { 0, 1 }, { 2, 3 }, { 4 }
             // }
 
             IEnumerable<IList<int>> buffers3 = Enumerable.Range(0, 5).Buffer(2, 3);
@@ -611,7 +611,7 @@
             };
             try
             {
-                source2.Catch().WriteLines(); // 5 
+                source2.Catch().WriteLines(); // 5
             }
             catch (InvalidCastException exception)
             {
@@ -666,7 +666,7 @@
         internal static void MaxMin()
         {
             Character maxCharacter = Characters()
-                .Max(Comparer<Character>.Create((character1, character2) => 
+                .Max(Comparer<Character>.Create((character1, character2) =>
                     string.Compare(character1.Name, character2.Name, StringComparison.OrdinalIgnoreCase)));
             Character minCharacter = Characters()
                 .Max(Comparer<Character>.Create((character1, character2) =>

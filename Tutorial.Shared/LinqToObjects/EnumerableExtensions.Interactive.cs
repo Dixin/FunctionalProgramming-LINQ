@@ -206,7 +206,7 @@
         #region Buffering
 
         public static IEnumerable<TResult> Share<TSource, TResult>(
-            this IEnumerable<TSource> source, Func<IEnumerable<TSource>, IEnumerable<TResult>> selector) => 
+            this IEnumerable<TSource> source, Func<IEnumerable<TSource>, IEnumerable<TResult>> selector) =>
                 Create(() => selector(source.Share()).GetEnumerator());
 
         #endregion
@@ -423,7 +423,7 @@
         }
 
         public static IEnumerable<TSource> Retry<TSource>(
-            this IEnumerable<TSource> source, int? retryCount = null) => 
+            this IEnumerable<TSource> source, int? retryCount = null) =>
                 Return(source).Repeat(retryCount).Catch();
 
 #if DEMO
@@ -503,7 +503,7 @@
         public static IEnumerable<TResult> Case<TValue, TResult>(
             Func<TValue> selector,
             IDictionary<TValue, IEnumerable<TResult>> sources,
-            IEnumerable<TResult> defaultSource = null) => 
+            IEnumerable<TResult> defaultSource = null) =>
                 Defer(() => sources.TryGetValue(selector(), out IEnumerable<TResult> result)
                     ? result
                     : (defaultSource ?? Enumerable.Empty<TResult>()));
@@ -533,7 +533,7 @@
                 yield return resultSelector(state); // Deferred execution.
             }
         }
-        
+
         public static IEnumerable<TResult> For<TSource, TResult>(
             IEnumerable<TSource> source, Func<TSource, IEnumerable<TResult>> resultSelector) =>
                 source.SelectMany(resultSelector);

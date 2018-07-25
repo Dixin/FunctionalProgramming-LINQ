@@ -54,10 +54,10 @@
         internal static IEnumerable<Person> Persons() => new Person[]
         {
             new Person(name: "Robert Downey Jr.", placeOfBirth: "US"),
-            new Person(name:  "Tom Hiddleston", placeOfBirth: "UK"),
+            new Person(name: "Tom Hiddleston", placeOfBirth: "UK"),
             new Person(name: "Chris Hemsworth", placeOfBirth: "AU"),
             new Person(name: "Chris Evans", placeOfBirth: "US"),
-            new Person(name: "Paul Bettany", placeOfBirth:  "UK")
+            new Person(name: "Paul Bettany", placeOfBirth: "UK")
         };
     }
 
@@ -83,7 +83,7 @@
         {
             new Character(name: "Tony Stark", placeOfBirth: "US", starring: "Robert Downey Jr."),
             new Character(name: "Thor", placeOfBirth: "Asgard", starring: "Chris Hemsworth"),
-            new Character(name: "Steve Rogers", placeOfBirth:  "US", starring: "Chris Evans"),
+            new Character(name: "Steve Rogers", placeOfBirth: "US", starring: "Chris Evans"),
             new Character(name: "Vision", placeOfBirth: "KR", starring: "Paul Bettany"),
             new Character(name: "JARVIS", placeOfBirth: "US", starring: "Paul Bettany")
         };
@@ -192,7 +192,7 @@
                 Index = index,
                 Word = value.ToLowerInvariant()
             }); // Define query: IEnumerable<(string Word, int Index)>
-            mapped.WriteLines(result => $"{result.Index}:{result.Word}"); // Execute query. 
+            mapped.WriteLines(result => $"{result.Index}:{result.Word}"); // Execute query.
             // 0:zero 1:one 2:two 3:three 4:four
         }
 
@@ -518,17 +518,17 @@
                     innerValue => comparer.Equals(outerKeySelector(outerValue), innerKeySelector(innerValue)))));
         }
 
-        private static readonly int[] rows = { 1, 2, 3 };
+        private static readonly int[] Rows = { 1, 2, 3 };
 
-        private static readonly string[] columns = { "A", "B", "C", "D" };
+        private static readonly string[] Columns = { "A", "B", "C", "D" };
 
         internal static void CrossJoin()
         {
-            IEnumerable<string> cells = rows
-                .SelectMany(row => columns, (row, column) => $"{column}{row}"); // Define query.
+            IEnumerable<string> cells = Rows
+                .SelectMany(row => Columns, (row, column) => $"{column}{row}"); // Define query.
 
             int cellIndex = 0;
-            int columnCount = columns.Length;
+            int columnCount = Columns.Length;
             foreach (string cell in cells) // Execute query.
             {
                 $"{cell} ".Write();
@@ -554,13 +554,13 @@
 
         internal static void CrossJoinWithJoin()
         {
-            IEnumerable<string> cells = rows.Join(
-                inner: columns,
+            IEnumerable<string> cells = Rows.Join(
+                inner: Columns,
                 outerKeySelector: row => true,
                 innerKeySelector: column => true,
                 resultSelector: (row, column) => $"{column}{row}"); // Define query.
             int cellIndex = 0;
-            int columnCount = columns.Length;
+            int columnCount = Columns.Length;
             foreach (string cell in cells) // Execute query.
             {
                 $"{cell} ".Write();
@@ -1141,7 +1141,7 @@
                 .Concat(Enumerable.Repeat(0, int.MaxValue))
                 .Count(); // OverflowException.
             int countOfCharactersFromUS = Characters()
-                .Count(character => "US".Equals(character.PlaceOfBirth))
+                .Count(character => "US".Equals(character.PlaceOfBirth, StringComparison.Ordinal))
                 .WriteLine(); // 3
         }
 
@@ -1213,7 +1213,7 @@
                     }
                     return (Types: currentMaxTypes, MaxMemberCount: currentMaxMemberCount);
                 }); // Define query.
-            maxTypes.Types.WriteLines(maxType => $"{maxType.FullName}:{maxTypes.MaxMemberCount}"); 
+            maxTypes.Types.WriteLines(maxType => $"{maxType.FullName}:{maxTypes.MaxMemberCount}");
             // Execute query. System.Convert:311
         }
 
