@@ -15,7 +15,9 @@
 
         [Association(Storage = nameof(productSubcategories),
             ThisKey = nameof(ProductCategoryID), OtherKey = nameof(ProductSubcategory.ProductCategoryID))]
+#pragma warning disable CA2227 // Collection properties should be read only
         public EntitySet<ProductSubcategory> ProductSubcategories
+#pragma warning restore CA2227 // Collection properties should be read only
         {
             get { return this.productSubcategories; }
             set { this.productSubcategories.Assign(value); }
@@ -59,7 +61,7 @@
                 //        this.productCategory.Entity = null;
                 //        previousCategory.ProductSubcategories.Remove(this);
                 //    }
-
+                //
                 //    this.productCategory.Entity = value;
                 //    if (value != null)
                 //    {
@@ -85,9 +87,11 @@
                 product => product.ProductSubcategory = this, product => product.ProductSubcategory = null);
         }
 
-        [Association(Storage = nameof(products), 
+        [Association(Storage = nameof(products),
             ThisKey = nameof(ProductSubcategoryID), OtherKey = nameof(Product.ProductSubcategoryID))]
+#pragma warning disable CA2227 // Collection properties should be read only
         public EntitySet<Product> Products
+#pragma warning restore CA2227 // Collection properties should be read only
         {
             get { return this.products; }
             set { this.products.Assign(value); }
@@ -142,7 +146,9 @@
 
         [Association(Storage = nameof(productProductPhotos),
             ThisKey = nameof(ProductID), OtherKey = nameof(ProductProductPhoto.ProductID))]
+#pragma warning disable CA2227 // Collection properties should be read only
         public EntitySet<ProductProductPhoto> ProductProductPhotos
+#pragma warning restore CA2227 // Collection properties should be read only
         {
             get { return this.productProductPhotos; }
             set { this.productProductPhotos.Assign(value); }
@@ -156,13 +162,15 @@
         public ProductPhoto()
         {
             this.productProductPhotos = new EntitySet<ProductProductPhoto>(
-                productProductPhoto => productProductPhoto.ProductPhoto = this, 
+                productProductPhoto => productProductPhoto.ProductPhoto = this,
                 productProductPhoto => productProductPhoto.ProductPhoto = null);
         }
 
         [Association(Storage = nameof(productProductPhotos),
             ThisKey = nameof(ProductPhotoID), OtherKey = nameof(ProductProductPhoto.ProductPhotoID))]
+#pragma warning disable CA2227 // Collection properties should be read only
         public EntitySet<ProductProductPhoto> ProductProductPhotos
+#pragma warning restore CA2227 // Collection properties should be read only
         {
             get { return this.productProductPhotos; }
             set { this.productProductPhotos.Assign(value); }
@@ -234,5 +242,4 @@
             }
         }
     }
-
 }

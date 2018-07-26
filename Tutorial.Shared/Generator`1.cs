@@ -3,7 +3,6 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
 
     public enum IteratorState
     {
@@ -84,7 +83,6 @@
             }
         }
 
-        [SuppressMessage("Microsoft.Design", "CA1063:ImplementIDisposableCorrectly")]
         public void Dispose()
         {
             if (this.State == IteratorState.Error || this.State == IteratorState.MoveNext)
@@ -184,7 +182,6 @@
             }
         }
 
-        [SuppressMessage("Microsoft.Design", "CA1063:ImplementIDisposableCorrectly")]
         public void Dispose()
         {
             if (this.State == IteratorState.Error || this.State == IteratorState.MoveNext)
@@ -341,7 +338,6 @@
             }
         }
 
-        [SuppressMessage("Microsoft.Design", "CA1063:ImplementIDisposableCorrectly")]
         public void Dispose()
         {
             if (this.state == IteratorState.Error || this.state == IteratorState.MoveNext)

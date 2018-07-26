@@ -108,6 +108,7 @@
     <Rule Id="SA1408" Action="None" />
     <Rule Id="SA1516" Action="None" />
     <Rule Id="SA1116" Action="None" />
+    <Rule Id="SA1504" Action="None" />
   </Rules>
   <Rules AnalyzerId="Microsoft.CodeQuality.Analyzers" RuleNamespace="Microsoft.CodeQuality.Analyzers">
     <Rule Id="CA1051" Action="None" />
@@ -138,8 +139,10 @@
   </Rules>
   <Rules AnalyzerId="Microsoft.NetFramework.Analyzers" RuleNamespace="Microsoft.NetFramework.Analyzers">
     <Rule Id="CA2235" Action="None" />
+    <Rule Id="CA3075" Action="None" />
   </Rules>
   <Rules AnalyzerId="Microsoft.CodeQuality.CSharp.Analyzers" RuleNamespace="Microsoft.CodeQuality.CSharp.Analyzers">
     <Rule Id="CA1821" Action="None" />
+    <Rule Id="CA2234" Action="None" />
   </Rules>
 </RuleSet>

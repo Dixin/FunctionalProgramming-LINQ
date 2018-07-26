@@ -10,10 +10,10 @@ namespace Tutorial.ParallelLinq
 
     using Microsoft.ConcurrencyVisualizer.Instrumentation;
 
-    using Stopwatch = System.Diagnostics.Stopwatch;
-
     using static Functions;
     using static Tutorial.LinqToObjects.EnumerableX;
+
+    using Stopwatch = System.Diagnostics.Stopwatch;
 #else
     using System;
     using System.Collections;
