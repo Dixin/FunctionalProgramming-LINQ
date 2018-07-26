@@ -52,7 +52,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Changes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Concurrency.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Database.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\DbContextExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Functions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Inheritance.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Loading.cs" />
@@ -116,7 +115,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)LinqToXml\QueryMethods.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ParallelLinq\Functions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ParallelLinq\ParallelEnumerableX.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ParallelLinq\ParallelEnumerableX.QuerySettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ParallelLinq\Partitioning.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ParallelLinq\Performance.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ParallelLinq\QueryMethods.cs" />

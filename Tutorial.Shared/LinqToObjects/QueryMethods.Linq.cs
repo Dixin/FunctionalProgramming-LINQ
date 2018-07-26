@@ -6,7 +6,6 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Collections.Immutable;
-    using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
     using System.IO;
     using System.Linq;
@@ -25,7 +24,6 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Collections.Immutable;
-    using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
     using System.IO;
     using System.Linq;
@@ -183,14 +181,13 @@
 
         internal static IEnumerable<string> Words() => new string[] { "Zero", "one", "Two", "three", "four" };
 
-        [SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]
         internal static void SelectWithIndex()
         {
             IEnumerable<string> source = Words();
             var mapped = source.Select((value, index) => new
             {
                 Index = index,
-                Word = value.ToLowerInvariant()
+                Word = value.ToUpperInvariant()
             }); // Define query: IEnumerable<(string Word, int Index)>
             mapped.WriteLines(result => $"{result.Index}:{result.Word}"); // Execute query.
             // 0:zero 1:one 2:two 3:three 4:four
@@ -1320,7 +1317,6 @@
             bool sequentialEqual = emptyfirst.SequenceEqual(emptysecond).WriteLine(); // True
         }
 
-        [SuppressMessage("Microsoft.Globalization", "CA1309:UseOrdinalStringComparison", MessageId = "Tutorial.LinqToObjects.EnumerableExtensions.SequenceEqual<System.String>(System.Collections.Generic.IEnumerable`1<System.String>,System.Collections.Generic.IEnumerable`1<System.String>,System.Collections.Generic.IEqualityComparer`1<System.String>)")]
         internal static void SequentialEqualWithComparer()
         {
             IEnumerable<string> first = new string[] { null, string.Empty, "ss", };

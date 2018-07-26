@@ -7,6 +7,9 @@
     <Product>Tutorial</Product>
     <LangVersion>latest</LangVersion>
     <Authors />
+
+    <CodeAnalysisRuleSet>..\Tools\Analyzers.ruleset</CodeAnalysisRuleSet>
+    <NoWarn>1701;1702;219;659;1974;414;169;8321;8123;168</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,9 +21,11 @@
     <PackageReference Include="FSharp.Core" Version="4.3.4" />
     <PackageReference Include="linqtotwitter" Version="5.0.0-beta2" />
     <PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="1.9.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.0.3" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.0.2" />
     <PackageReference Include="Mono.Cecil" Version="0.10.0" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" />
     <PackageReference Include="System.Interactive" Version="3.1.1" />
     <PackageReference Include="System.Memory" Version="4.5.0-rc1" />
     <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />

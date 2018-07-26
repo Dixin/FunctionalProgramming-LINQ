@@ -36,6 +36,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Data", "Data", "{BCEE8A82-7
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{DAD4D2A7-0D82-4659-A2BE-D2502FD9081A}"
 	ProjectSection(SolutionItems) = preProject
+		Tools\Analyzers.ruleset = Tools\Analyzers.ruleset
 		Tools\CodeAnalysis.ruleset = Tools\CodeAnalysis.ruleset
 		Tools\CodeAnalysisDictionary.xml = Tools\CodeAnalysisDictionary.xml
 		Tools\CommonAssemblyInfo.cs = Tools\CommonAssemblyInfo.cs

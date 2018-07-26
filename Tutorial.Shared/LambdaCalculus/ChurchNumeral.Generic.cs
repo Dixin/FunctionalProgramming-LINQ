@@ -1,7 +1,6 @@
 ﻿namespace Tutorial.LambdaCalculus
 {
     using System;
-    using System.Diagnostics.CodeAnalysis;
 
     using static ChurchBoolean;
     using static NumeralWrapper;
@@ -148,7 +147,6 @@
     public static partial class NumeralWrapperExtensions
     {
         // IsLessOrEqual = a => b => a.Subtract(b).IsZero()
-        [SuppressMessage("Microsoft.Naming", "CA1702:CompoundWordsShouldBeCasedCorrectly", MessageId = "LessOr")]
         public static Boolean LessOrEqual(this NumeralWrapper a, NumeralWrapper b) => a.Subtract(b).IsZero();
 
         // IsGreaterOrEqual = a => b => b.Subtract(a).IsZero()

@@ -3,7 +3,6 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
 
     internal static partial class QueryMethods
@@ -589,7 +588,6 @@
             @catch.WriteLines(); // Handled OperationCanceledException: The operation was canceled.
         }
 
-        [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
         internal static void Catch()
         {
             IEnumerable<int> scanWithException = Enumerable.Repeat(0, 5).Scan((a, b) => a / b); // Divide by 0.

@@ -3,17 +3,14 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
 
     internal abstract class Sequence
     {
-        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
         public abstract Iterator GetEnumerator(); // Must be public.
     }
 
     internal abstract class Iterator
     {
-        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
         public abstract bool MoveNext(); // Must be public.
 
         public abstract object Current { get; } // Must be public.
@@ -21,13 +18,11 @@
 
     internal abstract class GenericSequence<T>
     {
-        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
         public abstract GenericIterator<T> GetEnumerator(); // Must be public.
     }
 
     internal abstract class GenericIterator<T>
     {
-        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
         public abstract bool MoveNext(); // Must be public.
 
         public abstract T Current { get; } // Must be public.

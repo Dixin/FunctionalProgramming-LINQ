@@ -1,7 +1,6 @@
 ﻿namespace Tutorial.LambdaCalculus
 {
     using System;
-    using System.Diagnostics.CodeAnalysis;
 
     using static ChurchBoolean;
     using static ChurchNumeral;
@@ -183,7 +182,6 @@
 
     public static partial class ChurchPredicate
     {
-        [SuppressMessage("Microsoft.Naming", "CA1702:CompoundWordsShouldBeCasedCorrectly", MessageId = "LessOr")]
         public static readonly Func<Numeral, Func<Numeral, Boolean>>
             IsLessThanOrEqualTo = a => b => a.Subtract(b).IsZero();
 
@@ -205,7 +203,6 @@
 
     public static partial class NumeralExtensions
     {
-        [SuppressMessage("Microsoft.Naming", "CA1702:CompoundWordsShouldBeCasedCorrectly", MessageId = "LessOr")]
         public static Boolean IsLessThanOrEqualTo(this Numeral a, Numeral b) => ChurchPredicate.IsLessThanOrEqualTo(a)(b);
 
         public static Boolean IsGreaterThanOrEqualTo(this Numeral a, Numeral b) => ChurchPredicate.IsGreaterThanOrEqualTo(a)(b);
