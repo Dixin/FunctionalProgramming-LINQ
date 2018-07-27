@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="ConcurrencyVisualizer" Version="2.0.0" />
     <PackageReference Include="EnterpriseLibrary.TransientFaultHandling.Core" Version="1.2.0" />
     <PackageReference Include="FSharp.Core" Version="4.3.4" />
     <PackageReference Include="linqtotwitter" Version="5.0.0-beta2" />

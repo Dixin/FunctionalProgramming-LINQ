@@ -28,7 +28,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)CategoryTheory\NaturalTransformation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CategoryTheory\Optional`1.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CategoryTheory\Performance.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)CategoryTheory\UIElementExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ConnectionStrings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\Lambda.AnonymousFunction.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\AsynchronousFunction.cs" />

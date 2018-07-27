@@ -1,6 +1,5 @@
 namespace Tutorial.ParallelLinq
 {
-#if NETFX
     using System;
     using System.Collections;
     using System.Collections.Generic;
@@ -14,19 +13,6 @@ namespace Tutorial.ParallelLinq
     using static Tutorial.LinqToObjects.EnumerableX;
 
     using Stopwatch = System.Diagnostics.Stopwatch;
-#else
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Reflection;
-    using System.Threading;
-
-    using static Functions;
-    using static Tutorial.LinqToObjects.EnumerableX;
-
-    using Stopwatch = System.Diagnostics.Stopwatch;
-#endif
 
     internal static partial class QueryMethods
     {

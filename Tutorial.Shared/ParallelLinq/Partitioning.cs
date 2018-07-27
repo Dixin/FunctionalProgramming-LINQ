@@ -1,6 +1,5 @@
 ﻿namespace Tutorial.ParallelLinq
 {
-#if NETFX
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
@@ -8,13 +7,6 @@
     using System.Threading;
 
     using Microsoft.ConcurrencyVisualizer.Instrumentation;
-#else
-    using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading;
-#endif
 
     using static Functions;
 

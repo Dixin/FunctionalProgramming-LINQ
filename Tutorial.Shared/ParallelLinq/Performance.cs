@@ -1,6 +1,5 @@
 ﻿namespace Tutorial.ParallelLinq
 {
-#if NETFX
     using System;
     using System.IO;
     using System.Linq;
@@ -13,18 +12,6 @@
 
     using EnumerableX = Tutorial.LinqToObjects.EnumerableX;
     using Stopwatch = System.Diagnostics.Stopwatch;
-#else
-    using System;
-    using System.IO;
-    using System.Linq;
-    using System.Threading;
-    using System.Xml.Linq;
-
-    using static Functions;
-
-    using EnumerableX = Tutorial.LinqToObjects.EnumerableX;
-    using Stopwatch = System.Diagnostics.Stopwatch;
-#endif
 
     internal static partial class Performance
     {

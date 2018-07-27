@@ -1,6 +1,5 @@
 namespace Tutorial.ParallelLinq
 {
-#if NETFX
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -9,54 +8,6 @@ namespace Tutorial.ParallelLinq
     using System.Threading;
 
     using Microsoft.ConcurrencyVisualizer.Instrumentation;
-#else
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.IO;
-    using System.Linq;
-    using System.Threading;
-#endif
-
-#if !NETFX
-    public class Markers
-    {
-        public static Span EnterSpan(int category, string spanName) => new Span(category, spanName);
-
-        public static MarkerSeries CreateMarkerSeries(string markSeriesName) => new MarkerSeries(markSeriesName);
-    }
-
-    public class Span : IDisposable
-    {
-        private readonly int category;
-
-        private readonly string spanName;
-
-        private readonly DateTime start = DateTime.Now;
-
-        public Span(int category, string spanName, string markSeriesName = null)
-        {
-            this.category = category;
-            this.spanName = string.IsNullOrEmpty(markSeriesName) ? spanName : $@"{markSeriesName}/{spanName}";
-            $"Timestamp: {this.start.ToString("o")}, thread: {Thread.CurrentThread.ManagedThreadId}, category: {this.category}, span: {this.spanName}".WriteLine();
-        }
-
-        public void Dispose()
-        {
-            DateTime end = DateTime.Now;
-            $"Timestamp: {end.ToString("o")}, thread: {Thread.CurrentThread.ManagedThreadId}, category: {this.category}, span: {this.spanName}, duration: {end - this.start}".WriteLine();
-        }
-    }
-
-    public class MarkerSeries
-    {
-        private readonly string markSeriesName;
-
-        public MarkerSeries(string markSeriesName) => this.markSeriesName = markSeriesName;
-
-        public Span EnterSpan(int category, string spanName) => new Span(category, spanName, this.markSeriesName);
-    }
-#endif
 
     public static partial class Visualizer
     {
