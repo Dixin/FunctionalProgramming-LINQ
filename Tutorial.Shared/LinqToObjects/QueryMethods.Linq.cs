@@ -17,7 +17,7 @@
     using Microsoft.VisualStudio.Services.Common;
 
     using Tutorial.Functional;
-    using Tutorial.Resources;
+    using Tutorial.Properties;
 #else
     using System;
     using System.Collections;
@@ -31,7 +31,7 @@
     using System.Resources;
 
     using Tutorial.Functional;
-    using Tutorial.Resources;
+    using Tutorial.Properties;
 #endif
 
     internal class Person

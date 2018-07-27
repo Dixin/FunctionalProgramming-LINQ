@@ -17,10 +17,10 @@
 // 	This code contains a helper class exposing property representations
 // 	of the string resources defined in the specified .ResW file
 // 
-// 	Generated: 02/08/2018 21:23:27
+// 	Generated: 07/26/2018 10:35:18
 // </auto-generatedInfo>
 // --------------------------------------------------------------------------------------------------
-namespace Tutorial.Resources
+namespace Tutorial.Properties
 {
     using Windows.ApplicationModel.Resources;
     

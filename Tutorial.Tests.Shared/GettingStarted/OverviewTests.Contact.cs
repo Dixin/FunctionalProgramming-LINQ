@@ -9,7 +9,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Tutorial.GettingStarted;
 #if !WINDOWS_UWP && !ANDROID
-    using Tutorial.Resources;
+    using Tutorial.Properties;
     using Tutorial.Tests.LinqToObjects;
 #endif
 

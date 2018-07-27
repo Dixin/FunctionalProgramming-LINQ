@@ -15,7 +15,7 @@ namespace Tutorial.LinqToObjects
     using Microsoft.VisualStudio.Services.Common;
 
     using Tutorial.Functional;
-    using Tutorial.Resources;
+    using Tutorial.Properties;
 #else
     using System;
     using System.Collections;
@@ -27,7 +27,7 @@ namespace Tutorial.LinqToObjects
     using System.Resources;
 
     using Tutorial.Functional;
-    using Tutorial.Resources;
+    using Tutorial.Properties;
 #endif
 
     internal static class QueryExpressions
