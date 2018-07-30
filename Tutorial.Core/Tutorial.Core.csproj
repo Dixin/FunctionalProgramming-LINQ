@@ -17,9 +17,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="ConcurrencyVisualizer" Version="2.0.0" />
+    <PackageReference Include="ConcurrencyVisualizer" Version="2.1.0" />
     <PackageReference Include="EnterpriseLibrary.TransientFaultHandling.Core" Version="1.2.0" />
-    <PackageReference Include="FSharp.Core" Version="4.3.4" />
+    <PackageReference Include="FSharp.Core" Version="4.5.2" />
     <PackageReference Include="linqtotwitter" Version="5.0.0-beta2" />
     <PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="1.9.1" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.1" />
@@ -27,10 +27,10 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.0.2" />
     <PackageReference Include="Mono.Cecil" Version="0.10.0" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" />
-    <PackageReference Include="System.Interactive" Version="3.1.1" />
+    <PackageReference Include="System.Interactive" Version="3.2.0" />
     <PackageReference Include="System.Memory" Version="4.5.0-rc1" />
     <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.4.0" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.1" />
   </ItemGroup>
 
   <ItemGroup>
