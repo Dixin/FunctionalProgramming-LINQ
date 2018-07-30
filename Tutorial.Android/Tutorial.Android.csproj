@@ -51,8 +51,8 @@
     <Reference Include="Microsoft.Azure.DocumentDB.Core, Version=1.9.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Azure.DocumentDB.Core.1.9.1\lib\netstandard1.6\Microsoft.Azure.DocumentDB.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.ConcurrencyVisualizer.Markers, Version=14.0.50916.4, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\ConcurrencyVisualizer.2.0.0\lib\netstandard2.0\Microsoft.ConcurrencyVisualizer.Markers.dll</HintPath>
+    <Reference Include="Microsoft.ConcurrencyVisualizer.Markers, Version=15.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ConcurrencyVisualizer.2.1.0\lib\.NETStandard20\Microsoft.ConcurrencyVisualizer.Markers.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.EntityFrameworkCore, Version=2.0.3.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
