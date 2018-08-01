@@ -47,7 +47,7 @@
             catch (XPathException exception)
             {
                 Trace.WriteLine(exception);
-            }            
+            }
             QueryMethods.XPathEvaluateValue();
             QueryMethods.XPathEvaluateSequence();
             QueryMethods.XPathEvaluateSequenceWithNamespace();
