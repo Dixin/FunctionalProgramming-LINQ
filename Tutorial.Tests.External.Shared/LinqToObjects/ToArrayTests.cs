@@ -154,7 +154,7 @@ namespace Tutorial.Tests.LinqToObjects
             var sourceList = new List<int>(sourceIntegers);
 
             Assert.Equal(convertedStrings, sourceList.Select(i => i.ToString()).ToArray());
-            
+
             Assert.Equal(sourceList, sourceList.Where(i => true).ToArray());
             Assert.Equal(Array.Empty<int>(), sourceList.Where(i => false).ToArray());
 
@@ -174,7 +174,7 @@ namespace Tutorial.Tests.LinqToObjects
 
             Assert.Equal(q.ToArray(), q.ToArray());
         }
-        
+
         [Fact]
         public void SameResultsRepeatCallsFromWhereOnStringQuery()
         {
@@ -184,7 +184,7 @@ namespace Tutorial.Tests.LinqToObjects
 
             Assert.Equal(q.ToArray(), q.ToArray());
         }
-        
+
         [Fact]
         public void SameResultsButNotSameObject()
         {
@@ -199,12 +199,12 @@ namespace Tutorial.Tests.LinqToObjects
             Assert.NotSame(qInt.ToArray(), qInt.ToArray());
             Assert.NotSame(qString.ToArray(), qString.ToArray());
         }
-        
+
         [Fact]
         public void EmptyArraysSameObject()
         {
             Assert.Same(Enumerable.Empty<int>().ToArray(), Enumerable.Empty<int>().ToArray());
-            
+
             var array = new int[0];
             Assert.NotSame(array, array.ToArray());
         }
@@ -236,7 +236,7 @@ namespace Tutorial.Tests.LinqToObjects
         public void SourceNotICollectionAndIsEmpty()
         {
             IEnumerable<int> source = NumberRangeGuaranteedNotCollectionType(-4, 0);
-            
+
             Assert.Null(source as ICollection<int>);
 
             Assert.Empty(source.ToArray());
@@ -260,7 +260,7 @@ namespace Tutorial.Tests.LinqToObjects
             int?[] expected = { null, null, null, null, null };
 
             Assert.Null(source as ICollection<int>);
-    
+
             Assert.Equal(expected, source.ToArray());
         }
 

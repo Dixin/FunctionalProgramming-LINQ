@@ -98,7 +98,7 @@ namespace Tutorial.Tests.LinqToObjects
         public void NullSource_ThrowsArgumentNullException()
         {
             IEnumerable<int> source = null;
-            
+
             Assert.Throws<ArgumentNullException>("source", () => source.Contains(42));
             Assert.Throws<ArgumentNullException>("source", () => source.Contains(42, EqualityComparer<int>.Default));
         }

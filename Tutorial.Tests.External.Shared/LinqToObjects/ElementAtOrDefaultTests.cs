@@ -60,7 +60,7 @@ namespace Tutorial.Tests.LinqToObjects
         [Fact]
         public void NullableArray_NegativeIndex_ReturnsNull()
         {
-            int?[] source = { 9, 8 };            
+            int?[] source = { 9, 8 };
             Assert.Null(source.ElementAtOrDefault(-1));
         }
 
@@ -68,7 +68,7 @@ namespace Tutorial.Tests.LinqToObjects
         public void NullableArray_ValidIndex_ReturnsCorrectObjecvt()
         {
             int?[] source = { 9, 8, null, -5, 10 };
-            
+
             Assert.Null(source.ElementAtOrDefault(2));
             Assert.Equal(-5, source.ElementAtOrDefault(3));
         }

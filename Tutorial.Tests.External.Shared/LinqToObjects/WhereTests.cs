@@ -194,7 +194,7 @@ namespace Tutorial.Tests.LinqToObjects
 
         [Fact]
         public void Where_Array_ReturnsExpectedValues_False()
-        {            
+        {
             int[] source = new[] { 1, 2, 3, 4, 5 };
             Func<int, bool> falsePredicate = (value) => false;
 
@@ -223,7 +223,7 @@ namespace Tutorial.Tests.LinqToObjects
             Func<int, bool> truePredicate = (value) => true;
 
             IEnumerable<int> result = source.Where(truePredicate);
-            
+
             Assert.Equal(source.Count, result.Count());
             for (int i = 0; i < source.Count; i++)
             {
@@ -379,7 +379,7 @@ namespace Tutorial.Tests.LinqToObjects
             bool wasSelectorCalled = false;
 
             IEnumerable<int> result = source.Where(value => { wasSelectorCalled = true; return true; });
-            
+
             Assert.Equal(0, result.Count());
             Assert.False(wasSelectorCalled);
         }
@@ -401,7 +401,7 @@ namespace Tutorial.Tests.LinqToObjects
 
             Assert.Equal(default(int), enumerator.Current);
         }
-        
+
         [Fact]
         public void Where_List_CurrentIsDefaultOfTAfterEnumeration()
         {
@@ -470,7 +470,7 @@ namespace Tutorial.Tests.LinqToObjects
             Func<int, bool> evenPredicate = (value) => value % 2 == 0;
 
             IEnumerable<int> result = source.Where(evenPredicate).Where(evenPredicate);
-            
+
             Assert.Equal(2, result.Count());
             Assert.Equal(2, result.ElementAt(0));
             Assert.Equal(4, result.ElementAt(1));
@@ -733,7 +733,7 @@ namespace Tutorial.Tests.LinqToObjects
         #endregion
 
         #region Exceptions
-        
+
         [Fact]
         public void Where_PredicateThrowsException()
         {
@@ -771,7 +771,7 @@ namespace Tutorial.Tests.LinqToObjects
 
             // Ensure the first MoveNext call throws an exception
             Assert.Throws<InvalidOperationException>(() => enumerator.MoveNext());
-            
+
             // Ensure subsequent MoveNext calls succeed
             Assert.True(enumerator.MoveNext());
             Assert.Equal(2, enumerator.Current);
@@ -811,7 +811,7 @@ namespace Tutorial.Tests.LinqToObjects
             // Ensure Current is set to the default value of type T
             int currentValue = enumerator.Current;
             Assert.Equal(default(int), currentValue);
-            
+
             // Ensure subsequent MoveNext calls succeed
             Assert.True(enumerator.MoveNext());
             Assert.Equal(1, enumerator.Current);

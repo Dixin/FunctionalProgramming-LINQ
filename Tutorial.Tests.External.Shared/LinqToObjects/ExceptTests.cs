@@ -104,7 +104,7 @@ namespace Tutorial.Tests.LinqToObjects
             Assert.Throws<ArgumentNullException>("first", () => first.Except(second));
             Assert.Throws<ArgumentNullException>("first", () => first.Except(second, new AnagramEqualityComparer()));
         }
-        
+
         // [Fact]
         public void SecondNull_ThrowsArgumentNullException()
         {

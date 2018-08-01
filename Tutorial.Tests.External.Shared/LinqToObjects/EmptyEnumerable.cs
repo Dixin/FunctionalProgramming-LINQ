@@ -30,7 +30,7 @@ namespace Tutorial.Tests.LinqToObjects
             TestEmptyCached<object>();
             TestEmptyCached<EmptyEnumerableTest>();
         }
-        
+
         private void TestEmptyEmpty<T>()
         {
             Assert.Equal(new T[0], Enumerable.Empty<T>());

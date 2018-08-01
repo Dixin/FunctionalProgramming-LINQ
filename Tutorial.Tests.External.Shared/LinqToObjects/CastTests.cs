@@ -52,7 +52,7 @@ namespace Tutorial.Tests.LinqToObjects
 
             Assert.Equal(expected, source.Cast<int?>());
         }
-        
+
         [Fact]
         public void LongFromNullableIntInObjectsThrows()
         {
@@ -103,7 +103,7 @@ namespace Tutorial.Tests.LinqToObjects
             IEnumerable<double> cast = source.Cast<double>();
             Assert.Throws<InvalidCastException>(() => cast.ToList());
         }
-        
+
         private static void TestCastThrow<T>(object o)
         {
             byte? i = 10;

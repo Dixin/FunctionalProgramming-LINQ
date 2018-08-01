@@ -49,7 +49,7 @@ namespace Tutorial.Tests.LinqToObjects
             yield return new object[] { new int[] { 6, 9, 10, 0, -5 }, -5 };
             yield return new object[] { new int[] { 6, 0, 9, 0, 10, 0 }, 0 };
         }
-        
+
         //[Theory]
         //[MemberData(nameof(Min_Int_TestData))]
         //public void Min_Int(IEnumerable<int> source, int expected)
@@ -425,7 +425,7 @@ namespace Tutorial.Tests.LinqToObjects
         //    Assert.Throws<ArgumentNullException>("source", () => ((IEnumerable<decimal?>)null).Min());
         //    Assert.Throws<ArgumentNullException>("source", () => ((IEnumerable<decimal?>)null).Min(x => x));
         //}
-        
+
         public static IEnumerable<object[]> Min_DateTime_TestData()
         {
             yield return new object[] { Enumerable.Range(1, 10).Select(i => new DateTime(2000, 1, i)).ToArray(), new DateTime(2000, 1, 1) };
@@ -493,7 +493,7 @@ namespace Tutorial.Tests.LinqToObjects
         //    Assert.Throws<ArgumentNullException>("source", () => ((IEnumerable<string>)null).Min());
         //    Assert.Throws<ArgumentNullException>("source", () => ((IEnumerable<string>)null).Min(x => x));
         //}
-        
+
         [Fact]
         public void Min_Int_WithSelectorAccessingProperty()
         {
@@ -505,7 +505,7 @@ namespace Tutorial.Tests.LinqToObjects
             };
             Assert.Equal(-105, source.Min(e => e.num));
         }
-        
+
         //[Fact]
         //public void Min_Int_NullSelector_ThrowsArgumentNullException()
         //{
@@ -525,7 +525,7 @@ namespace Tutorial.Tests.LinqToObjects
 
             Assert.Equal(long.MinValue, source.Min(e => e.num));
         }
-        
+
         //[Fact]
         //public void Min_Long_NullSelector_ThrowsArgumentNullException()
         //{
@@ -647,7 +647,7 @@ namespace Tutorial.Tests.LinqToObjects
         //    Func<float?, float?> selector = null;
         //    Assert.Throws<ArgumentNullException>("selector", () => Enumerable.Empty<float?>().Min(selector));
         //}
-        
+
         [Fact]
         public void Min_NullableDouble_WithSelectorAccessingProperty()
         {
@@ -678,21 +678,21 @@ namespace Tutorial.Tests.LinqToObjects
             };
             Assert.Equal(10.5m, source.Min(e => e.num));
         }
-        
+
         //[Fact]
         //public void Min_NullableDecimal_NullSelector_ThrowsArgumentNullException()
         //{
         //    Func<decimal?, decimal?> selector = null;
         //    Assert.Throws<ArgumentNullException>("selector", () => Enumerable.Empty<decimal?>().Min(selector));
         //}
-                
+
         //[Fact]
         //public void Min_DateTime_NullSelector_ThrowsArgumentNullException()
         //{
         //    Func<DateTime, DateTime> selector = null;
         //    Assert.Throws<ArgumentNullException>("selector", () => Enumerable.Empty<DateTime>().Min(selector));
         //}
-        
+
         [Fact]
         public void Min_String_WithSelectorAccessingProperty()
         {
@@ -704,7 +704,7 @@ namespace Tutorial.Tests.LinqToObjects
             };
             Assert.Equal("Bob", source.Min(e => e.name));
         }
-        
+
         //[Fact]
         //public void Min_String_NullSelector_ThrowsArgumentNullException()
         //{

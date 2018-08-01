@@ -37,9 +37,9 @@ namespace Tutorial.Tests.LinqToObjects
         public void TestEmptyIList<T>()
         {
             T[] source = { };
-            
+
             Assert.NotNull(source as IList<T>);
-            
+
             Assert.Throws<InvalidOperationException>(() => source.First());
         }
 
@@ -59,7 +59,7 @@ namespace Tutorial.Tests.LinqToObjects
             int expected = 5;
 
             Assert.NotNull(source as IList<int>);
-            
+
             Assert.Equal(expected, source.First());
         }
 
@@ -70,7 +70,7 @@ namespace Tutorial.Tests.LinqToObjects
             int? expected = null;
 
             Assert.IsAssignableFrom<IList<int?>>(source);
-            
+
             Assert.Equal(expected, source.First());
         }
 
@@ -81,7 +81,7 @@ namespace Tutorial.Tests.LinqToObjects
             int? expected = 19;
 
             Assert.IsAssignableFrom<IList<int?>>(source);
-            
+
             Assert.Equal(expected, source.First());
         }
 
@@ -95,7 +95,7 @@ namespace Tutorial.Tests.LinqToObjects
             var source = EmptySource<T>();
 
             Assert.Null(source as IList<T>);
-            
+
             Assert.Throws<InvalidOperationException>(() => source.First());
         }
 
@@ -115,7 +115,7 @@ namespace Tutorial.Tests.LinqToObjects
             int expected = -5;
 
             Assert.Null(source as IList<int>);
-            
+
             Assert.Equal(expected, source.First());
         }
 
@@ -126,7 +126,7 @@ namespace Tutorial.Tests.LinqToObjects
             int expected = 3;
 
             Assert.Null(source as IList<int>);
-            
+
             Assert.Equal(expected, source.First());
         }
 
@@ -145,7 +145,7 @@ namespace Tutorial.Tests.LinqToObjects
             int[] source = { 4 };
             Func<int, bool> predicate = IsEven;
             int expected = 4;
-            
+
             Assert.Equal(expected, source.First(predicate));
         }
 

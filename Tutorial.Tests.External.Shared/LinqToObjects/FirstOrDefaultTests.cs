@@ -33,14 +33,14 @@ namespace Tutorial.Tests.LinqToObjects
 
             Assert.Equal(q.FirstOrDefault(), q.FirstOrDefault());
         }
-        
+
         private static void TestEmptyIList<T>()
         {
             T[] source = { };
             T expected = default(T);
-            
+
             Assert.IsAssignableFrom<IList<T>>(source);
-            
+
             Assert.Equal(expected, source.FirstOrDefault());
         }
 
@@ -60,7 +60,7 @@ namespace Tutorial.Tests.LinqToObjects
             int expected = 5;
 
             Assert.IsAssignableFrom<IList<int>>(source);
-            
+
             Assert.Equal(expected, source.FirstOrDefault());
         }
 
@@ -71,7 +71,7 @@ namespace Tutorial.Tests.LinqToObjects
             int? expected = null;
 
             Assert.IsAssignableFrom<IList<int?>>(source);
-            
+
             Assert.Equal(expected, source.FirstOrDefault());
         }
 
@@ -82,10 +82,10 @@ namespace Tutorial.Tests.LinqToObjects
             int? expected = 19;
 
             Assert.IsAssignableFrom<IList<int?>>(source);
-            
+
             Assert.Equal(expected, source.FirstOrDefault());
         }
-        
+
         private static IEnumerable<T> EmptySource<T>()
         {
             yield break;
@@ -95,9 +95,9 @@ namespace Tutorial.Tests.LinqToObjects
         {
             var source = EmptySource<T>();
             T expected = default(T);
-            
+
             Assert.Null(source as IList<T>);
-            
+
             Assert.Equal(expected, source.FirstOrDefault());
         }
 
@@ -117,7 +117,7 @@ namespace Tutorial.Tests.LinqToObjects
             int expected = -5;
 
             Assert.Null(source as IList<int>);
-            
+
             Assert.Equal(expected, source.FirstOrDefault());
         }
 
@@ -128,7 +128,7 @@ namespace Tutorial.Tests.LinqToObjects
             int expected = 3;
 
             Assert.Null(source as IList<int>);
-            
+
             Assert.Equal(expected, source.FirstOrDefault());
         }
 
@@ -148,7 +148,7 @@ namespace Tutorial.Tests.LinqToObjects
             int[] source = { 4 };
             Func<int, bool> predicate = IsEven;
             int expected = 4;
-            
+
             Assert.Equal(expected, source.FirstOrDefault(predicate));
         }
 

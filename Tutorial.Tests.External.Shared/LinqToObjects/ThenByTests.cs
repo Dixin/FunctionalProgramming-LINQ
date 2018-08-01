@@ -113,7 +113,7 @@ namespace Tutorial.Tests.LinqToObjects
 
             Assert.Equal(expected, source.OrderBy(e => e.Name).ThenBy(e => e.City, null));
         }
-        
+
         [Fact]
         public void OrderIsStable()
         {
@@ -126,7 +126,7 @@ And Immortality.".Split(new []{ ' ', '\n', '\r', '—' }, StringSplitOptions.Rem
                 "me", "not", "for", "for", "but", "stop", "held", "just", "could", "kindly", "stopped",
                 "I", "He", "The", "And", "Death", "Because", "Carriage", "Ourselves", "Immortality."
             };
-            
+
             Assert.Equal(expected, source.OrderBy(word => char.IsUpper(word[0])).ThenBy(word => word.Length));
         }
 

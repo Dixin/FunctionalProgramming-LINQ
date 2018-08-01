@@ -46,7 +46,7 @@ namespace Tutorial.Tests.LinqToObjects
                 Assert.Throws<DivideByZeroException>(() => en.MoveNext());
             }
         }
-        
+
         [Fact]
         public void SkipWhileHalf()
         {
@@ -98,7 +98,7 @@ namespace Tutorial.Tests.LinqToObjects
         {
             int[] source = { 8, 3, 12, 4, 6, 10 };
             int[] expected = { 3, 12, 4, 6, 10 };
-            
+
             Assert.Equal(expected, source.SkipWhile((e, i) => e % 2 == 0));
         }
 
@@ -137,13 +137,13 @@ namespace Tutorial.Tests.LinqToObjects
 
             Assert.Equal(expected, source.SkipWhile((element, index) => index < source.Length - 1));
         }
-        
+
         // [Fact]
         [ActiveIssue("Valid test but too intensive to enable even in OuterLoop")]
         public void IndexSkipWhileOverflowBeyondIntMaxValueElements()
         {
             var skipped = new FastInfiniteEnumerator<int>().SkipWhile((e, i) => true);
-            
+
             using(var en = skipped.GetEnumerator())
                 Assert.Throws<OverflowException>(() =>
                 {

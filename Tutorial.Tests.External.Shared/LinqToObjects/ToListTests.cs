@@ -179,7 +179,7 @@ namespace Tutorial.Tests.LinqToObjects
 
             Assert.Equal(q.ToList(), q.ToList());
         }
-        
+
         [Fact]
         public void SameResultsRepeatCallsFromWhereOnStringQuery()
         {
@@ -238,7 +238,7 @@ namespace Tutorial.Tests.LinqToObjects
             int?[] expected = { null, null, null, null, null };
 
             Assert.Null(source as ICollection<int>);
-    
+
             Assert.Equal(expected, source.ToList());
         }
 

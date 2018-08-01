@@ -68,7 +68,7 @@ namespace Tutorial.Tests.LinqToObjects
         public void NullableArray_ValidIndex_ReturnsCorrectObject()
         {
             int?[] source = { 9, 8, null, -5, 10 };
-            
+
             Assert.Null(source.ElementAt(2));
             Assert.Equal(-5, source.ElementAt(3));
         }

@@ -12,7 +12,7 @@ using static Tutorial.LinqToObjects.EnumerableExtensions;
 namespace Tutorial.Tests.LinqToObjects
 {
     public class SequenceEqualTests : EnumerableTests
-    {        
+    {
         [Fact]
         public void SameResultsRepeatCallsIntQuery()
         {
@@ -52,7 +52,7 @@ namespace Tutorial.Tests.LinqToObjects
         {
             int?[] first = { 1, 2, 3, 4 };
             int?[] second = { 1, 2, 6, 4 };
-            
+
             Assert.False(first.SequenceEqual(second));
             Assert.False(FlipIsCollection(first).SequenceEqual(second));
             Assert.False(first.SequenceEqual(FlipIsCollection(second)));
@@ -88,7 +88,7 @@ namespace Tutorial.Tests.LinqToObjects
         {
             string[] first = { null };
             string[] second = { null };
-            
+
             Assert.True(first.SequenceEqual(second, StringComparer.Ordinal));
             Assert.True(FlipIsCollection(first).SequenceEqual(second, StringComparer.Ordinal));
             Assert.True(first.SequenceEqual(FlipIsCollection(second), StringComparer.Ordinal));
@@ -197,7 +197,7 @@ namespace Tutorial.Tests.LinqToObjects
         {
             int[] first = null;
             int[] second = { };
-            
+
             Assert.Throws<ArgumentNullException>("first", () => first.SequenceEqual(second));
         }
 
@@ -206,7 +206,7 @@ namespace Tutorial.Tests.LinqToObjects
         {
             int[] first = { };
             int[] second = null;
-            
+
             Assert.Throws<ArgumentNullException>("second", () => first.SequenceEqual(second));
         }
     }

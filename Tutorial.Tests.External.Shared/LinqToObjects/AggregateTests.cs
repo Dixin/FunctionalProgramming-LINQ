@@ -38,7 +38,7 @@ namespace Tutorial.Tests.LinqToObjects
         public void EmptySource()
         {
             int[] source = { };
-            
+
             Assert.Throws<InvalidOperationException>(() => source.Aggregate((x, y) => x + y));
         }
 

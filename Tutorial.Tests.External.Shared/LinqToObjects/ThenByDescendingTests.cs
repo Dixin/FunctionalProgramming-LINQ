@@ -13,7 +13,7 @@ using static Tutorial.LinqToObjects.EnumerableExtensions;
 namespace Tutorial.Tests.LinqToObjects
 {
     public class ThenByDescendingTests : EnumerableTests
-    {        
+    {
         [Fact]
         public void SameResultsRepeatCallsIntQuery()
         {
@@ -22,7 +22,7 @@ namespace Tutorial.Tests.LinqToObjects
                              select new { a1 = x1, a2 = x2 };
 
             Assert.Equal(
-                q.OrderByDescending(e => e.a2).ThenByDescending(f => f.a1), 
+                q.OrderByDescending(e => e.a2).ThenByDescending(f => f.a1),
                 q.OrderByDescending(e => e.a2).ThenByDescending(f => f.a1)
             );
         }
@@ -34,7 +34,7 @@ namespace Tutorial.Tests.LinqToObjects
                              from x2 in new[] { "!@#$%^", "C", "AAA", "", null, "Calling Twice", "SoS", String.Empty }
                              where !String.IsNullOrEmpty(x2)
                              select new { a1 = x1, a2 = x2 };
-                    
+
             Assert.Equal(
                 q.OrderBy(e => e.a1).ThenByDescending(f => f.a2),
                 q.OrderBy(e => e.a1).ThenByDescending(f => f.a2)
@@ -104,9 +104,9 @@ And Immortality.".Split(new []{ ' ', '\n', '\r', '—' }, StringSplitOptions.Rem
             var expected = new []
             {
                 "stopped", "kindly", "could", "stop", "held", "just", "not", "for", "for", "but", "me",
-                "Immortality.", "Ourselves", "Carriage", "Because", "Death", "The", "And", "He", "I"   
+                "Immortality.", "Ourselves", "Carriage", "Because", "Death", "The", "And", "He", "I"
             };
-            
+
             Assert.Equal(expected, source.OrderBy(word => char.IsUpper(word[0])).ThenByDescending(word => word.Length));
         }
 

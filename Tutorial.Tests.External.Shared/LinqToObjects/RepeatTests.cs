@@ -123,7 +123,7 @@ namespace Tutorial.Tests.LinqToObjects
         {
             Assert.Equal(Enumerable.Repeat("SSS", 99), Enumerable.Repeat("SSS", 99));
         }
-        
+
         [Fact]
         public void CountOneSingleResult()
         {

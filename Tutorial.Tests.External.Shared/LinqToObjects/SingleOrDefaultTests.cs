@@ -98,7 +98,7 @@ namespace Tutorial.Tests.LinqToObjects
         {
             int[] source = { 4 };
             int expected = 4;
-            
+
             Assert.Equal(expected, source.SingleOrDefault(i => i % 2 == 0));
         }
 
@@ -144,7 +144,7 @@ namespace Tutorial.Tests.LinqToObjects
         {
             Assert.Equal(target, Enumerable.Range(0, range).SingleOrDefault(i => i == target));
         }
-        
+
         // [Fact]
         public void ThrowsOnNullSource()
         {

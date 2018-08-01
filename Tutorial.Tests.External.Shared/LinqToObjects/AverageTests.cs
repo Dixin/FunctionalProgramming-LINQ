@@ -66,7 +66,7 @@ namespace Tutorial.Tests.LinqToObjects
         //    Func<float?, float?> selector = null;
         //    Assert.Throws<ArgumentNullException>("selector", () => Enumerable.Empty<float?>().Average(selector));
         //}
-        
+
         //[Fact]
         //public void NullableFloat_WithSelector()
         //{
@@ -85,7 +85,7 @@ namespace Tutorial.Tests.LinqToObjects
         //public void Int_EmptySource_ThrowsInvalidOperationException()
         //{
         //    int[] source = new int[0];
-            
+
         //    Assert.Throws<InvalidOperationException>(() => source.Average());
         //    Assert.Throws<InvalidOperationException>(() => source.Average(i => i));
         //}
@@ -150,7 +150,7 @@ namespace Tutorial.Tests.LinqToObjects
         //    Assert.Equal(expected, source.Average());
         //    Assert.Equal(expected, source.Average(x => x));
         //}
-        
+
         //[Fact]
         //public void NullableInt_NullSource_ThrowsArgumentNullException()
         //{
@@ -164,7 +164,7 @@ namespace Tutorial.Tests.LinqToObjects
         //    Func<int?, int?> selector = null;
         //    Assert.Throws<ArgumentNullException>("selector", () => Enumerable.Empty<int?>().Average(selector));
         //}
-        
+
         //[Fact]
         //public void NullableInt_WithSelector()
         //{
@@ -208,7 +208,7 @@ namespace Tutorial.Tests.LinqToObjects
             yield return new object[] { new long[] { 0, 0, 0, 0, 0 }, 0 };
             yield return new object[] { new long[] { 5, -10, 15, 40, 28 }, 15.6 };
         }
-        
+
         //[Theory]
         //[MemberData(nameof(Long_TestData))]
         //public void Long(long[] source, double expected)
@@ -256,7 +256,7 @@ namespace Tutorial.Tests.LinqToObjects
         //    Assert.Equal(expected, source.Average());
         //    Assert.Equal(expected, source.Average(x => x));
         //}
-        
+
         //[Fact]
         //public void NullableLong_NullSource_ThrowsArgumentNullException()
         //{
@@ -270,7 +270,7 @@ namespace Tutorial.Tests.LinqToObjects
         //    Func<long?, long?> selector = null;
         //    Assert.Throws<ArgumentNullException>("selector", () => Enumerable.Empty<long?>().Average(selector));
         //}
-        
+
         //[Fact]
         //public void NullableLong_WithSelector()
         //{
@@ -356,7 +356,7 @@ namespace Tutorial.Tests.LinqToObjects
         //    Assert.Equal(expected, source.Average());
         //    Assert.Equal(expected, source.Average(x => x));
         //}
-        
+
         //[Fact]
         //public void NullableDouble_NullSource_ThrowsArgumentNullException()
         //{
@@ -370,7 +370,7 @@ namespace Tutorial.Tests.LinqToObjects
         //    Func<double?, double?> selector = null;
         //    Assert.Throws<ArgumentNullException>("selector", () => Enumerable.Empty<double?>().Average(selector));
         //}
-        
+
         //[Fact]
         //public void NullableDouble_WithSelector()
         //{

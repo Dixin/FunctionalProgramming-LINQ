@@ -156,7 +156,7 @@ namespace Tutorial.Tests.LinqToObjects
         {
             int?[] source = { 3, 100, 4, null, 10 };
             int?[] expected = { 100, 4, null, 10 };
-            
+
             Assert.Equal(expected, source.Skip(1));
         }
 
@@ -174,7 +174,7 @@ namespace Tutorial.Tests.LinqToObjects
         {
             int?[] source = { 3, 100, null, 4, 10 };
             int?[] expected = { 10 };
-            
+
             Assert.Equal(expected, source.Skip(source.Length - 1));
         }
 
