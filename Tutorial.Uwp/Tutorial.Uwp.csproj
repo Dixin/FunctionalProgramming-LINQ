@@ -163,7 +163,7 @@
       <Version>2.1.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>6.0.7</Version>
+      <Version>6.1.7</Version>
     </PackageReference>
     <PackageReference Include="Mono.Cecil">
       <Version>0.10.0</Version>
