@@ -36,7 +36,7 @@ namespace Tutorial.LinqToObjects
 
         internal static void Where()
         {
-            IEnumerable<Type> source = CoreLibrary.GetExportedTypes();
+            IEnumerable<Type> source = CoreLibrary.ExportedTypes;
             IEnumerable<Type> primitives = from type in source
                                            where type.IsPrimitive
                                            select type;
@@ -61,7 +61,7 @@ namespace Tutorial.LinqToObjects
         internal static void SelectMany()
         {
             IEnumerable<MemberInfo> mappedAndFiltered =
-                from type in CoreLibrary.GetExportedTypes()
+                from type in CoreLibrary.ExportedTypes
                 from member in type.GetDeclaredMembers()
                 where member.IsObsolete()
                 select member;
@@ -69,7 +69,7 @@ namespace Tutorial.LinqToObjects
 
         internal static void SelectManyWithResultSelector()
         {
-            IEnumerable<Type> source = CoreLibrary.GetExportedTypes();
+            IEnumerable<Type> source = CoreLibrary.ExportedTypes;
             IEnumerable<string> obsoleteMembers =
                 from type in source
                 from member in type.GetDeclaredMembers()
@@ -79,7 +79,7 @@ namespace Tutorial.LinqToObjects
 
         internal static void SelectManyWithResultSelectorAndSubquery()
         {
-            IEnumerable<Type> source = CoreLibrary.GetExportedTypes();
+            IEnumerable<Type> source = CoreLibrary.ExportedTypes;
             IEnumerable<string> obsoleteMembers =
                 from type in source
                 from obsoleteMember in (from member in type.GetDeclaredMembers()

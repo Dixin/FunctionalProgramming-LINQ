@@ -194,7 +194,7 @@
             Type nonGenericEnumerable = typeof(IEnumerable);
             Type genericEnumerable = typeof(IEnumerable<>);
             IEnumerable<Type> nonGenericSequences = typeof(object).Assembly // Core library.
-                .GetExportedTypes()
+                .ExportedTypes
                 .Where(type =>
                 {
                     if (type == nonGenericEnumerable || type == genericEnumerable)

@@ -149,7 +149,7 @@
 
         internal static void Where()
         {
-            IEnumerable<Type> source = CoreLibrary.GetExportedTypes();
+            IEnumerable<Type> source = CoreLibrary.ExportedTypes;
             IEnumerable<Type> primitives = source.Where(type => type.IsPrimitive); // Define query.
             primitives.WriteLines(); // Execute query. System.Boolean System.Byte System.Char System.Double ...
         }
@@ -213,7 +213,7 @@
 
         internal static void SelectMany()
         {
-            IEnumerable<Type> source = CoreLibrary.GetExportedTypes();
+            IEnumerable<Type> source = CoreLibrary.ExportedTypes;
             IEnumerable<MemberInfo> oneToManymapped = source.SelectMany(type => type.GetDeclaredMembers()); // Define query.
             IEnumerable<MemberInfo> filtered = oneToManymapped.Where(member => member.IsObsolete()); // Define query.
             filtered.WriteLines(obsoleteMember => $"{obsoleteMember.DeclaringType}:{obsoleteMember}"); // Execute query.
@@ -231,7 +231,7 @@
         internal static void FluentSelectMany()
         {
             IEnumerable<MemberInfo> mappedAndFiltered = CoreLibrary
-                .GetExportedTypes()
+                .ExportedTypes
                 .SelectMany(type => type.GetDeclaredMembers())
                 .Where(member => member.IsObsolete()); // Define query.
             mappedAndFiltered.WriteLines(obsoleteMember => $"{obsoleteMember.DeclaringType}:{obsoleteMember}"); // Execute query.
@@ -239,7 +239,7 @@
 
         internal static void SelectManyWithResultSelector()
         {
-            IEnumerable<Type> source = CoreLibrary.GetExportedTypes();
+            IEnumerable<Type> source = CoreLibrary.ExportedTypes;
             IEnumerable<string> obsoleteMembers = source
                 .SelectMany(
                     collectionSelector: type => type.GetDeclaredMembers(),
@@ -250,7 +250,7 @@
 
         internal static void SelectManyWithResultSelectorAndSubquery()
         {
-            IEnumerable<Type> source = CoreLibrary.GetExportedTypes();
+            IEnumerable<Type> source = CoreLibrary.ExportedTypes;
             IEnumerable<string> obsoleteMembers = source.SelectMany(
                 collectionSelector: type => type.GetDeclaredMembers().Where(member => member.IsObsolete()),
                 resultSelector: (type, obsoleteMember) => $"{type}:{obsoleteMember}"); // Define query.
@@ -1125,7 +1125,7 @@
             int countOfSingleSource = SingleInt32Source().Count().WriteLine(); // 1
             int countOfEmptySource = EmptyInt32Source().Count().WriteLine(); // 0
             int countOfCharacters = Characters().Count().WriteLine(); // 5
-            int countOfTypesInCoreLibrary = CoreLibrary.GetExportedTypes().Count().WriteLine(); // 1523
+            int countOfTypesInCoreLibrary = CoreLibrary.ExportedTypes.Count().WriteLine(); // 1523
         }
 
         internal static void CountWithPredicate()
@@ -1166,14 +1166,14 @@
 
         internal static void MaxWithSelector()
         {
-            int mostDeclaredMembers = CoreLibrary.GetExportedTypes()
+            int mostDeclaredMembers = CoreLibrary.ExportedTypes
                 .Max(type => type.GetDeclaredMembers().Length).WriteLine(); // 311
         }
 
         internal static void OrderByDescendingAndTakeWhile()
         {
             int? maxMemberCount = null;
-            IEnumerable<(Type Type, int MemberCount)> maxTypes = CoreLibrary.GetExportedTypes()
+            IEnumerable<(Type Type, int MemberCount)> maxTypes = CoreLibrary.ExportedTypes
                 .Select(type => (Type: type, MemberCount: type.GetDeclaredMembers().Length))
                 .OrderByDescending(typeAndMemberCount => typeAndMemberCount.MemberCount)
                 .TakeWhile(typeAndMemberCount =>
@@ -1190,7 +1190,7 @@
 
         internal static void AggregateWithAnonymousTypeSeed()
         {
-            (List<Type> Types, int MaxMemberCount) maxTypes = CoreLibrary.GetExportedTypes().Aggregate(
+            (List<Type> Types, int MaxMemberCount) maxTypes = CoreLibrary.ExportedTypes.Aggregate(
                 seed: (Types: new List<Type>(), MaxMemberCount: 0),
                 func: (currentMax, type) =>
                 {
@@ -1251,10 +1251,10 @@
 
         internal static void AverageWithSelector()
         {
-            double averageMemberCount = CoreLibrary.GetExportedTypes()
+            double averageMemberCount = CoreLibrary.ExportedTypes
                 .Average(type => type.GetMembers().Length)
                 .WriteLine(); // 22.0766378244747
-            double averageDeclaredMemberCount = CoreLibrary.GetExportedTypes()
+            double averageDeclaredMemberCount = CoreLibrary.ExportedTypes
                 .Average(type => type.GetDeclaredMembers().Length)
                 .WriteLine(); // 11.7527812113721
         }

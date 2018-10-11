@@ -681,7 +681,7 @@
 
         internal static void MaxBy()
         {
-            CoreLibrary.GetExportedTypes()
+            CoreLibrary.ExportedTypes
                 .Select(type => (Type: type, MemberCount: type.GetDeclaredMembers().Length))
                 .MaxBy(typeAndMemberCount => typeAndMemberCount.MemberCount)
                 .WriteLines(max => $"{max.Type.FullName}:{max.MemberCount}"); // System.Convert:311
