@@ -21,7 +21,7 @@
 
     public static partial class TraceExtensions
     {
-        public static IEnumerable<T> WriteLines<T>(this IEnumerable<T> values, Func<T, string> messageSelector = null)
+        public static void WriteLines<T>(this IEnumerable<T> values, Func<T, string> messageSelector = null)
         {
             if (messageSelector != null)
             {
@@ -37,7 +37,6 @@
                     Trace.WriteLine(value);
                 }
             }
-            return values;
         }
     }
 }

@@ -4,52 +4,49 @@
     using System.Collections;
     using System.Collections.Generic;
 
-    internal abstract class Sequence
-    {
-        public abstract Iterator GetEnumerator(); // Must be public.
-    }
-
-    internal abstract class Iterator
-    {
-        public abstract bool MoveNext(); // Must be public.
-
-        public abstract object Current { get; } // Must be public.
-    }
-
-    internal abstract class GenericSequence<T>
-    {
-        public abstract GenericIterator<T> GetEnumerator(); // Must be public.
-    }
-
-    internal abstract class GenericIterator<T>
-    {
-        public abstract bool MoveNext(); // Must be public.
-
-        public abstract T Current { get; } // Must be public.
-    }
-
     internal static partial class IteratorPattern
     {
-        internal static void ForEach<T>(Sequence sequence, Action<T> processNext)
+        internal abstract class Sequence
+        {
+            public abstract Iterator GetEnumerator(); // Must be public.
+        }
+
+        internal abstract class Iterator
+        {
+            public abstract bool MoveNext(); // Must be public.
+
+            public abstract object Current { get; } // Must be public.
+        }
+
+        internal abstract class GenericSequence<T>
+        {
+            public abstract GenericIterator<T> GetEnumerator(); // Must be public.
+        }
+
+        internal abstract class GenericIterator<T>
+        {
+            public abstract bool MoveNext(); // Must be public.
+
+            public abstract T Current { get; } // Must be public.
+        }
+
+        internal static void ForEach<T>(Sequence sequence, Action<T> process)
         {
             foreach (T value in sequence)
             {
-                processNext(value);
+                process(value);
             }
         }
 
-        internal static void ForEach<T>(GenericSequence<T> sequence, Action<T> processNext)
+        internal static void ForEach<T>(GenericSequence<T> sequence, Action<T> process)
         {
             foreach (T value in sequence)
             {
-                processNext(value);
+                process(value);
             }
         }
-    }
 
-    internal static partial class IteratorPattern
-    {
-        internal static void CompiledForEach<T>(Sequence sequence, Action<T> processNext)
+        internal static void CompiledForEach<T>(Sequence sequence, Action<T> process)
         {
             Iterator iterator = sequence.GetEnumerator();
             try
@@ -57,7 +54,7 @@
                 while (iterator.MoveNext())
                 {
                     T value = (T)iterator.Current;
-                    processNext(value);
+                    process(value);
                 }
             }
             finally
@@ -66,7 +63,7 @@
             }
         }
 
-        internal static void CompiledForEach<T>(GenericSequence<T> sequence, Action<T> processNext)
+        internal static void CompiledForEach<T>(GenericSequence<T> sequence, Action<T> process)
         {
             GenericIterator<T> iterator = sequence.GetEnumerator();
             try
@@ -74,7 +71,7 @@
                 while (iterator.MoveNext())
                 {
                     T value = iterator.Current;
-                    processNext(value);
+                    process(value);
                 }
             }
             finally
@@ -82,178 +79,90 @@
                 (iterator as IDisposable)?.Dispose();
             }
         }
-    }
 
-    internal class SinglyLinkedListNode<T>
-    {
-        internal SinglyLinkedListNode(T value, SinglyLinkedListNode<T> next = null)
+        internal class LinkedListNode<T>
         {
-            this.Value = value;
-            this.Next = next;
+            internal LinkedListNode(T value, LinkedListNode<T> next = null) =>
+                (this.Value, this.Next) = (value, next);
+
+            public T Value { get; }
+
+            public LinkedListNode<T> Next { get; }
         }
 
-        public T Value { get; }
-
-        public SinglyLinkedListNode<T> Next { get; }
-    }
-
-    internal class LinkedListSequence<T> : GenericSequence<T>
-    {
-        private readonly SinglyLinkedListNode<T> head;
-
-        internal LinkedListSequence(SinglyLinkedListNode<T> head) => this.head = head;
-
-        public override GenericIterator<T> GetEnumerator() => new LinkedListIterator<T>(this.head);
-    }
-
-    internal class LinkedListIterator<T> : GenericIterator<T>
-    {
-        private SinglyLinkedListNode<T> node; // State.
-
-        internal LinkedListIterator(SinglyLinkedListNode<T> head) =>
-            this.node = new SinglyLinkedListNode<T>(default, head);
-
-        public override bool MoveNext()
+        internal class LinkedListSequence<T> : GenericSequence<T>
         {
-            if (this.node.Next != null)
+            private readonly LinkedListNode<T> head;
+
+            internal LinkedListSequence(LinkedListNode<T> head) => this.head = head;
+
+            public override GenericIterator<T> GetEnumerator() => new LinkedListIterator<T>(this.head);
+        }
+
+        internal class LinkedListIterator<T> : GenericIterator<T>
+        {
+            private LinkedListNode<T> node; // State.
+
+            internal LinkedListIterator(LinkedListNode<T> head) =>
+                this.node = new LinkedListNode<T>(default, head);
+
+            public override bool MoveNext()
             {
-                this.node = this.node.Next; // State change.
-                return true;
+                if (this.node.Next != null)
+                {
+                    this.node = this.node.Next; // State change.
+                    return true;
+                }
+                return false;
             }
-            return false;
+
+            public override T Current => this.node.Value;
         }
 
-        public override T Current => this.node.Value;
-    }
-
-    internal static partial class IteratorPattern
-    {
-        internal static void ForEach(SinglyLinkedListNode<int> head)
+        internal static void ForEach()
         {
-            LinkedListSequence<int> sequence = new LinkedListSequence<int>(head);
+            LinkedListNode<int> node3 = new LinkedListNode<int>(3, null);
+            LinkedListNode<int> node2 = new LinkedListNode<int>(2, node3);
+            LinkedListNode<int> node1 = new LinkedListNode<int>(1, node2);
+            LinkedListSequence<int> sequence = new LinkedListSequence<int>(node1);
             foreach (int value in sequence)
             {
-                value.WriteLine();
+                value.WriteLine(); // 1 2 3
             }
         }
 
-        internal static void ForEach<T>(T[] array, Action<T> processNext)
+        internal static void ForEach<T>(T[] array, Action<T> process)
         {
             foreach (T value in array)
             {
-                processNext(value);
+                process(value);
             }
         }
 
-        internal static void CompiledForEach<T>(T[] array, Action<T> processNext)
+        internal static void CompiledForEach<T>(T[] array, Action<T> process)
         {
             for (int index = 0; index < array.Length; index++)
             {
                 T value = array[index];
-                processNext(value);
+                process(value);
             }
         }
 
-        internal static void ForEach(string @string, Action<char> processNext)
+        internal static void ForEach(string @string, Action<char> process)
         {
             foreach (char value in @string)
             {
-                processNext(value);
+                process(value);
             }
         }
 
-        internal static void CompiledForEach(string @string, Action<char> processNext)
+        internal static void CompiledForEach(string @string, Action<char> process)
         {
             for (int index = 0; index < @string.Length; index++)
             {
                 char value = @string[index];
-                processNext(value);
+                process(value);
             }
-        }
-    }
-
-    internal static partial class IteratorPattern
-    {
-        internal static void Iterate<T>
-            (GenericSequence<T> sequence, Action<T> processNext) => Iterate(sequence.GetEnumerator(), processNext);
-
-        private static void Iterate<T>(GenericIterator<T> iterator, Action<T> processNext)
-        {
-            if (iterator.MoveNext())
-            {
-                processNext(iterator.Current);
-                Iterate(iterator, processNext); // Recursion.
-            }
-        }
-    }
-
-    internal static partial class IteratorPattern
-    {
-        internal static void NonGenericSequences()
-        {
-            Type nonGenericEnumerable = typeof(IEnumerable);
-            Type genericEnumerable = typeof(IEnumerable<>);
-            IEnumerable<Type> nonGenericSequences = typeof(object).Assembly // Core library.
-                .ExportedTypes
-                .Where(type =>
-                {
-                    if (type == nonGenericEnumerable || type == genericEnumerable)
-                    {
-                        return false;
-                    }
-                    Type[] interfaces = type.GetInterfaces();
-                    return interfaces.Any(@interface => @interface == nonGenericEnumerable)
-                        && !interfaces.Any(@interface =>
-                            @interface.IsGenericType
-                            && @interface.GetGenericTypeDefinition() == genericEnumerable);
-                })
-                .OrderBy(type => type.FullName); // Define query.
-            foreach (Type nonGenericSequence in nonGenericSequences) // Execute query.
-            {
-                nonGenericSequence.FullName.WriteLine();
-            }
-#if NETFX
-            // System.Array
-            // System.Collections.ArrayList
-            // System.Collections.BitArray
-            // System.Collections.CollectionBase
-            // System.Collections.DictionaryBase
-            // System.Collections.Hashtable
-            // System.Collections.ICollection
-            // System.Collections.IDictionary
-            // System.Collections.IList
-            // System.Collections.Queue
-            // System.Collections.ReadOnlyCollectionBase
-            // System.Collections.SortedList
-            // System.Collections.Stack
-            // System.Resources.IResourceReader
-            // System.Resources.ResourceReader
-            // System.Resources.ResourceSet
-            // System.Runtime.Remoting.Channels.BaseChannelObjectWithProperties
-            // System.Runtime.Remoting.Channels.BaseChannelSinkWithProperties
-            // System.Runtime.Remoting.Channels.BaseChannelWithProperties
-            // System.Security.AccessControl.AuthorizationRuleCollection
-            // System.Security.AccessControl.CommonAcl
-            // System.Security.AccessControl.DiscretionaryAcl
-            // System.Security.AccessControl.GenericAcl
-            // System.Security.AccessControl.RawAcl
-            // System.Security.AccessControl.SystemAcl
-            // System.Security.NamedPermissionSet
-            // System.Security.Permissions.KeyContainerPermissionAccessEntryCollection
-            // System.Security.PermissionSet
-            // System.Security.Policy.ApplicationTrustCollection
-            // System.Security.Policy.Evidence
-            // System.Security.ReadOnlyPermissionSet
-#else
-            // System.Array
-            // System.Collections.BitArray
-            // System.Collections.CollectionBase
-            // System.Collections.ICollection
-            // System.Collections.IDictionary
-            // System.Collections.IList
-            // System.Resources.IResourceReader
-            // System.Resources.ResourceSet
-#endif
         }
     }
 }

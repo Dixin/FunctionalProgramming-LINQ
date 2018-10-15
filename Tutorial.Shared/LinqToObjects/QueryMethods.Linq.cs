@@ -89,6 +89,8 @@
 
     internal static partial class QueryMethods
     {
+        #region Generation
+
         internal static void Empty()
         {
             IEnumerable<string> empty = Enumerable.Empty<string>(); // Define query.
@@ -99,11 +101,6 @@
             }
             count.WriteLine(); // 0
         }
-    }
-
-    internal static partial class QueryMethods
-    {
-        #region Generation
 
         internal static void Range()
         {
@@ -116,7 +113,7 @@
             // }
         }
 
-        internal static void MaxRange()
+        internal static void LargeRange()
         {
             IEnumerable<int> range = Enumerable.Range(1, int.MaxValue); // Define query.
         }
@@ -129,8 +126,8 @@
 
         internal static void DefaultIfEmpty()
         {
-            IEnumerable<int> souce = Enumerable.Empty<int>();
-            IEnumerable<int> singletonIfEmpty = souce.DefaultIfEmpty(); // Define query.
+            IEnumerable<int> source = Enumerable.Empty<int>();
+            IEnumerable<int> singletonIfEmpty = source.DefaultIfEmpty(); // Define query.
             singletonIfEmpty.WriteLines(); // Execute query: 0
         }
 

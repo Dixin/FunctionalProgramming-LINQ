@@ -125,7 +125,7 @@
             int finalProduct = Int32Source().Aggregate((product, int32) => product * int32).WriteLine();
             // ((((-1 * 1) * 2) * 3) * -4) => 24.
 
-            IEnumerable<int> allProducts = Int32Source().Scan((product, int32) => product * int32).WriteLines();
+            Int32Source().Scan((product, int32) => product * int32).WriteLines(); // All products.
             // ((((-1 * 1) * 2) * 3) * -4) => { -1, -2, -6, 24 }.
         }
 
