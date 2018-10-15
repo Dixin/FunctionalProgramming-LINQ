@@ -1,9 +1,9 @@
 namespace Tutorial.Tests.LinqToObjects
 {
+    using System;
     using System.Linq;
-
-    using Tutorial.LinqToObjects;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Tutorial.LinqToObjects;
 
     [TestClass]
     public class DeferredExecutionTests
@@ -16,7 +16,7 @@ namespace Tutorial.Tests.LinqToObjects
                 Enumerable.Reverse(enumerable),
                 DeferredExecution.CompiledReverseGenerator(enumerable));
 
-            enumerable = new int[] { };
+            enumerable = Array.Empty<int>();
             EnumerableAssert.AreSequentialEqual(
                 Enumerable.Reverse(enumerable),
                 DeferredExecution.CompiledReverseGenerator(enumerable));

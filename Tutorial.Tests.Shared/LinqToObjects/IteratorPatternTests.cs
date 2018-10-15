@@ -69,11 +69,5 @@
                 Enumerable.Where(enumerable, x => x > 0),
                 IteratorPattern.Where(enumerable, x => x > 0));
         }
-
-        [TestMethod]
-        public void SequenceTest()
-        {
-            IteratorPattern.NonGenericSequences();
-        }
     }
 }

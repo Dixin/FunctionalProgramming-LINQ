@@ -7,99 +7,7 @@
 
     using static Tutorial.LinqToObjects.EnumerableX;
 
-#if DEMO
-    public static partial class EnumerableAssert
-    {
-        public static void IsEmpty<T>(IEnumerable<T> actual, string message = null, params object[] parameters)
-        {
-            Assert.IsNotNull(actual, message, parameters);
-            using (IEnumerator<T> iterator = actual.GetEnumerator())
-            {
-                Assert.IsFalse(iterator.MoveNext(), message, parameters);
-            }
-        }
-
-        public static void Any<T>(IEnumerable<T> actual, string message = null, params object[] parameters)
-        {
-            Assert.IsNotNull(actual, message, parameters);
-            using (IEnumerator<T> iterator = actual.GetEnumerator())
-            {
-                Assert.IsTrue(iterator.MoveNext(), message, parameters);
-            }
-        }
-    
-        public static void IsNullOrEmpty<T>(
-            IEnumerable<T> actual, string message = null, params object[] parameters)
-        {
-            using (IEnumerator<T> iterator = actual?.GetEnumerator())
-            {
-                Assert.IsFalse(iterator?.MoveNext() ?? false, message, parameters);
-            }
-        }
-    }
-
-    public static partial class EnumerableAssert
-    {
-        public static void Single<T>(IEnumerable<T> actual, string message = null, params object[] parameters)
-        {
-            Assert.IsNotNull(actual, message, parameters);
-            using (IEnumerator<T> iterator = actual.GetEnumerator())
-            {
-                Assert.IsTrue(iterator.MoveNext() && !iterator.MoveNext(), message, parameters);
-            }
-        }
-
-        public static void Multiple<T>(IEnumerable<T> actual, string message = null, params object[] parameters)
-        {
-            Assert.IsNotNull(actual, message, parameters);
-            using (IEnumerator<T> iterator = actual.GetEnumerator())
-            {
-                Assert.IsTrue(iterator.MoveNext() && iterator.MoveNext(), message, parameters);
-            }
-        }
-    }
-
-    public static partial class EnumerableAssert
-    {
-        public static void Contains<T>(
-            T expected,
-            IEnumerable<T> actual,
-            IEqualityComparer<T> comparer = null,
-            string message = null,
-            params object[] parameters)
-        {
-            Assert.IsNotNull(actual, message, parameters);
-            comparer = comparer ?? EqualityComparer<T>.Default;
-            foreach (T value in actual)
-            {
-                if (comparer.Equals(expected, value))
-                {
-                    return;
-                }
-            }
-            Assert.Fail(message, parameters);
-        }
-
-        public static void DoesNotContain<T>(
-            T expected, IEnumerable<T> actual, 
-            IEqualityComparer<T> comparer = null,
-            string message = null,
-            params object[] parameters)
-        {
-            Assert.IsNotNull(actual, message, parameters);
-            comparer = comparer ?? EqualityComparer<T>.Default;
-            foreach (T value in actual)
-            {
-                if (comparer.Equals(expected, value))
-                {
-                    Assert.Fail(message, parameters);
-                }
-            }
-        }
-    }
-#endif
-
-    public static partial class EnumerableAssert
+    public static class EnumerableAssert
     {
         public static void IsEmpty<T>(IEnumerable<T> actual, string message = null, params object[] parameters)
         {
@@ -160,10 +68,7 @@
             Assert.IsNotNull(actual, message, parameters);
             Assert.AreEqual(expected, actual.Count(), message, parameters);
         }
-    }
 
-    public static partial class EnumerableAssert
-    {
         public static void AreSequentialEqual<T>(
             IEnumerable<T> expected,
             IEnumerable<T> actual,

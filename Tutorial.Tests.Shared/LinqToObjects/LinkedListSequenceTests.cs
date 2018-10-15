@@ -12,8 +12,8 @@
         [TestMethod]
         public void EmptyTest()
         {
-            SinglyLinkedListNode<int> head = null;
-            LinkedListSequence<int> sequence = new LinkedListSequence<int>(head);
+            IteratorPattern.LinkedListNode<int> head = null;
+            IteratorPattern.LinkedListSequence<int> sequence = new IteratorPattern.LinkedListSequence<int>(head);
             List<int> list = new List<int>();
             foreach (int value in sequence)
             {
@@ -26,8 +26,8 @@
         [TestMethod]
         public void SingleTest()
         {
-            SinglyLinkedListNode<int> head = new SinglyLinkedListNode<int>(1);
-            LinkedListSequence<int> sequence = new LinkedListSequence<int>(head);
+            IteratorPattern.LinkedListNode<int> head = new IteratorPattern.LinkedListNode<int>(1);
+            IteratorPattern.LinkedListSequence<int> sequence = new IteratorPattern.LinkedListSequence<int>(head);
             List<int> list = new List<int>();
             foreach (int value in sequence)
             {
@@ -40,8 +40,8 @@
         [TestMethod]
         public void MultipleTest()
         {
-            SinglyLinkedListNode<int> head = new SinglyLinkedListNode<int>(0, new SinglyLinkedListNode<int>(1, new SinglyLinkedListNode<int>(2, new SinglyLinkedListNode<int>(3))));
-            LinkedListSequence<int> sequence = new LinkedListSequence<int>(head);
+            IteratorPattern.LinkedListNode<int> head = new IteratorPattern.LinkedListNode<int>(0, new IteratorPattern.LinkedListNode<int>(1, new IteratorPattern.LinkedListNode<int>(2, new IteratorPattern.LinkedListNode<int>(3))));
+            IteratorPattern.LinkedListSequence<int> sequence = new IteratorPattern.LinkedListSequence<int>(head);
             List<int> list = new List<int>();
             foreach (int value in sequence)
             {
