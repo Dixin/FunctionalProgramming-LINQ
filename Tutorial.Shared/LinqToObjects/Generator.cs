@@ -1,132 +1,239 @@
 ﻿namespace Tutorial.LinqToObjects
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
 
-    internal static partial class IteratorPattern
+    public enum IteratorState
     {
-        internal static IEnumerable<TSource> FromValue<TSource>(TSource value) =>
-            new Sequence<TSource, bool>(
-                data: false, // bool isValueIterated = false;
-                iteratorFactory: isValueIterated => new Iterator<TSource>(
-                    moveNext: () =>
-                    {
-                        while (!isValueIterated)
-                        {
-                            isValueIterated = true;
-                            return true;
-                        }
-                        return false;
-                    },
-                    getCurrent: () => value));
+        Create = -2,
+        Start = 0,
+        MoveNext = 1,
+        End = -1,
+        Error = -3
     }
 
-    internal static partial class IteratorPattern
+    public class Iterator<T> : IEnumerator<T>
     {
-        internal static void ForEachFromValue<TSource>(TSource value)
+        protected readonly Action start;
+
+        protected readonly Func<bool> moveNext;
+
+        protected readonly Func<T> getCurrent;
+
+        protected readonly Action dispose;
+
+        protected readonly Action end;
+
+        public Iterator(
+            Action start = null,
+            Func<bool> moveNext = null,
+            Func<T> getCurrent = null,
+            Action dispose = null,
+            Action end = null)
         {
-            foreach (TSource result in FromValue(value)) { }
+            this.start = start;
+            this.moveNext = moveNext;
+            this.getCurrent = getCurrent;
+            this.dispose = dispose;
+            this.end = end;
         }
 
-        internal static void CompiledForEachFromValue<TSource>(TSource value)
+        public T Current { get; private set; }
+
+        object IEnumerator.Current => this.Current;
+
+        internal IteratorState State { get; private set; } = IteratorState.Create; // IteratorState: Create.
+
+        internal Iterator<T> Start()
         {
-            using (IEnumerator<TSource> iterator = FromValue(value).GetEnumerator())
+            this.State = IteratorState.Start;  // IteratorState: Create => Start.
+            return this;
+        }
+
+        public bool MoveNext()
+        {
+            try
             {
-                // bool isValueIterated = false;
-                while (iterator.MoveNext()) // moveNext: while (!isValueIterated)
+                switch (this.State)
                 {
-                    // moveNext: isValueIterated = true;
-                    TSource result = iterator.Current; // getCurrent: TSource result = value;
+                    case IteratorState.Start:
+                        this.start?.Invoke();
+                        this.State = IteratorState.MoveNext; // IteratorState: Start => MoveNext.
+                        goto case IteratorState.MoveNext;
+
+                    case IteratorState.MoveNext:
+                        if (this.moveNext?.Invoke() ?? false)
+                        {
+                            this.Current = this.getCurrent != null ? this.getCurrent() : default;
+                            return true; // IteratorState: MoveNext => MoveNext.
+                        }
+                        this.State = IteratorState.End; // IteratorState: MoveNext => End.
+                        this.dispose?.Invoke();
+                        this.end?.Invoke();
+                        break;
+                }
+                return false;
+            }
+            catch
+            {
+                this.State = IteratorState.Error; // IteratorState: Start, MoveNext, End => Error.
+                this.Dispose();
+                throw;
+            }
+        }
+
+        public void Dispose()
+        {
+            if (this.State == IteratorState.Error || this.State == IteratorState.MoveNext)
+            {
+                try { }
+                finally
+                {
+                    // Unexecuted finally blocks are executed before the thread is aborted.
+                    this.State = IteratorState.End; // IteratorState: Error => End.
+                    this.dispose?.Invoke();
                 }
             }
-
-            // Virtual control flow when iterating the returned sequence:
-            // bool isValueIterated = false;
-            // try
-            // {
-            //    while (!isValueIterated)
-            //    {
-            //        isValueIterated = true;
-            //        TSource result = value;
-            //    }
-            // }
-            // finally { }
         }
 
-        internal static IEnumerable<TSource> Repeat<TSource>(TSource value, int count) =>
-            new Sequence<TSource, int>(
-                data: 0, // int index = 0;
-                iteratorFactory: index => new Iterator<TSource>(
-                    moveNext: () => index++ < count,
-                    getCurrent: () => value));
+        public void Reset() => throw new NotSupportedException();
+    }
 
-        internal static void CompiledForEachRepeat<TSource>(TSource value, int count)
+    public class Sequence<T> : IEnumerable<T>
+    {
+        private readonly Func<Iterator<T>> iteratorFactory;
+
+        public Sequence(Func<Iterator<T>> iteratorFactory) =>
+            this.iteratorFactory = iteratorFactory;
+
+        public IEnumerator<T> GetEnumerator() =>
+            this.iteratorFactory().Start(); // IteratorState: Create => Start.
+
+        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+    }
+
+    public interface IGenerator<out T> : IEnumerable<T>, IEnumerator<T> { }
+
+    public class Generator<T> : Iterator<T>, IGenerator<T>
+    {
+        private readonly int initialThreadId = Environment.CurrentManagedThreadId;
+
+        public Generator(
+            Action start = null,
+            Func<bool> moveNext = null,
+            Func<T> getCurrent = null,
+            Action dispose = null,
+            Action end = null) : base(start, moveNext, getCurrent, dispose, end)
+        { }
+
+        public IEnumerator<T> GetEnumerator() =>
+            this.initialThreadId == Environment.CurrentManagedThreadId
+                && this.State == IteratorState.Create
+                // Called by the same initial thread and iteration is not started.
+                ? this.Start()
+                // If the iteration is already started, or the iteration is requested from a different thread, create new generator with new iterator.
+                : new Generator<T>(this.start, this.moveNext, this.getCurrent, this.dispose, this.end).Start();
+
+        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+    }
+
+    internal static class Generator
+    {
+        internal static IEnumerable<TSource> RepeatArray<TSource>(TSource value, int count)
         {
-            using (IEnumerator<TSource> iterator = Repeat(value, count).GetEnumerator())
+            TSource[] results = new TSource[count];
+            for (int index = 0; index < count; index++)
             {
-                // int index = 0;
-                while (iterator.MoveNext()) // moveNext: while (index++ < count)
-                {
-                    TSource result = iterator.Current; // getCurrent: TSource result = value;
-                }
+                results[index] = value;
             }
 
-            // Virtual control flow when iterating the returned sequence:
-            // int index = 0;
-            // try
-            // {
-            //    while (index++ < count)
-            //    {
-            //        TSource result = value;
-            //    }
-            // }
-            // finally { }
+            return results;
         }
 
-        internal static IEnumerable<TResult> Select<TSource, TResult>(
+        internal static IEnumerable<TSource> RepeatSequence<TSource>(
+            TSource value, int count) =>
+                new Sequence<TSource>(() =>
+                {
+                    int index = 0;
+                    return new Iterator<TSource>(
+                        moveNext: () => index++ < count,
+                        getCurrent: () => value);
+                });
+
+        internal static void CallRepeatSequence<TSource>(TSource value, int count)
+        {
+            foreach (TSource result in RepeatSequence(value, count)) { }
+
+            // Compiled to:
+            using (IEnumerator<TSource> iterator = RepeatSequence(value, count).GetEnumerator())
+            {
+                while (iterator.MoveNext())
+                {
+                    TSource result = iterator.Current;
+                }
+
+                // Virtual control flow inside iterator:
+                int index = 0;
+                try
+                {
+                    while (index++ < count)
+                    {
+                        TSource result = value;
+                    }
+                }
+                finally { }
+            }
+        }
+
+        internal static IEnumerable<TResult> SelectSequence<TSource, TResult>(
             IEnumerable<TSource> source, Func<TSource, TResult> selector) =>
-                new Sequence<TResult, IEnumerator<TSource>>(
-                    data: null, // IEnumerator<TSource> sourceIterator = null;
-                    iteratorFactory: sourceIterator => new Iterator<TResult>(
+                new Sequence<TResult>(() =>
+                {
+                    IEnumerator<TSource> sourceIterator = null;
+                    return new Iterator<TResult>(
                         start: () => sourceIterator = source.GetEnumerator(),
                         moveNext: () => sourceIterator.MoveNext(),
                         getCurrent: () => selector(sourceIterator.Current),
-                        dispose: () => sourceIterator?.Dispose()));
+                        dispose: () => sourceIterator?.Dispose());
+                });
 
-        internal static void CompiledForEachSelect<TSource, TResult>(
+        internal static void CallSelectSequence<TSource, TResult>(
             IEnumerable<TSource> source, Func<TSource, TResult> selector)
         {
-            using (IEnumerator<TResult> iterator = Select(source, selector).GetEnumerator())
-            {
-                // IEnumerator<TSource> sourceIterator = null;
-                // start: sourceIterator = source.GetEnumerator();
-                while (iterator.MoveNext()) // moveNext: while (sourceIterator.MoveNext())
-                {
-                    TResult result = iterator.Current; // getCurrent: TResult result = selector(sourceIterator.Current);
-                }
-            } // dispose: sourceIterator?.Dispose();
+            foreach (TResult result in SelectSequence(source, selector)) { }
 
-            // Virtual control flow when iterating the returned sequence:
-            // IEnumerator<TSource> sourceIterator = null;
-            // try
-            // {
-            //    sourceIterator = source.GetEnumerator();
-            //    while (sourceIterator.MoveNext())
-            //    {
-            //        TResult result = selector(sourceIterator.Current);
-            //    }
-            // }
-            // finally
-            // {
-            //    sourceIterator?.Dispose();
-            // }
+            // Compiled to:
+            using (IEnumerator<TResult> iterator = SelectSequence(source, selector).GetEnumerator())
+            {
+                while (iterator.MoveNext())
+                {
+                    TResult result = iterator.Current;
+                }
+
+                // Virtual control flow inside iterator:
+                IEnumerator<TSource> sourceIterator = null;
+                try
+                {
+                    sourceIterator = source.GetEnumerator();
+                    while (sourceIterator.MoveNext())
+                    {
+                        TResult result = selector(sourceIterator.Current);
+                    }
+                }
+                finally
+                {
+                    sourceIterator?.Dispose();
+                }
+            }
         }
 
-        internal static IEnumerable<TSource> Where<TSource>(
+        internal static IEnumerable<TSource> WhereSequence<TSource>(
             IEnumerable<TSource> source, Func<TSource, bool> predicate) =>
-                new Sequence<TSource, IEnumerator<TSource>>(
-                    data: null, // IEnumerator<TSource> sourceIterator = null;
-                    iteratorFactory: sourceIterator => new Iterator<TSource>(
+                new Sequence<TSource>(() =>
+                {
+                    IEnumerator<TSource> sourceIterator = null;
+                    return new Iterator<TSource>(
                         start: () => sourceIterator = source.GetEnumerator(),
                         moveNext: () =>
                         {
@@ -137,73 +244,93 @@
                                     return true;
                                 }
                             }
+
                             return false;
                         },
                         getCurrent: () => sourceIterator.Current,
-                        dispose: () => sourceIterator?.Dispose()));
+                        dispose: () => sourceIterator?.Dispose());
+                });
 
-        internal static void CompiledForEachWhere<TSource>(
+        internal static void CallWhereSequence<TSource>(
             IEnumerable<TSource> source, Func<TSource, bool> predicate)
         {
-            using (IEnumerator<TSource> iterator = Where(source, predicate).GetEnumerator())
+            foreach (TSource result in WhereSequence(source, predicate)) { }
+
+            // Compiled to:
+            using (IEnumerator<TSource> iterator = WhereSequence(source, predicate).GetEnumerator())
             {
-                // IEnumerator<TSource> sourceIterator = null;
-                // start: sourceIterator = source.GetEnumerator();
-                while (iterator.MoveNext()) // moveNext: while (sourceIterator.MoveNext())
+                while (iterator.MoveNext())
                 {
-                    // moveNext: if (predicate(sourceIterator.Current))
-                    TSource result = iterator.Current; // getCurrent: TResult result = sourceIterator.Current;
+                    TSource result = iterator.Current;
                 }
-            } // dispose: sourceIterator?.Dispose();
 
-            // Virtual control flow when iterating the returned sequence:
-            // IEnumerator<TSource> sourceIterator = null;
-            // try
-            // {
-            //    sourceIterator = source.GetEnumerator();
-            //    while (sourceIterator.MoveNext())
-            //    {
-            //        if (predicate(sourceIterator.Current))
-            //        {
-            //            TResult result = selector(sourceIterator.Current);
-            //        }
-            //    }
-            // }
-            // finally
-            // {
-            //    sourceIterator?.Dispose();
-            // }
-        }
-
-        internal static IEnumerable<TSource> FromValueGenerator<TSource>(TSource value)
-        {
-            // Virtual control flow when iterating the returned sequence:
-            // bool isValueIterated = false;
-            // try
-            // {
-            //    while (!isValueIterated)
-            //    {
-            //        isValueIterated = true;
-            //        TSource result = value;
-            //    }
-            // }
-            // finally { }
-
-            bool isValueIterated = false;
-            try
-            {
-                while (!isValueIterated) // moveNext.
+                // Virtual control flow inside iterator:
+                IEnumerator<TSource> sourceIterator = null;
+                try
                 {
-                    isValueIterated = true; // moveNext.
-                    yield return value; // getCurrent.
+                    sourceIterator = source.GetEnumerator();
+                    while (sourceIterator.MoveNext())
+                    {
+                        if (predicate(sourceIterator.Current))
+                        {
+                            TSource result = sourceIterator.Current;
+                        }
+                    }
+                }
+                finally
+                {
+                    sourceIterator?.Dispose();
                 }
             }
-            finally { }
         }
 
-        internal static IEnumerable<TSource> RepeatGenerator<TSource>(TSource value, int count)
+        internal static IEnumerable<TSource> FromValueSequence<TSource>(TSource value) =>
+            new Sequence<TSource>(() =>
+                {
+                    bool isValueIterated = false;
+                    return new Iterator<TSource>(
+                        moveNext: () =>
+                            {
+                                if (!isValueIterated)
+                                {
+                                    isValueIterated = true;
+                                    return true;
+                                }
+
+                                return false;
+                            },
+                        getCurrent: () => value);
+                });
+
+        internal static void CallFromValueSequence<TSource>(TSource value)
         {
-            // Virtual control flow when iterating the returned sequence:
+            foreach (TSource result in FromValueSequence(value)) { }
+
+            // Compiled to:
+            using (IEnumerator<TSource> iterator = FromValueSequence(value).GetEnumerator())
+            {
+                while (iterator.MoveNext())
+                {
+                    TSource result = iterator.Current;
+                }
+
+                // Virtual control flow inside iterator:
+                bool isValueIterated = false;
+                try
+                {
+                    while (!isValueIterated)
+                    {
+                        isValueIterated = true;
+                        TSource result = value;
+                    }
+                }
+                finally { }
+            }
+        }
+
+        internal static IEnumerable<TSource> RepeatYield<TSource>(TSource value, int count)
+        {
+            // Virtual control flow when iterating the results:
             // int index = 0;
             // try
             // {
@@ -225,24 +352,9 @@
             finally { }
         }
 
-        internal static IEnumerable<TResult> SelectGenerator<TSource, TResult>(
+        internal static IEnumerable<TResult> SelectYield<TSource, TResult>(
             IEnumerable<TSource> source, Func<TSource, TResult> selector)
         {
-            // Virtual control flow when iterating the returned sequence:
-            // IEnumerator<TSource> sourceIterator = null;
-            // try
-            // {
-            //    sourceIterator = source.GetEnumerator();
-            //    while (sourceIterator.MoveNext())
-            //    {
-            //        TResult result = selector(sourceIterator.Current);
-            //    }
-            // }
-            // finally
-            // {
-            //    sourceIterator?.Dispose();
-            // }
-
             IEnumerator<TSource> sourceIterator = null;
             try
             {
@@ -256,29 +368,19 @@
             {
                 sourceIterator?.Dispose(); // dispose.
             }
+
+            // Compiled to:
+            // IEnumerator<TSource> sourceIterator = null;
+            // return new Generator<TResult>(
+            //    start: () => sourceIterator = source.GetEnumerator(),
+            //    moveNext: () => sourceIterator.MoveNext(),
+            //    getCurrent: () => selector(sourceIterator.Current),
+            //    dispose: () => sourceIterator?.Dispose());
         }
 
-        internal static IEnumerable<TSource> WhereGenerator<TSource>(
+        internal static IEnumerable<TSource> WhereYield<TSource>(
             IEnumerable<TSource> source, Func<TSource, bool> predicate)
         {
-            // Virtual control flow when iterating the returned sequence:
-            // IEnumerator<TSource> sourceIterator = null;
-            // try
-            // {
-            //    sourceIterator = source.GetEnumerator();
-            //    while (sourceIterator.MoveNext())
-            //    {
-            //        if (predicate(sourceIterator.Current))
-            //        {
-            //            TResult result = selector(sourceIterator.Current);
-            //        }
-            //    }
-            // }
-            // finally
-            // {
-            //    sourceIterator?.Dispose();
-            // }
-
             IEnumerator<TSource> sourceIterator = null;
             try
             {
@@ -295,17 +397,57 @@
             {
                 sourceIterator?.Dispose(); // dispose.
             }
-        }
-    }
 
-    internal static partial class Generator
-    {
-        internal static IEnumerable<TSource> FromValueGenerator<TSource>(TSource value)
+            // Compiled to:
+            // IEnumerator<TSource> sourceIterator = null;
+            // return new Generator<TSource>(
+            //    start: () => sourceIterator = source.GetEnumerator(),
+            //    moveNext: () =>
+            //    {
+            //        while (sourceIterator.MoveNext())
+            //        {
+            //            if (predicate(sourceIterator.Current))
+            //            {
+            //                return true;
+            //            }
+            //        }
+            //
+            //        return false;
+            //    },
+            //    getCurrent: () => sourceIterator.Current,
+            //    dispose: () => sourceIterator?.Dispose());
+        }
+
+        internal static IEnumerable<TSource> FromValueYield<TSource>(TSource value)
         {
-            yield return value;
+            bool isValueIterated = false;
+            try
+            {
+                while (!isValueIterated) // moveNext.
+                {
+                    isValueIterated = true; // moveNext.
+                    yield return value; // getCurrent.
+                }
+            }
+            finally { }
+
+            // Compiled to:
+            // bool isValueIterated = false;
+            // return new Generator<TSource>(
+            //    moveNext: () =>
+            //    {
+            //        while (!isValueIterated)
+            //        {
+            //            isValueIterated = true;
+            //            return true;
+            //        }
+            //
+            //        return false;
+            //    },
+            //    getCurrent: () => value);
         }
 
-        internal static IEnumerable<TSource> RepeatGenerator<TSource>(TSource value, int count)
+        internal static IEnumerable<TSource> Repeat<TSource>(TSource value, int count)
         {
             for (int index = 0; index < count; index++)
             {
@@ -313,7 +455,7 @@
             }
         }
 
-        internal static IEnumerable<TResult> SelectGenerator<TSource, TResult>(
+        internal static IEnumerable<TResult> Select<TSource, TResult>(
             IEnumerable<TSource> source, Func<TSource, TResult> selector)
         {
             foreach (TSource value in source)
@@ -322,7 +464,7 @@
             }
         }
 
-        internal static IEnumerable<TSource> WhereGenerator<TSource>(
+        internal static IEnumerable<TSource> Where<TSource>(
             IEnumerable<TSource> source, Func<TSource, bool> predicate)
         {
             foreach (TSource value in source)
@@ -334,61 +476,17 @@
             }
         }
 
-        internal static IEnumerable<TSource> CompiledFromValueGenerator<TSource>(TSource value) =>
-            new Generator<TSource, bool>(
-                data: false, // bool isValueIterated = false;
-                iteratorFactory: isValueIterated => new Iterator<TSource>(
-                    moveNext: () =>
-                    {
-                        while (!isValueIterated)
-                        {
-                            isValueIterated = true;
-                            return true;
-                        }
-                        return false;
-                    },
-                    getCurrent: () => value));
-
-        internal static IEnumerable<TSource> CompiledRepeatGenerator<TSource>(TSource value, int count) =>
-            new Generator<TSource, int>(
-                data: 0, // int index = 0;
-                iteratorFactory: index => new Iterator<TSource>(
-                    moveNext: () => index++ < count,
-                    getCurrent: () => value));
-
-        internal static IEnumerable<TResult> CompiledSelectGenerator<TSource, TResult>(
-            IEnumerable<TSource> source, Func<TSource, TResult> selector) =>
-                new Generator<TResult, IEnumerator<TSource>>(
-                    data: null, // IEnumerator<TSource> sourceIterator = null;
-                    iteratorFactory: sourceIterator => new Iterator<TResult>(
-                        start: () => sourceIterator = source.GetEnumerator(),
-                        moveNext: () => sourceIterator.MoveNext(),
-                        getCurrent: () => selector(sourceIterator.Current),
-                        dispose: () => sourceIterator?.Dispose()));
-
-        internal static IEnumerable<TSource> CompiledWhereGenerator<TSource>(
-            IEnumerable<TSource> source, Func<TSource, bool> predicate) =>
-                new Generator<TSource, IEnumerator<TSource>>(
-                    data: null, // IEnumerator<TSource> sourceIterator = null;
-                    iteratorFactory: sourceIterator => new Iterator<TSource>(
-                        start: () => sourceIterator = source.GetEnumerator(),
-                        moveNext: () =>
-                        {
-                            while (sourceIterator.MoveNext())
-                            {
-                                if (predicate(sourceIterator.Current))
-                                {
-                                    return true;
-                                }
-                            }
-                            return false;
-                        },
-                        getCurrent: () => sourceIterator.Current,
-                        dispose: () => sourceIterator?.Dispose()));
-
-        internal static IEnumerator<TSource> FromValueIterator<TSource>(TSource value)
+        internal static IEnumerable<TSource> FromValue<TSource>(TSource value)
         {
             yield return value;
+        }
+
+        internal static IEnumerable<TSource> RepeatGenerator<TSource>(TSource value, int count)
+        {
+            int index = 0;
+            return new Generator<TSource>(
+                moveNext: () => index++ < count,
+                getCurrent: () => value);
         }
 
         internal static IEnumerator<TSource> RepeatIterator<TSource>(TSource value, int count)
@@ -397,83 +495,48 @@
             {
                 yield return value;
             }
+
+            // Compiled to:
+            // int index = 0;
+            // return new Iterator<TSource>(
+            //    moveNext: () => index++ < count,
+            //    getCurrent: () => value).Start();
         }
 
-        internal static IEnumerator<TResult> SelectIterator<TSource, TResult>(
-            IEnumerable<TSource> source, Func<TSource, TResult> selector)
+        internal static void CallRepeatIterator<TSource>(TSource value, int count)
         {
-            foreach (TSource value in source)
+            using (IEnumerator<TSource> iterator = RepeatIterator(value, count))
             {
-                yield return selector(value);
-            }
-        }
-
-        internal static IEnumerator<TSource> WhereIterator<TSource>(
-            IEnumerable<TSource> source, Func<TSource, bool> predicate)
-        {
-            foreach (TSource value in source)
-            {
-                if (predicate(value))
+                while (iterator.MoveNext())
                 {
-                    yield return value;
+                    TSource result = iterator.Current;
                 }
             }
         }
 
-        internal static IEnumerator<TSource> CompiledFromValueIterator<TSource>(TSource value)
+        internal static IEnumerable<int> YieldBreak()
         {
-            bool isValueIterated = false;
-            return new Iterator<TSource>(
-                moveNext: () =>
-                {
-                    while (!isValueIterated)
-                    {
-                        isValueIterated = true;
-                        return true;
-                    }
-                    return false;
-                },
-                getCurrent: () => value).Start();
+            yield return 0;
+            yield return 1;
+            yield return 2;
+            yield break;
+            yield return 3;
         }
 
-        internal static IEnumerator<TSource> CompiledRepeatIterator<TSource>(TSource value, int count)
+        internal static IEnumerable<TSource> RepeatYieldBreak<TSource>(TSource value, int count)
         {
             int index = 0;
-            return new Iterator<TSource>(
-                moveNext: () => index++ < count,
-                getCurrent: () => value).Start();
-        }
-
-        internal static IEnumerator<TResult> CompiledSelectIterator<TSource, TResult>(
-            IEnumerable<TSource> source, Func<TSource, TResult> selector)
-        {
-            IEnumerator<TSource> sourceIterator = null;
-            return new Iterator<TResult>(
-                start: () => sourceIterator = source.GetEnumerator(),
-                moveNext: () => sourceIterator.MoveNext(),
-                getCurrent: () => selector(sourceIterator.Current),
-                dispose: () => sourceIterator?.Dispose()).Start();
-        }
-
-        internal static IEnumerator<TSource> CompiledWhereIterator<TSource>(
-            IEnumerable<TSource> source, Func<TSource, bool> predicate)
-        {
-            IEnumerator<TSource> sourceIterator = null;
-            return new Iterator<TSource>(
-                start: () => sourceIterator = source.GetEnumerator(),
-                moveNext: () =>
+            while (true)
+            {
+                if (index++ < count)
                 {
-                    while (sourceIterator.MoveNext())
-                    {
-                        if (predicate(sourceIterator.Current))
-                        {
-                            return true;
-                        }
-                    }
-                    return false;
-                },
-                getCurrent: () => sourceIterator.Current,
-                dispose: () => sourceIterator?.Dispose()).Start();
+                    yield return value;
+                }
+                else
+                {
+                    yield break;
+                }
+            }
         }
     }
 }

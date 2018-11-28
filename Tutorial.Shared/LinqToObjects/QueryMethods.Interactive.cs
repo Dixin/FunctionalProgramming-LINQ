@@ -9,17 +9,19 @@
     {
         #region Generation
 
-        internal static void Defer()
+        internal static void Defer(IEnumerable<string> source)
         {
-            Func<IEnumerable<int>> sequenceFactory = () =>
+            IEnumerable<string> Distinct()
             {
-                "Executing factory.".WriteLine();
-                return Enumerable.Empty<int>();
-            };
-            IEnumerable<int> sequence1 = sequenceFactory() // Executing factory.
-                .Where(int32 => int32 > 0);
-            IEnumerable<int> sequence2 = EnumerableEx.Defer(sequenceFactory)
-                .Where(int32 => int32 > 0);
+                "Instantiate hash set.".WriteLine();
+                HashSet<string> hashSet = new HashSet<string>();
+                return source.Where(hashSet.Add); // Deferred execution.
+            }
+
+            IEnumerable<string> distinct1 = Distinct() // Hash set is instantiated.
+                .Where(@string => @string.Length > 10);
+            IEnumerable<string> distinct2 = EnumerableEx.Defer(Distinct) // Hash set is not instantiated.
+                .Where(@string => @string.Length > 10);
         }
 
 #if DEMO
@@ -34,7 +36,7 @@
                 yield return 2;
             };
             IEnumerable<int> sequence = sequenceFactory();
-            sequence.WriteLine(); // 0 1
+            sequence.WriteLines(); // 0 1
         }
 #endif
 
@@ -48,7 +50,7 @@
                 await yield.Return(2); // yield return 2;
             };
             IEnumerable<int> sequence = EnumerableEx.Create(sequenceFactory);
-            sequence.WriteLine(); // 0 1
+            sequence.WriteLines(); // 0 1
         }
 
 #if DEMO
@@ -62,7 +64,7 @@
                 yield return 2;
             }
             IEnumerable<int> sequence = SequenceFactory();
-            sequence.WriteLine(); // 0 1
+            sequence.WriteLines(); // 0 1
         }
 
         internal static IEnumerable<TResult> Cast<TResult>(this IEnumerable source)
@@ -111,7 +113,7 @@
         {
             IEnumerable<int> source = new int[]
             {
-                0, 0, 0, /* Changed. */ 1, 1, /* Changed. */ 0, 0, /* Changed. */ 2, /* Changed. */ 1, 1
+                0, 0, 0, /* Change. */ 1, 1, /* Change. */ 0, 0, /* Change. */ 2, /* Change. */ 1, 1
             };
             source.DistinctUntilChanged().WriteLines(); // 0 1 0 2 1.
         }
@@ -143,7 +145,7 @@
             // 0 1 65536 43046721 4294967296, ...
         }
 
-        internal static void ExpandMuliple()
+        internal static void ExpandMultiple()
         {
             Enumerable
                 .Range(0, 5)
@@ -288,14 +290,14 @@
                 {
                     while (independentIterator1.MoveNext())
                     {
-                        yield return independentIterator1.Current; // yield return 0 1 2 3 4.
+                        yield return independentIterator1.Current; // Yield 0 1 2 3 4.
                     }
                 }
                 using (IEnumerator<int> independentIterator2 = source1.GetEnumerator())
                 {
                     while (independentIterator2.MoveNext())
                     {
-                        yield return independentIterator2.Current; // yield return 0 1 2 3 4.
+                        yield return independentIterator2.Current; // Yield 0 1 2 3 4.
                     }
                 }
             }
@@ -309,14 +311,14 @@
                     {
                         while (sharedIterator1.MoveNext())
                         {
-                            yield return sharedIterator1.Current; // yield return 0 1 2 3 4.
+                            yield return sharedIterator1.Current; // Yield 0 1 2 3 4.
                         }
                     }
                     using (IEnumerator<int> sharedIterator2 = source2.GetEnumerator())
                     {
                         while (sharedIterator2.MoveNext())
                         {
-                            yield return sharedIterator2.Current; // yield return nothing.
+                            yield return sharedIterator2.Current; // Yield nothing.
                         }
                     }
                 }
@@ -332,14 +334,14 @@
                     {
                         while (sharedIterator1.MoveNext())
                         {
-                            yield return sharedIterator1.Current; // yield return 0 1 2 3 4.
+                            yield return sharedIterator1.Current; // Yield 0 1 2 3 4.
                         }
                     }
                     using (IEnumerator<int> sharedIterator2 = source.GetEnumerator())
                     {
                         while (sharedIterator2.MoveNext())
                         {
-                            yield return sharedIterator2.Current; // yield return nothing.
+                            yield return sharedIterator2.Current; // Yield nothing.
                         }
                     }
                 }
@@ -372,7 +374,7 @@
                     while (independentIterator1.MoveNext() && independentIterator2.MoveNext())
                     {
                         yield return (independentIterator1.Current, independentIterator2.Current);
-                        // yield return (0, 0) (1, 1) (2, 2) (3, 3) (4, 4).
+                        // Yield (0, 0) (1, 1) (2, 2) (3, 3) (4, 4).
                     }
                 }
             }
@@ -388,7 +390,7 @@
                         while (sharedIterator1.MoveNext() && sharedIterator2.MoveNext())
                         {
                             yield return (sharedIterator1.Current, sharedIterator2.Current);
-                            // yield return (0, 1) (2, 3).
+                            // Yield (0, 1) (2, 3).
                         }
                     }
                 }
@@ -405,7 +407,7 @@
                     while (sharedIterator1.MoveNext() && sharedIterator2.MoveNext())
                     {
                         yield return (sharedIterator1.Current, sharedIterator2.Current);
-                        // yield return (0, 1) (2, 3).
+                        // Yield (0, 1) (2, 3).
                     }
                 }
             }
@@ -626,14 +628,14 @@
             Enumerable
                 .Range(-5, 10).Do(
                     onNext: value => $"{nameof(Enumerable.Range)} yields {value}.".WriteLine(),
-                    onCompleted: () => $"{nameof(Enumerable.Range)} query completes.".WriteLine())
+                    onCompleted: () => $"{nameof(Enumerable.Range)} completes.".WriteLine())
                 .Where(value => value > 0).Do(
                     onNext: value => $"{nameof(Enumerable.Where)} yields {value}.".WriteLine(),
-                    onCompleted: () => $"{nameof(Enumerable.Where)} query completes.".WriteLine())
+                    onCompleted: () => $"{nameof(Enumerable.Where)} completes.".WriteLine())
                 .TakeLast(2).Do(
                     onNext: value => $"{nameof(EnumerableEx.TakeLast)} yields {value}.".WriteLine(),
-                    onCompleted: () => $"{nameof(EnumerableEx.TakeLast)} query completes.".WriteLine())
-                .WriteLines(value => $"Query yields result {value}.");
+                    onCompleted: () => $"{nameof(EnumerableEx.TakeLast)} completes.".WriteLine())
+                .WriteLines(value => $"Composited query yields result {value}.");
             // Range yields -5.
             // Range yields -4.
             // Range yields -3.
@@ -648,13 +650,13 @@
             // Where yields 3.
             // Range yields 4.
             // Where yields 4.
-            // Range query completes.
-            // Where query completes.
+            // Range completes.
+            // Where completes.
             // TakeLast yields 3.
-            // Query yields result 3.
+            // Composited query yields result 3.
             // TakeLast yields 4.
-            // Query yields result 4.
-            // TakeLast query completes.
+            // Composited query yields result 4.
+            // TakeLast completes.
         }
 
         #endregion

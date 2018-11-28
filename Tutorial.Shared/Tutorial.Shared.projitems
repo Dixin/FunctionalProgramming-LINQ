@@ -68,7 +68,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)LinqToObjects\EnumerableX.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToObjects\EnumerableX.Exception.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToObjects\EnumerableX.List.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Generator`1.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GettingStarted\Overview.Declarative.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GettingStarted\Overview.Functional.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GettingStarted\Overview.ObjectOriented.cs" />

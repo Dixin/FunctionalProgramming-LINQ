@@ -445,7 +445,8 @@
         }
 #endif
 
-        public static IEnumerable<TSource> OnErrorResumeNext<TSource>(IEnumerable<IEnumerable<TSource>> sources)
+        public static IEnumerable<TSource> OnErrorResumeNext<TSource>(
+            this IEnumerable<IEnumerable<TSource>> sources)
         {
             foreach (IEnumerable<TSource> source in sources)
             {
@@ -481,7 +482,7 @@
 
         #endregion
 
-        #region Imperative
+        #region Control flow
 
         public static IEnumerable<TSource> Using<TSource, TResource>(
             Func<TResource> resourceFactory, Func<TResource, IEnumerable<TSource>> enumerableFactory)
@@ -540,7 +541,30 @@
 
         #endregion
 
-        #region Iteration
+#region Iteration
+
+#if DEMO
+        public static IEnumerable<TSource> Do<TSource>(
+            this IEnumerable<TSource> source,
+            Action<TSource> onNext, Action<Exception> onError = null, Action onCompleted = null)
+        {
+            try
+            {
+                foreach (TSource value in source)
+                {
+                    onNext(value);
+                    yield return value;
+                }
+            }
+            catch (Exception exception)
+            {
+                onError?.Invoke(exception);
+                throw;
+            }
+
+            onCompleted?.Invoke();
+        }
+#endif
 
         public static IEnumerable<TSource> Do<TSource>(
             this IEnumerable<TSource> source,
@@ -592,13 +616,13 @@
             }
         }
 
-        #endregion
+#endregion
 
-        #region Quantifier
+#region Quantifier
 
         public static bool IsEmpty<TSource>(this IEnumerable<TSource> source) => !source.Any();
 
-        #endregion
+#endregion
     }
 }
 

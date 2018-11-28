@@ -5,9 +5,10 @@
     using System.Collections.Generic;
     using System.Linq;
 
-#if DEMO
     internal static partial class EnumerableExtensions
     {
+        #region Conversion
+#if DEMO
         public static TSource[] ToArray<TSource>(this IEnumerable<TSource> source)
         {
             TSource[] array = new TSource[0];
@@ -18,12 +19,7 @@
             }
             return array;
         }
-    }
 #endif
-
-    internal static partial class EnumerableExtensions
-    {
-        #region Conversion
 
         public static TSource[] ToArray<TSource>(this IEnumerable<TSource> source)
         {
@@ -53,7 +49,7 @@
                         {
                             if (usedLength == array.Length)
                             {
-                                int increaseToLength = usedLength * 2; // Array is full, double its length.
+                                int increaseToLength = usedLength * 2; // Array is full, double its size.
                                 if ((uint)increaseToLength > MaxLength)
                                 {
                                     increaseToLength = usedLength >= MaxLength ? usedLength + 1 : MaxLength;
@@ -62,7 +58,7 @@
                             }
                             array[usedLength++] = iterator.Current;
                         }
-                        Array.Resize(ref array, usedLength); // Consolidate array to its actual length.
+                        Array.Resize(ref array, usedLength); // Consolidate array to its actual size.
                         return array;
                     }
                 }
@@ -184,6 +180,11 @@
                 throw new ArgumentOutOfRangeException(nameof(count));
             }
 
+            if (count == 0)
+            {
+                return Empty<TResult>();
+            }
+
             IEnumerable<TResult> RepeatGenerator()
             {
                 for (int index = 0; index < count; index++)
@@ -220,7 +221,6 @@
 
         #region Filtering
 
-#if DEMO
         public static IEnumerable<TSource> Where<TSource>(
             this IEnumerable<TSource> source,
             Func<TSource, bool> predicate)
@@ -233,30 +233,6 @@
                 }
             }
         }
-#endif
-
-        public static IEnumerable<TSource> Where<TSource>(
-            this IEnumerable<TSource> source,
-            Func<TSource, bool> predicate) =>
-                new Generator<TSource, IEnumerator<TSource>>(
-                    data: null,
-                    iteratorFactory: sourceIterator => new Iterator<TSource>(
-                        start: () => sourceIterator = source.GetEnumerator(),
-                        moveNext: () =>
-                        {
-                            while (sourceIterator.MoveNext())
-                            {
-                                if (predicate(sourceIterator.Current))
-                                {
-                                    return true;
-                                }
-                            }
-                            return false;
-                        },
-                        getCurrent: () => sourceIterator.Current,
-                        dispose: () => sourceIterator?.Dispose(),
-                        ignoreException: true,
-                        resetCurrent: true));
 
         public static IEnumerable<TSource> Where<TSource>(
             this IEnumerable<TSource> source, Func<TSource, int, bool> predicate)
@@ -287,7 +263,6 @@
 
         #region Mapping
 
-#if DEMO
         public static IEnumerable<TResult> Select<TSource, TResult>(
             this IEnumerable<TSource> source, Func<TSource, TResult> selector)
         {
@@ -295,21 +270,6 @@
             {
                 yield return selector(value); // Deferred execution.
             }
-        }
-#endif
-
-        public static IEnumerable<TResult> Select<TSource, TResult>(
-            this IEnumerable<TSource> source, Func<TSource, TResult> selector)
-        {
-            return new Generator<TResult, IEnumerator<TSource>>(
-                data: null,
-                iteratorFactory: sourceIterator => new Iterator<TResult>(
-                    start: () => sourceIterator = source.GetEnumerator(),
-                    moveNext: () => sourceIterator.MoveNext(),
-                    getCurrent: () => selector(sourceIterator.Current),
-                    dispose: () => sourceIterator?.Dispose(),
-                    ignoreException: true,
-                    resetCurrent: true));
         }
 
         public static IEnumerable<TResult> Select<TSource, TResult>(
@@ -594,13 +554,6 @@
             }
         }
 
-        public static IEnumerable<TSource> DistinctWithWhere<TSource>(
-            this IEnumerable<TSource> source, IEqualityComparer<TSource> comparer = null)
-        {
-            HashSet<TSource> hashSet = new HashSet<TSource>(comparer);
-            return source.Where(hashSet.Add); // Deferred execution.
-        }
-
         public static IEnumerable<TSource> Union<TSource>(
             this IEnumerable<TSource> first,
             IEnumerable<TSource> second,
@@ -621,15 +574,6 @@
                     yield return secondValue; // Deferred execution.
                 }
             }
-        }
-
-        public static IEnumerable<TSource> UnionWithWhere<TSource>(
-            this IEnumerable<TSource> first,
-            IEnumerable<TSource> second,
-            IEqualityComparer<TSource> comparer = null)
-        {
-            HashSet<TSource> hashSet = new HashSet<TSource>(comparer);
-            return first.Where(hashSet.Add).Concat(second.Where(hashSet.Add)); // Deferred execution.
         }
 
         public static IEnumerable<TSource> Except<TSource>(

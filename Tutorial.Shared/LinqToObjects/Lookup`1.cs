@@ -12,26 +12,26 @@ namespace Tutorial.LinqToObjects
 
         private readonly IEqualityComparer<TKey> equalityComparer;
 
-        public Lookup(IEqualityComparer<TKey> eqqualityComparer = null) =>
-            this.equalityComparer = eqqualityComparer ?? EqualityComparer<TKey>.Default;
+        public Lookup(IEqualityComparer<TKey> equalityComparer = null) =>
+            this.equalityComparer = equalityComparer ?? EqualityComparer<TKey>.Default;
+
+        public int Count => this.groups.Count;
 
         private int GetHashCode(TKey key) => key == null
             ? -1
             : this.equalityComparer.GetHashCode(key) & int.MaxValue;
-        // int.MaxValue is 0b01111111_11111111_11111111_11111111. So the hash code of non-null key is always > -1.
-
-        public IEnumerator<IGrouping<TKey, TElement>> GetEnumerator() => this.groups.Values.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+        // int.MaxValue is 0b_01111111_11111111_11111111_11111111. So the hash code of non-null key is always > -1.
 
         public bool Contains(TKey key) => this.groups.ContainsKey(this.GetHashCode(key));
-
-        public int Count => this.groups.Count;
 
         public IEnumerable<TElement> this[TKey key] =>
             this.groups.TryGetValue(this.GetHashCode(key), out Grouping<TKey, TElement> group)
                 ? (IEnumerable<TElement>)group
                 : Array.Empty<TElement>();
+
+        public IEnumerator<IGrouping<TKey, TElement>> GetEnumerator() => this.groups.Values.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
     }
 
     public partial class Lookup<TKey, TElement>
@@ -49,14 +49,14 @@ namespace Tutorial.LinqToObjects
                 {
                     continue;
                 }
-                int hashCOde = this.GetHashCode(key);
-                if (this.groups.TryGetValue(hashCOde, out Grouping<TKey, TElement> group))
+                int hashCode = this.GetHashCode(key);
+                if (this.groups.TryGetValue(hashCode, out Grouping<TKey, TElement> group))
                 {
                     group.Add(elementSelector(value));
                 }
                 else
                 {
-                    this.groups.Add(hashCOde, new Grouping<TKey, TElement>(key) { elementSelector(value) });
+                    this.groups.Add(hashCode, new Grouping<TKey, TElement>(key) { elementSelector(value) });
                 }
             }
             return this;

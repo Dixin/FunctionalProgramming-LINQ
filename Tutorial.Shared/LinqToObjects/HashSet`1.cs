@@ -58,9 +58,4 @@
             return false;
         }
     }
-
-    public partial class HashSet<T>
-    {
-        public bool Contains(T value) => this.dictionary.ContainsKey(this.GetHashCode(value));
-    }
 }
