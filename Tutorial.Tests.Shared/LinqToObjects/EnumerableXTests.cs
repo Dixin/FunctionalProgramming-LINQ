@@ -3,61 +3,14 @@
     using System;
     using System.Collections.Generic;
 
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Tutorial.LinqToObjects;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-
     using Enumerable = System.Linq.Enumerable;
-    using EnumerableEx = System.Linq.EnumerableEx;
 
     [TestClass]
     public class EnumerableXTests
     {
-        [TestMethod]
-        public void CatchTest()
-        {
-            EnumerableEx
-                .Throw<int>(new OperationCanceledException())
-                .Catch<int, OperationCanceledException>(exception => Assert.IsNotNull(exception))
-                .ForEach();
-
-            try
-            {
-                EnumerableEx
-                    .Throw<int>(new OperationCanceledException())
-                    .Catch<int, OperationCanceledException>(exception =>
-                        {
-                            Assert.IsNotNull(exception);
-                            return false;
-                        })
-                    .ForEach();
-                Assert.Fail();
-            }
-            catch (OperationCanceledException exception)
-            {
-                Assert.IsNotNull(exception);
-            }
-        }
-
-        [TestMethod]
-        public void RetryTest()
-        {
-            int count = 0;
-            int[] retry = EnumerableX.Create(() =>
-                {
-                    count++;
-                    if (count < 5)
-                    {
-                        throw new OperationCanceledException();
-                    }
-                    return count;
-                })
-                .Take(2)
-                .Retry<int, OperationCanceledException>(5)
-                .ToArray();
-            EnumerableAssert.AreSequentialEqual(new int[] { 5, 6 }, retry);
-        }
-
         [TestMethod]
         public void InsertTest()
         {
@@ -148,7 +101,7 @@
             EnumerableAssert.AreSequentialEqual(new int[] { 0, 1, 2, 3 }, Enumerable.Range(0, 5).RemoveAll(4));
             EnumerableAssert.AreSequentialEqual(new int[] { 0, 1, 2, 3, 4 }, Enumerable.Range(0, 5).RemoveAll(5));
             EnumerableAssert.AreSequentialEqual(new int[] { 0, 1, 2, 3, 4 }, Enumerable.Range(0, 5).RemoveAll(6));
-            EnumerableAssert.AreSequentialEqual(new int[] { }, Enumerable.Repeat(0, 5).RemoveAll(0));
+            EnumerableAssert.AreSequentialEqual(Array.Empty<int>(), Enumerable.Repeat(0, 5).RemoveAll(0));
             EnumerableAssert.AreSequentialEqual(new int[] { 0, 0, 0, 0, 0 }, Enumerable.Repeat(0, 5).RemoveAll(1));
             EnumerableAssert.AreSequentialEqual(new int[] { 0, 1, 2, 3, 0, 1, 2, 3 }, Enumerable.Range(0, 5).Concat(Enumerable.Range(0, 5)).RemoveAll(4));
             EnumerableAssert.AreSequentialEqual(new int[] { 1, 2, 3, 4, 1, 2, 3, 4 }, Enumerable.Range(0, 5).Concat(Enumerable.Range(0, 5)).RemoveAll(0));
@@ -163,7 +116,6 @@
             Assert.AreEqual(1, Enumerable.Range(0, 5).IndexOf(1));
             Assert.AreEqual(-1, Enumerable.Repeat("a", 5).IndexOf("A"));
             Assert.AreEqual(0, Enumerable.Repeat("a", 5).IndexOf("A", comparer: StringComparer.OrdinalIgnoreCase));
-            Assert.AreEqual(2, Enumerable.Repeat("a", 5).IndexOf("A", 2, comparer: StringComparer.OrdinalIgnoreCase));
         }
 
         [TestMethod]

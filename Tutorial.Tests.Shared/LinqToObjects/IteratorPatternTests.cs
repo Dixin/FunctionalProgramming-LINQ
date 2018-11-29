@@ -15,12 +15,12 @@
         {
             EnumerableAssert.AreSequentialEqual(
                 EnumerableEx.Return(1),
-                IteratorPattern.FromValue(1));
+                Generator.FromValue(1));
 
             object value = new object();
             EnumerableAssert.AreSequentialEqual(
                 EnumerableEx.Return(value),
-                IteratorPattern.FromValue(value));
+                Generator.FromValue(value));
         }
 
         [TestMethod]
@@ -28,18 +28,18 @@
         {
             EnumerableAssert.AreSequentialEqual(
                 Enumerable.Repeat(1, 5),
-                IteratorPattern.Repeat(1, 5));
+                Generator.Repeat(1, 5));
             EnumerableAssert.AreSequentialEqual(
                 Enumerable.Repeat(1, 0),
-                IteratorPattern.Repeat(1, 0));
+                Generator.Repeat(1, 0));
             EnumerableAssert.AreSequentialEqual(
                 Enumerable.Repeat(1, 1),
-                IteratorPattern.Repeat(1, 1));
+                Generator.Repeat(1, 1));
 
             object value = new object();
             EnumerableAssert.AreSequentialEqual(
                 Enumerable.Repeat(value, 10),
-                IteratorPattern.Repeat(value, 10));
+                Generator.Repeat(value, 10));
         }
 
         [TestMethod]
@@ -48,12 +48,12 @@
             int[] enumerable = new int[] { 0, 1, 2 };
             EnumerableAssert.AreSequentialEqual(
                 Enumerable.Select(enumerable, x => x.ToString()),
-                IteratorPattern.Select(enumerable, x => x.ToString()));
+                Generator.Select(enumerable, x => x.ToString()));
 
             enumerable = new int[] { };
             EnumerableAssert.AreSequentialEqual(
                 Enumerable.Select(enumerable, x => x.ToString()),
-                IteratorPattern.Select(enumerable, x => x.ToString()));
+                Generator.Select(enumerable, x => x.ToString()));
         }
 
         [TestMethod]
@@ -62,12 +62,12 @@
             int[] enumerable = new int[] { 0, 1, 2 };
             EnumerableAssert.AreSequentialEqual(
                 Enumerable.Where(enumerable, x => x > 0),
-                IteratorPattern.Where(enumerable, x => x > 0));
+                Generator.Where(enumerable, x => x > 0));
 
             enumerable = new int[] { };
             EnumerableAssert.AreSequentialEqual(
                 Enumerable.Where(enumerable, x => x > 0),
-                IteratorPattern.Where(enumerable, x => x > 0));
+                Generator.Where(enumerable, x => x > 0));
         }
     }
 }

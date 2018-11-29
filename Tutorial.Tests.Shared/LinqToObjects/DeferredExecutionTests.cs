@@ -25,8 +25,8 @@ namespace Tutorial.Tests.LinqToObjects
         [TestMethod]
         public void QueryTest()
         {
-            DeferredExecution.ForEachWhereAndSelect();
-            DeferredExecution.ForEachSelectAndReverse();
+            DeferredExecution.CallWhereAndSelect();
+            DeferredExecution.CallSelectAndReverse();
         }
     }
 }

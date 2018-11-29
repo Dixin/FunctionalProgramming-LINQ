@@ -29,10 +29,7 @@
             Func<TSource, TKey> keySelector,
             Func<TKey, TKey, int> compare) =>
                 source.ThenByDescending(keySelector, ToComparer(compare));
-    }
 
-    public static partial class EnumerableX
-    {
         public static IEnumerable<TResult> GroupBy<TSource, TKey, TElement, TResult>(
             this IEnumerable<TSource> source,
             Func<TSource, TKey> keySelector,
@@ -98,10 +95,7 @@
             Func<TSource, TSource, bool> equals,
             Func<TSource, int> getHashCode = null) =>
                 first.Except(second, ToEqualityComparer(equals, getHashCode));
-    }
 
-    public static partial class EnumerableX
-    {
         public static Dictionary<TKey, TElement> ToDictionary<TSource, TKey, TElement>(
             this IEnumerable<TSource> source,
             Func<TSource, TKey> keySelector,
@@ -117,10 +111,7 @@
             Func<TKey, TKey, bool> equals,
             Func<TKey, int> getHashCode = null) =>
                 source.ToLookup(keySelector, elementSelector, ToEqualityComparer(equals, getHashCode));
-    }
 
-    public static partial class EnumerableX
-    {
         public static bool Contains<TSource>(
             this IEnumerable<TSource> source,
             TSource value,
@@ -134,38 +125,26 @@
             Func<TSource, TSource, bool> equals,
             Func<TSource, int> getHashCode = null) =>
                 first.SequenceEqual(second, ToEqualityComparer(equals, getHashCode));
-    }
 
-    public static partial class EnumerableX
-    {
         private static IComparer<T> ToComparer<T>(Func<T, T, int> compare) =>
             Comparer<T>.Create(new Comparison<T>(compare));
+
+        internal class EqualityComparerWrapper<T> : IEqualityComparer<T>
+        {
+            private readonly Func<T, T, bool> equals;
+
+            private readonly Func<T, int> getHashCode;
+
+            public EqualityComparerWrapper(Func<T, T, bool> equals, Func<T, int> getHashCode = null) =>
+                (this.equals, this.getHashCode) = (@equals, getHashCode ?? (value => value.GetHashCode()));
+
+            public bool Equals(T x, T y) => this.equals(x, y);
+
+            public int GetHashCode(T obj) => this.getHashCode(obj);
+        }
 
         private static IEqualityComparer<T> ToEqualityComparer<T>(
             Func<T, T, bool> equals, Func<T, int> getHashCode = null) =>
                 new EqualityComparerWrapper<T>(equals, getHashCode);
-#if NETFX
-        // HashIdentity.FromFunctions<T>(
-        //    new Converter<T, int>(getHashCode ?? (value => value.GetHashCode())),
-        //    new Converter<T, FSharpFunc<T, bool>>(value1 => new Converter<T, bool>(value2 => equals(value1, value2))));
-#endif
-    }
-
-    // Microsoft.FSharp.Collections.HashIdentity.FromFunctions@32<T>
-    public class EqualityComparerWrapper<T> : IEqualityComparer<T>
-    {
-        private readonly Func<T, T, bool> equals;
-
-        private readonly Func<T, int> getHashCode;
-
-        public EqualityComparerWrapper(Func<T, T, bool> equals, Func<T, int> getHashCode = null)
-        {
-            this.equals = equals;
-            this.getHashCode = getHashCode ?? (value => value.GetHashCode());
-        }
-
-        public bool Equals(T x, T y) => this.equals(x, y);
-
-        public int GetHashCode(T obj) => this.getHashCode(obj);
     }
 }

@@ -80,17 +80,17 @@
             Assert.IsNotNull(actual, message ?? $"Actual sequence is null.", parameters);
 
             comparer = comparer ?? EqualityComparer<T>.Default;
-            using (IEnumerator<T> expectedItorator = expected.GetEnumerator())
+            using (IEnumerator<T> expectedIterator = expected.GetEnumerator())
             using (IEnumerator<T> actualIterator = actual.GetEnumerator())
             {
                 int expectedIndex = 0;
-                for (; expectedItorator.MoveNext(); expectedIndex++)
+                for (; expectedIterator.MoveNext(); expectedIndex++)
                 {
                     Assert.IsTrue(
                         actualIterator.MoveNext(),
                         message ?? $"Expected sequence has more than {expectedIndex} value(s), actual sequence has {expectedIndex} value(s).",
                         parameters);
-                    T expectedValue = expectedItorator.Current;
+                    T expectedValue = expectedIterator.Current;
                     T actualValue = actualIterator.Current;
                     Assert.IsTrue(
                         comparer.Equals(expectedValue, actualValue),

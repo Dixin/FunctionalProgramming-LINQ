@@ -38,7 +38,7 @@
         public static IEnumerable<Guid> NewGuid(int? count) => Create(Guid.NewGuid, count);
 
         public static IEnumerable<int> RandomInt32(
-            int min = int.MinValue, int max = int.MaxValue, int? seed = null, int? count = null) =>
+            int min, int max, int? seed = null, int? count = null) =>
                 EnumerableEx.Defer(() =>
                 {
                     Random random = new Random(seed ?? Environment.TickCount);
@@ -46,14 +46,16 @@
                 });
 
         public static IEnumerable<double> RandomDouble(int? seed = null, int? count = null) =>
-            EnumerableEx.Defer(() => Create(new Random(seed ?? Environment.TickCount).NextDouble, count));
+            EnumerableEx.Defer(() =>
+            {
+                Random random = new Random(seed ?? Environment.TickCount);
+                return Create(random.NextDouble, count);
+            });
 
         public static IEnumerable<TResult> FromValue<TResult>(TResult value)
         {
             yield return value; // Deferred execution.
         }
-
-        public static IEnumerable<TResult> FromValues<TResult>(params TResult[] values) => values;
 
         public static IEnumerable<TSource> EmptyIfNull<TSource>(this IEnumerable<TSource> source) =>
             source ?? Enumerable.Empty<TSource>();
@@ -62,7 +64,7 @@
 
         #region Concatenation
 
-        public static IEnumerable<TSource> Join<TSource>(this IEnumerable<TSource> source, TSource separator)
+        public static IEnumerable<TSource> ConcatJoin<TSource>(this IEnumerable<TSource> source, TSource separator)
         {
             using (IEnumerator<TSource> iterator = source.GetEnumerator())
             {
@@ -72,26 +74,6 @@
                     while (iterator.MoveNext())
                     {
                         yield return separator; // Deferred execution.
-                        yield return iterator.Current; // Deferred execution.
-                    }
-                }
-            }
-        }
-
-        public static IEnumerable<TSource> Join<TSource>(
-            this IEnumerable<TSource> source, IEnumerable<TSource> separators)
-        {
-            using (IEnumerator<TSource> iterator = source.GetEnumerator())
-            {
-                if (iterator.MoveNext())
-                {
-                    yield return iterator.Current; // Deferred execution.
-                    while (iterator.MoveNext())
-                    {
-                        foreach (TSource separator in separators)
-                        {
-                            yield return separator; // Deferred execution.
-                        }
                         yield return iterator.Current; // Deferred execution.
                     }
                 }
@@ -121,6 +103,10 @@
         public static IEnumerable<TSource> Subsequence<TSource>(
             this IEnumerable<TSource> source, int startIndex, int count) =>
                 source.Skip(startIndex).Take(count);
+
+        public static IEnumerable<TSource> Pagination<TSource>(
+            this IEnumerable<TSource> source, int pageIndex, int countPerPage) =>
+            source.Skip(pageIndex * countPerPage).Take(countPerPage);
 
         #endregion
 
@@ -184,7 +170,7 @@
             Func<TSource, TKey> keySelector,
             IFormatProvider formatProvider = null)
             where TKey : IConvertible =>
-                // Excel STDDEV.P function:
+                // Excel STDEV function:
                 // https://support.office.com/en-us/article/STDEV-function-51fecaaa-231e-4bbb-9230-33650a72c9b0
                 Math.Sqrt(source.Variance(keySelector, formatProvider));
 
