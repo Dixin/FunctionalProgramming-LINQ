@@ -3,10 +3,8 @@
     using System;
     using System.Diagnostics;
     using System.Xml.XPath;
-
-    using Tutorial.LinqToXml;
-
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Tutorial.LinqToXml;
 
     [TestClass]
     public class QueryMethodsTests

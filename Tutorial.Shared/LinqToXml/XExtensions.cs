@@ -28,10 +28,7 @@
                                         ? descendantElement.Attributes() // T is covariant in IEnumerable<T>.
                                         : Enumerable.Empty<XObject>()))
                         : Enumerable.Empty<XObject>());
-    }
 
-    public static partial class XExtensions
-    {
         public static IEnumerable<XObject> SelfAndDescendantObjects(this XObject source) =>
             EnumerableEx
                 .Return(source)

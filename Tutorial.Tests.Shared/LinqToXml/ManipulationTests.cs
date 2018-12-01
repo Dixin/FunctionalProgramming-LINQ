@@ -1,8 +1,7 @@
 ﻿namespace Tutorial.Tests.LinqToXml
 {
-    using Tutorial.LinqToXml;
-
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Tutorial.LinqToXml;
 
     [TestClass]
     public class ManipulationTests

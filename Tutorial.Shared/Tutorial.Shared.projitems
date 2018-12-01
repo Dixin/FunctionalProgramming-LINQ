@@ -106,7 +106,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)LinqToObjects\QueryMethods.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToObjects\QueryMethods.Interactive.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToObjects\QueryMethods.Linq.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)LinqToXml\Dom.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToXml\Manipulation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToXml\Modeling.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToXml\QueryMethods.cs" />

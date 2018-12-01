@@ -6,9 +6,8 @@
     using System.Xml;
     using System.Xml.Linq;
 
-    using Tutorial.LinqToXml;
-
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Tutorial.LinqToXml;
 
     [TestClass]
     public class ModelingTests
@@ -16,7 +15,8 @@
         [TestMethod]
         public void CreateAndSerializeTest()
         {
-            Modeling.CreateAndSerialize();
+            Modeling.CreateAndSerializeWithDom();
+            Modeling.CreateAndSerializeWithLinq();
             Modeling.Construction();
         }
 

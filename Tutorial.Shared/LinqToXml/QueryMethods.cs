@@ -27,10 +27,7 @@
                 .WriteLines(); // element parent grandparent
             object.ReferenceEquals(element.Ancestors().Last(), element.Document.Root).WriteLine(); // True.
         }
-    }
 
-    internal static partial class QueryMethods
-    {
         internal static void ChildElements()
         {
             XDocument rss = XDocument.Load("https://weblogs.asp.net/dixin/rss");
