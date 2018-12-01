@@ -38,14 +38,14 @@
         public static IEnumerable<Guid> NewGuid(int? count) => Create(Guid.NewGuid, count);
 
         public static IEnumerable<int> RandomInt32(
-            int min, int max, int? seed = null, int? count = null) =>
+            int min, int max, int? count = null, int? seed = null) =>
                 EnumerableEx.Defer(() =>
                 {
                     Random random = new Random(seed ?? Environment.TickCount);
                     return Create(() => random.Next(min, max), count);
                 });
 
-        public static IEnumerable<double> RandomDouble(int? seed = null, int? count = null) =>
+        public static IEnumerable<double> RandomDouble(int? count = null, int ? seed = null) =>
             EnumerableEx.Defer(() =>
             {
                 Random random = new Random(seed ?? Environment.TickCount);

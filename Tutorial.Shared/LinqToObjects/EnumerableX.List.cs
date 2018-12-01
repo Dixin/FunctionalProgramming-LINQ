@@ -101,6 +101,20 @@
             }
         }
 
+        public static IEnumerable<TSource> Remove<TSource>(
+            this IEnumerable<TSource> source,
+            TSource value,
+            Func<TSource, TSource, bool> equals,
+            Func<TSource, int> getHashCode = null) =>
+                source.Remove(value, ToEqualityComparer(equals, getHashCode));
+
+        public static IEnumerable<TSource> RemoveAll<TSource>(
+            this IEnumerable<TSource> source,
+            TSource value,
+            Func<TSource, TSource, bool> equals,
+            Func<TSource, int> getHashCode = null) =>
+                source.RemoveAll(value, ToEqualityComparer(equals, getHashCode));
+
         public static int IndexOf<TSource>(
             this IEnumerable<TSource> source,
             TSource value,
@@ -137,6 +151,20 @@
             }
             return lastIndex;
         }
+
+        public static int IndexOf<TSource>(
+            this IEnumerable<TSource> source,
+            TSource value,
+            Func<TSource, TSource, bool> equals,
+            Func<TSource, int> getHashCode = null) =>
+                source.IndexOf(value, ToEqualityComparer(equals, getHashCode));
+
+        public static int LastIndexOf<TSource>(
+            this IEnumerable<TSource> source,
+            TSource value,
+            Func<TSource, TSource, bool> equals,
+            Func<TSource, int> getHashCode = null) =>
+                source.LastIndexOf(value, ToEqualityComparer(equals, getHashCode));
 
         #endregion
     }
