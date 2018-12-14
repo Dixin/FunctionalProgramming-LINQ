@@ -109,13 +109,11 @@
     <Compile Include="$(MSBuildThisFileDirectory)LinqToXml\Manipulation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToXml\Modeling.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToXml\QueryMethods.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ParallelLinq\Functions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ParallelLinq\ParallelEnumerableX.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NetStandard.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ParallelLinq\Partitioning.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ParallelLinq\Performance.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ParallelLinq\QueryMethods.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ParallelLinq\QueryMethods.Ordering.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ParallelLinq\Visualizaztion.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ParallelLinq\Visualizer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TraceExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToXml\XExtensions.cs" />
   </ItemGroup>

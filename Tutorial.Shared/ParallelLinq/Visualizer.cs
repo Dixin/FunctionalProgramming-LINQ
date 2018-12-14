@@ -2,228 +2,158 @@ namespace Tutorial.ParallelLinq
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.IO;
     using System.Linq;
     using System.Threading;
 
     using Microsoft.ConcurrencyVisualizer.Instrumentation;
 
-    public static partial class Visualizer
+#if DEMO
+    public partial class Markers
     {
-        internal const string Parallel = nameof(Parallel);
+        public static Span EnterSpan(int category, string spanName) =>
+            new Span(category, spanName);
 
-        internal const string Sequential = nameof(Sequential);
+        public static MarkerSeries CreateMarkerSeries(string markSeriesName) =>
+            new MarkerSeries(markSeriesName);
+    }
 
-        internal static void Visualize<TSource>(
-            this IEnumerable<TSource> source, Action<TSource> action, string span = Sequential, int category = -1)
+    public class Span : IDisposable
+    {
+        private readonly int category;
+
+        private readonly string spanName;
+
+        private readonly DateTime start;
+
+        public Span(int category, string spanName, string markSeriesName = null)
         {
-            using (Markers.EnterSpan(category, span))
-            {
-                MarkerSeries markerSeries = Markers.CreateMarkerSeries(span);
-                source.ForEach(value =>
-                {
-                    using (markerSeries.EnterSpan(Thread.CurrentThread.ManagedThreadId, value.ToString()))
-                    {
-                        action(value);
-                    }
-                });
-            }
+            this.category = category;
+            this.spanName = string.IsNullOrEmpty(markSeriesName) ? spanName : $"{markSeriesName}/{spanName}";
+            this.start = DateTime.Now;
+            $"{this.start.ToString("o")}: thread id: {Thread.CurrentThread.ManagedThreadId}, category: {this.category}, span: {this.spanName}".WriteLine();
         }
 
-        internal static void Visualize<TSource>(
-            this ParallelQuery<TSource> source, Action<TSource> action, string span = Parallel, int category = -2)
+        public void Dispose()
         {
-            using (Markers.EnterSpan(category, span))
-            {
-                MarkerSeries markerSeries = Markers.CreateMarkerSeries(span);
-                source.ForAll(value =>
-                {
-                    using (markerSeries.EnterSpan(Thread.CurrentThread.ManagedThreadId, value.ToString()))
-                    {
-                        action(value);
-                    }
-                });
-            }
+            DateTime end = DateTime.Now;
+            $"{end.ToString("o")}: thread id: {Thread.CurrentThread.ManagedThreadId}, category: {this.category}, span: {this.spanName}, duration: {end – this.start}".WriteLine();
         }
     }
 
-    public static partial class Visualizer
+    public class MarkerSeries
     {
-        internal static IEnumerable<TResult> Visualize<TSource, TMiddle, TResult>(
-            this IEnumerable<TSource> source,
-            Func<IEnumerable<TSource>, Func<TSource, TMiddle>, IEnumerable<TResult>> query,
-            Func<TSource, TMiddle> func,
-            Func<TSource, string> spanFactory = null,
-            string span = Sequential)
-        {
-            MarkerSeries markerSeries = Markers.CreateMarkerSeries(span);
-            return query(
-                source,
-                value =>
-                {
-                    using (markerSeries.EnterSpan(
-                        Thread.CurrentThread.ManagedThreadId, spanFactory?.Invoke(value) ?? value.ToString()))
-                    {
-                        return func(value);
-                    }
-                });
-        }
+        private readonly string markSeriesName;
 
-        internal static ParallelQuery<TResult> Visualize<TSource, TMiddle, TResult>(
-            this ParallelQuery<TSource> source,
-            Func<ParallelQuery<TSource>, Func<TSource, TMiddle>, ParallelQuery<TResult>> query,
-            Func<TSource, TMiddle> func,
-            Func<TSource, string> spanFactory = null,
-            string span = Parallel)
-        {
-            MarkerSeries markerSeries = Markers.CreateMarkerSeries(span);
-            return query(
-                source,
-                value =>
-                {
-                    using (markerSeries.EnterSpan(
-                        Thread.CurrentThread.ManagedThreadId, spanFactory?.Invoke(value) ?? value.ToString()))
-                    {
-                        return func(value);
-                    }
-                });
-        }
+        public MarkerSeries(string markSeriesName) => this.markSeriesName = markSeriesName;
+
+        public Span EnterSpan(int category, string spanName) =>
+            new Span(category, spanName, this.markSeriesName);
     }
 
-    public static partial class Visualizer
+    public partial class Markers
     {
-        internal static TSource Visualize<TSource>(
-            this ParallelQuery<TSource> source,
-            Func<ParallelQuery<TSource>, Func<TSource, TSource, TSource>, TSource> aggregate,
-            Func<TSource, TSource, TSource> func,
-            string span = nameof(ParallelEnumerable.Aggregate))
-        {
-            MarkerSeries markerSeries = Markers.CreateMarkerSeries(span);
-            return aggregate(
-                source,
-                (accumulate, value) =>
-                {
-                    using (markerSeries.EnterSpan(Thread.CurrentThread.ManagedThreadId, $"{accumulate} {value}"))
-                    {
-                        return func(accumulate, value);
-                    }
-                });
-        }
-
-        internal static TAccumulate Visualize<TSource, TAccumulate>(
-            this ParallelQuery<TSource> source,
-            Func<ParallelQuery<TSource>, TAccumulate, Func<TAccumulate, TSource, TAccumulate>, TAccumulate> aggregate,
-            TAccumulate seed,
-            Func<TAccumulate, TSource, TAccumulate> func,
-            string span = nameof(ParallelEnumerable.Aggregate))
-        {
-            MarkerSeries markerSeries = Markers.CreateMarkerSeries(span);
-            return aggregate(
-                source,
-                seed,
-                (accumulate, value) =>
-                {
-                    using (markerSeries.EnterSpan(Thread.CurrentThread.ManagedThreadId, value.ToString()))
-                    {
-                        return func(accumulate, value);
-                    }
-                });
-        }
-
-        internal static TResult Visualize<TSource, TAccumulate, TResult>(
-            this ParallelQuery<TSource> source,
-            Func<ParallelQuery<TSource>, TAccumulate, Func<TAccumulate, TSource, TAccumulate>, Func<TAccumulate, TResult>, TResult> aggregate,
-            TAccumulate seed,
-            Func<TAccumulate, TSource, TAccumulate> func,
-            Func<TAccumulate, TResult> resultSelector,
-            string span = nameof(ParallelEnumerable.Aggregate))
-        {
-            MarkerSeries markerSeries = Markers.CreateMarkerSeries(span);
-            return aggregate(
-                source,
-                seed,
-                (accumulate, value) =>
-                {
-                    using (markerSeries.EnterSpan(Thread.CurrentThread.ManagedThreadId, value.ToString()))
-                    {
-                        return func(accumulate, value);
-                    }
-                },
-                resultSelector);
-        }
-
-        internal static TResult Visualize<TSource, TAccumulate, TResult>(
-            this ParallelQuery<TSource> source,
-            Func<ParallelQuery<TSource>, TAccumulate, Func<TAccumulate, TSource, TAccumulate>, Func<TAccumulate, TAccumulate, TAccumulate>, Func<TAccumulate, TResult>, TResult> aggregate,
-            TAccumulate seed,
-            Func<TAccumulate, TSource, TAccumulate> updateAccumulatorFunc,
-            Func<TAccumulate, TAccumulate, TAccumulate> combineAccumulatorsFunc,
-            Func<TAccumulate, TResult> resultSelector,
-            string span = nameof(ParallelEnumerable.Aggregate))
-        {
-            MarkerSeries markerSeries = Markers.CreateMarkerSeries(span);
-            return aggregate(
-                source,
-                seed,
-                (accumulate, value) =>
-                {
-                    using (markerSeries.EnterSpan(Thread.CurrentThread.ManagedThreadId, $"{accumulate} {value}"))
-                    {
-                        return updateAccumulatorFunc(accumulate, value);
-                    }
-                },
-                (accumulates, accumulate) =>
-                {
-                    using (markerSeries.EnterSpan(Thread.CurrentThread.ManagedThreadId, $"{accumulates} {accumulate}"))
-                    {
-                        return combineAccumulatorsFunc(accumulates, accumulate);
-                    }
-                },
-                resultSelector);
-        }
-
-        internal static TResult Visualize<TSource, TAccumulate, TResult>(
-            this ParallelQuery<TSource> source,
-            Func<ParallelQuery<TSource>, Func<TAccumulate>, Func<TAccumulate, TSource, TAccumulate>, Func<TAccumulate, TAccumulate, TAccumulate>, Func<TAccumulate, TResult>, TResult> aggregate,
-            Func<TAccumulate> seedFactory,
-            Func<TAccumulate, TSource, TAccumulate> updateAccumulatorFunc,
-            Func<TAccumulate, TAccumulate, TAccumulate> combineAccumulatorsFunc,
-            Func<TAccumulate, TResult> resultSelector,
-            string span = nameof(ParallelEnumerable.Aggregate))
-        {
-            MarkerSeries markerSeries = Markers.CreateMarkerSeries(span);
-            return aggregate(
-                source,
-                seedFactory,
-                (accumulate, value) =>
-                {
-                    using (markerSeries.EnterSpan(Thread.CurrentThread.ManagedThreadId, $"{accumulate} {value}"))
-                    {
-                        return updateAccumulatorFunc(accumulate, value);
-                    }
-                },
-                (accumulates, accumulate) =>
-                {
-                    using (markerSeries.EnterSpan(Thread.CurrentThread.ManagedThreadId, $"{accumulates} {accumulate}"))
-                    {
-                        return combineAccumulatorsFunc(accumulates, accumulate);
-                    }
-                },
-                resultSelector);
-        }
-
-        internal static void TraceToFile()
+        static Markers()
         {
             // Trace to file:
-            string file = Path.Combine(Path.GetTempPath(), "Trace.txt");
-            using (TextWriterTraceListener traceListener = new TextWriterTraceListener(file))
-            // Or trace to console:
-            // using (TextWriterTraceListener traceListener = new TextWriterTraceListener(Console.Out))
+            Trace.Listeners.Add(new TextWriterTraceListener(@"D:\Temp\Trace.txt"));
+            // Trace to console:
+            Trace.Listeners.Add(new TextWriterTraceListener(Console.Out));
+        }
+    }
+#endif
+
+    public static partial class Visualizer
+    {
+        internal const string ParallelSpan = "Parallel";
+
+        internal const string SequentialSpan = "Sequential";
+
+        internal static void Visualize<TSource>(
+            this IEnumerable<TSource> source,
+            Action<IEnumerable<TSource>, Action<TSource>> query,
+            Action<TSource> iteratee, string span = SequentialSpan, int category = -1)
+        {
+            using (Markers.EnterSpan(category, span))
             {
-                Trace.Listeners.Add(traceListener);
-                QueryMethods.ForEachForAllTimeSpans();
+                MarkerSeries markerSeries = Markers.CreateMarkerSeries(span);
+                query(
+                    source,
+                    value =>
+                    {
+                        using (markerSeries.EnterSpan(Thread.CurrentThread.ManagedThreadId, value.ToString()))
+                        {
+                            iteratee(value);
+                        }
+                    });
             }
+        }
+
+        internal static void Visualize<TSource>(
+            this ParallelQuery<TSource> source,
+            Action<ParallelQuery<TSource>, Action<TSource>> query,
+            Action<TSource> iteratee, string span = ParallelSpan, int category = -2)
+        {
+            using (Markers.EnterSpan(category, span))
+            {
+                MarkerSeries markerSeries = Markers.CreateMarkerSeries(span);
+                query(
+                    source,
+                    value =>
+                    {
+                        using (markerSeries.EnterSpan(Thread.CurrentThread.ManagedThreadId, value.ToString()))
+                        {
+                            iteratee(value);
+                        }
+                    });
+            }
+        }
+
+        internal static int ComputingWorkload(int value = 0, int baseIteration = 10_000_000)
+        {
+            for (int i = 0; i < baseIteration * (value + 1); i++) { }
+            return value;
+        }
+
+        internal static TResult Visualize<TSource, TMiddle, TResult>(
+            this IEnumerable<TSource> source,
+            Func<IEnumerable<TSource>, Func<TSource, TMiddle>, TResult> query,
+            Func<TSource, TMiddle> iteratee,
+            Func<TSource, string> spanFactory = null,
+            string span = SequentialSpan)
+        {
+            spanFactory = spanFactory ?? (value => value.ToString());
+            MarkerSeries markerSeries = Markers.CreateMarkerSeries(span);
+            return query(
+                source,
+                value =>
+                {
+                    using (markerSeries.EnterSpan(
+                        Thread.CurrentThread.ManagedThreadId, spanFactory(value)))
+                    {
+                        return iteratee(value);
+                    }
+                });
+        }
+
+        internal static TResult Visualize<TSource, TMiddle, TResult>(
+            this ParallelQuery<TSource> source,
+            Func<ParallelQuery<TSource>, Func<TSource, TMiddle>, TResult> query,
+            Func<TSource, TMiddle> iteratee,
+            Func<TSource, string> spanFactory = null,
+            string span = ParallelSpan)
+        {
+            spanFactory = spanFactory ?? (value => value.ToString());
+            MarkerSeries markerSeries = Markers.CreateMarkerSeries(span);
+            return query(
+                source,
+                value =>
+                {
+                    using (markerSeries.EnterSpan(
+                        Thread.CurrentThread.ManagedThreadId, spanFactory(value)))
+                    {
+                        return iteratee(value);
+                    }
+                });
         }
     }
 }
