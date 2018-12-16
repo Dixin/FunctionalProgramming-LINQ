@@ -75,7 +75,7 @@
                 .Create(source, EnumerablePartitionerOptions.NoBuffering) // Stripped partitioning.
                 .GetPartitions(degreeOfParallelism);
             ConcurrentBag<Exception> exceptions = new ConcurrentBag<Exception>();
-            void Run(IEnumerator<TSource> partition)
+            void IteratePartition(IEnumerator<TSource> partition)
             {
                 try
                 {
@@ -95,10 +95,10 @@
 
             Thread[] threads = partitions
                 .Skip(1)
-                .Select(partition => new Thread(() => Run(partition)))
+                .Select(partition => new Thread(() => IteratePartition(partition)))
                 .ToArray();
             threads.ForEach(thread => thread.Start());
-            Run(partitions[0]);
+            IteratePartition(partitions[0]);
             threads.ForEach(thread => thread.Join());
             if (!exceptions.IsEmpty)
             {

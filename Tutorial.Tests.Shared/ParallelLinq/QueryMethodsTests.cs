@@ -1,8 +1,9 @@
 ﻿namespace Tutorial.Tests.ParallelLinq
 {
-    using Tutorial.ParallelLinq;
-
+    using System;
+    using System.Diagnostics;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Tutorial.ParallelLinq;
 
     [TestClass]
     public partial class QueryMethodsTests
@@ -14,9 +15,9 @@
             QueryMethods.AsParallelAsSequential();
             QueryMethods.QueryExpression();
             QueryMethods.ForEachForAll();
-            QueryMethods.ForEachForAllTimeSpans();
+            QueryMethods.RenderForEachForAllSpans();
             QueryMethods.VisualizeForEachForAll();
-            QueryMethods.WhereSelect();
+            QueryMethods.VisualizeWhereSelect();
         }
 
         [TestMethod]
@@ -40,9 +41,7 @@
         [TestMethod]
         public void MergeTest()
         {
-            QueryMethods.Except();
             QueryMethods.MergeForSelect();
-            QueryMethods.MergeForTakeWhile();
             QueryMethods.MergeForOrderBy();
         }
 
@@ -53,6 +52,28 @@
             QueryMethods.AggregateCorrectness();
             QueryMethods.VisualizeAggregate();
             QueryMethods.MergeForAggregate();
+        }
+        [TestMethod]
+        public void OrderingTest()
+        {
+            QueryMethods.AsOrdered();
+            QueryMethods.AsUnordered();
+            QueryMethods.OrderBy();
+            QueryMethods.Correctness();
+        }
+
+        [TestMethod]
+        public void PartitionerTest()
+        {
+            try
+            {
+                Partitioning.QueryOrderablePartitioner();
+                Assert.Fail();
+            }
+            catch (InvalidOperationException exception)
+            {
+                Trace.WriteLine(exception);
+            }
         }
     }
 }

@@ -63,15 +63,12 @@
     <Compile Include="$(MSBuildThisFileDirectory)LinqToObjects\IteratorPatternTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToObjects\LinkedListSequenceTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToObjects\QueryMethodsTests.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)LinqToXml\DomTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToXml\ManipulationTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToXml\ModelingTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToXml\QueryMethodsTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MSTest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ParallelLinq\ParallelEnumerableXTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ParallelLinq\PartitioningTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ParallelLinq\PerformanceTests.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ParallelLinq\QueryMethods.OrderingTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ParallelLinq\QueryMethodsTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToXml\XExtensionsTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToXml\XExtensionsTests.XPath.cs" />

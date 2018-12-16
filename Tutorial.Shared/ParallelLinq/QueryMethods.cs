@@ -13,7 +13,6 @@ namespace Tutorial.ParallelLinq
     using static Partitioning;
     using static Visualizer;
 
-
     internal static partial class QueryMethods
     {
         internal static void Generation()
@@ -132,13 +131,13 @@ namespace Tutorial.ParallelLinq
             Enumerable
                 .Range(0, Environment.ProcessorCount * 2)
                 .Visualize(
-                    EnumerableEx.ForEach, 
+                    EnumerableEx.ForEach,
                     value => (value + ComputingWorkload()).WriteLine());
 
             ParallelEnumerable
                 .Range(0, Environment.ProcessorCount * 2)
                 .Visualize(
-                    ParallelEnumerable.ForAll, 
+                    ParallelEnumerable.ForAll,
                     value => (value + ComputingWorkload()).WriteLine());
         }
 

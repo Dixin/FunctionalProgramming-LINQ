@@ -12,7 +12,7 @@
 
     internal static partial class Partitioning
     {
-        internal static void Range()
+        internal static void RangePartitioningForArray()
         {
             int[] array = Enumerable.Range(0, Environment.ProcessorCount * 4).ToArray();
             array.AsParallel()
@@ -20,19 +20,22 @@
                 .WriteLines();
         }
 
-        internal static void Strip()
+        internal static void ChunkPartitioningForSequence()
         {
-            IEnumerable<int> sequence = Enumerable.Range(0, Environment.ProcessorCount * 4);
+            const int ChunkRepeatCount = 8;
+            IEnumerable<int> sequence = Enumerable.Range(0, (1 + 2) * ChunkRepeatCount * Environment.ProcessorCount + 4);
             sequence.AsParallel()
-                .Visualize(ParallelEnumerable.Select, value => ComputingWorkload(value))
+                .Visualize(ParallelEnumerable.Select, value => value + ComputingWorkload())
                 .WriteLines();
         }
 
-        internal static void StripForArray()
+        internal static void ChunkPartitioningForPartitioner()
         {
-            int[] array = Enumerable.Range(0, Environment.ProcessorCount * 4).ToArray();
-            Partitioner.Create(array, loadBalance: true).AsParallel()
-                .Visualize(ParallelEnumerable.Select, value => ComputingWorkload(value))
+            const int ChunkRepeatCount = 3;
+            Partitioner<int> partitioner = Partitioner.Create(
+                Enumerable.Range(0, (1 + 2) * ChunkRepeatCount * Environment.ProcessorCount + 4));
+            partitioner.AsParallel()
+                .Visualize(ParallelEnumerable.Select, value => value + ComputingWorkload())
                 .WriteLines();
         }
 
@@ -47,7 +50,7 @@
             public override string ToString() => this.Value.ToString(); // For span label.
         }
 
-        internal static void HashForGroupBy()
+        internal static void HashPartitioningForGroupBy()
         {
             IEnumerable<Data> sequence = new int[] { 0, 1, 2, 2, 2, 2, 3, 4, 5, 6, 10 }
                 .Select(value => new Data(value));
@@ -73,27 +76,37 @@
             //    .WriteLines(group => string.Join(", ", group));
         }
 
-        internal static void HashInJoin()
+        internal static void HashPartitioningForJoin()
         {
             IEnumerable<Data> outerSequence = new int[] { 0, 1, 2, 2, 2, 2, 3, 6 }.Select(value => new Data(value));
             IEnumerable<Data> innerSequence = new int[] { 4, 5, 6, 7 }.Select(value => new Data(value));
             outerSequence.AsParallel()
                 .Visualize(
-                    (source, resultSelector) => source
-                        .Join(
-                            inner: innerSequence.AsParallel(),
-                            outerKeySelector: data => data, // Key's GetHashCode is called.
-                            innerKeySelector: data => data, // Key's GetHashCode is called.
-                            resultSelector: (outerData, innerData) => resultSelector(outerData)),
+                    (source, resultSelector) => source.Join(
+                        inner: innerSequence.AsParallel(),
+                        outerKeySelector: data => data, // Key's GetHashCode is called.
+                        innerKeySelector: data => data, // Key's GetHashCode is called.
+                        resultSelector: (outerData, innerData) => resultSelector(outerData)),
                     data => ComputingWorkload(data.Value)) // resultSelector.
                 .WriteLines();
         }
 
-        internal static void Chunk()
+        internal static void StrippedPartitioningForPartitionerWithSequence()
         {
-            IEnumerable<int> source = Enumerable.Range(0, (1 + 2) * 3 * Environment.ProcessorCount + 3);
-            Partitioner.Create(source, EnumerablePartitionerOptions.None).AsParallel()
-                .Visualize(ParallelEnumerable.Select, value => ComputingWorkload())
+            Partitioner<int> partitioner = Partitioner.Create(
+                Enumerable.Range(0, Environment.ProcessorCount * 4),
+                EnumerablePartitionerOptions.NoBuffering);
+            partitioner.AsParallel()
+                .Visualize(ParallelEnumerable.Select, value => ComputingWorkload(value))
+                .WriteLines();
+        }
+
+        internal static void StrippedPartitioningForPartitionerWithArray()
+        {
+            int[] array = Enumerable.Range(0, Environment.ProcessorCount * 4).ToArray();
+            Partitioner<int> partitioner = Partitioner.Create(array, loadBalance: true);
+            partitioner.AsParallel()
+                .Visualize(ParallelEnumerable.Select, value => ComputingWorkload(value))
                 .WriteLines();
         }
 
