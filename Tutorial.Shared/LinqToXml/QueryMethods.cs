@@ -7,8 +7,6 @@
     using System.Xml.Linq;
     using System.Xml.XPath;
 
-    using static Tutorial.LinqToObjects.EnumerableX;
-
     internal static partial class QueryMethods
     {
         internal static void ParentAndAncestors()
@@ -154,7 +152,7 @@
 
             new XElement[] { elements.First(), elements.Last(), new XElement("element") }
                 .InDocumentOrder()
-                .ForEach();
+                .WriteLines();
             // InvalidOperationException: A common ancestor is missing.
         }
 
