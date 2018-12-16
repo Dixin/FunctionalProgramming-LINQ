@@ -94,10 +94,10 @@
         internal static void StrippedPartitioningForPartitionerWithSequence()
         {
             Partitioner<int> partitioner = Partitioner.Create(
-                Enumerable.Range(0, Environment.ProcessorCount * 4),
+                Enumerable.Range(0, Environment.ProcessorCount * 10),
                 EnumerablePartitionerOptions.NoBuffering);
             partitioner.AsParallel()
-                .Visualize(ParallelEnumerable.Select, value => ComputingWorkload(value))
+                .Visualize(ParallelEnumerable.Select, value => ComputingWorkload(baseIteration: 20_000_000))
                 .WriteLines();
         }
 
@@ -112,9 +112,9 @@
 
         internal class StaticPartitioner<TSource> : Partitioner<TSource>
         {
-            protected readonly IBuffer<TSource> buffer;
+            protected readonly IBuffer<TSource> Buffer;
 
-            internal StaticPartitioner(IEnumerable<TSource> source) => this.buffer = source.Share();
+            internal StaticPartitioner(IEnumerable<TSource> source) => this.Buffer = source.Share();
 
             public override IList<IEnumerator<TSource>> GetPartitions(int partitionCount)
             {
@@ -125,7 +125,7 @@
 
                 return Enumerable
                     .Range(0, partitionCount)
-                    .Select(_ => this.buffer.GetEnumerator())
+                    .Select(_ => this.Buffer.GetEnumerator())
                     .ToArray();
             }
         }
@@ -136,7 +136,7 @@
 
             public override bool SupportsDynamicPartitions => true;
 
-            public override IEnumerable<TSource> GetDynamicPartitions() => this.buffer;
+            public override IEnumerable<TSource> GetDynamicPartitions() => this.Buffer;
         }
 
         internal static void QueryStaticPartitioner()
