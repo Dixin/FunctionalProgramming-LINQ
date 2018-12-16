@@ -97,7 +97,7 @@
                 Enumerable.Range(0, Environment.ProcessorCount * 10),
                 EnumerablePartitionerOptions.NoBuffering);
             partitioner.AsParallel()
-                .Visualize(ParallelEnumerable.Select, value => ComputingWorkload(baseIteration: 20_000_000))
+                .Visualize(ParallelEnumerable.Select, value => ComputingWorkload())
                 .WriteLines();
         }
 
