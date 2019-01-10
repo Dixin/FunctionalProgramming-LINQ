@@ -190,7 +190,7 @@
 
     public static partial class ChurchEncoding
     {
-        public static NumeralWrapper ChurchWarpper(this uint n) => n > 0U ? new NumeralWrapper(ChurchWarpper(n - 1U)) : Zero;
+        public static NumeralWrapper ChurchWrapper(this uint n) => n > 0U ? new NumeralWrapper(ChurchWrapper(n - 1U)) : Zero;
 
         public static uint Unchurch(this NumeralWrapper numeral) => numeral.Invoke<uint>(x => x + 1)(0U);
 

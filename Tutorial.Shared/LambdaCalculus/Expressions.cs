@@ -19,7 +19,7 @@
             Enumerable.Range(0, 5).Where(value => isEven(value)).ForEach(value => Console.WriteLine(value));
         }
 
-        internal static void EtaConvertion()
+        internal static void EtaConversion()
         {
             Func<int, bool> isEven = x => x % 2 == 0;
             Enumerable.Range(0, 5).Where(isEven).ForEach(Console.WriteLine);
