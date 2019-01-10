@@ -111,7 +111,7 @@ namespace Tutorial.Tests.LinqToObjects
         }
 
         [Fact]
-        public void NoElementsSeedResultSeletor()
+        public void NoElementsSeedResultSelector()
         {
             int[] source = { };
             long seed = 2;

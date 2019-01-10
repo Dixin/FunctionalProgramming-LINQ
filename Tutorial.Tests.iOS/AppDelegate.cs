@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-using Foundation;
-using UIKit;
-using MonoTouch.NUnit.UI;
-
-namespace Tutorial.Tests.iOS
+﻿namespace Tutorial.Tests.iOS
 {
+    using Foundation;
+    using UIKit;
+    using MonoTouch.NUnit.UI;
+
     // The UIApplicationDelegate for the application. This class is responsible for launching the 
     // User Interface of the application, as well as listening (and optionally responding) to 
     // application events from iOS.
