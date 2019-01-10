@@ -242,7 +242,6 @@
             Func<int, Func<int, Action<int>>> curriedAdd3Args = a => b => c => (a + b + c).WriteLine();
             // int -> void
             Action<int> partiallyAppliedCurriedAdd3Args = curriedAdd3Args(1)(2);
-
         }
     }
 }

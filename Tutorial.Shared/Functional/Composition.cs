@@ -19,7 +19,6 @@
             int absolute = Math.Abs(int32); // int -> int
             double @double = Convert.ToDouble(absolute); // int -> double
             double squareRoot = Math.Sqrt(@double); // double -> double
-            squareRoot.WriteLine(); // 
         }
 
         // string -> double
@@ -127,7 +126,7 @@
             Func<List<int>, List<int>> clear = Clear;
             Func<List<int>, List<int>> addWithValue = Add(1);
 
-            Func<List<int>, List<int>> backwordComposition =
+            Func<List<int>, List<int>> backwardComposition =
                 addWithValue
                     .After(clear)
                     .After(forEachWithAction)

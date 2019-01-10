@@ -200,7 +200,7 @@
             CompiledAdd(ref closure);
         }
 
-        internal static void FreeVariableMutatation()
+        internal static void FreeVariableMutation()
         {
             int free = 1;
 
@@ -360,7 +360,7 @@
             void LocalFunction2() { tempSmallInstance = true; }
             LocalFunction2();
 
-            return LocalFunction2; // Reutrn a function of Action type.
+            return LocalFunction2; // Return a function of Action type.
         }
 
         internal static void CallSharedClosure()
@@ -389,7 +389,7 @@
             closure.TempSmallInstance = false;
             closure.LocalFunction2();
 
-            return closure.LocalFunction2; // Reutrn a function of Action type.
+            return closure.LocalFunction2; // Return a function of Action type.
         }
 
         internal static Action SeparatedClosures()
@@ -404,7 +404,7 @@
             void LocalFunction2() { tempSmallInstance = true; }
             LocalFunction2();
 
-            return LocalFunction2; // Reutrn a function of Action type.
+            return LocalFunction2; // Return a function of Action type.
         }
     }
 }

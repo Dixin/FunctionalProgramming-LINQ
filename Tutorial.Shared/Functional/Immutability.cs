@@ -34,6 +34,7 @@
         {
             Sun, Mon, Tue, Wed, Thu, Fri, Sat
         }
+
         // Compiled to:
         internal enum CompiledDay : int
         {
@@ -373,11 +374,11 @@
         internal static void TupleLiteral()
         {
             (string, decimal) tuple1 = ("Surface Pro", 899M);
-            // Compiled to: 
+            // Compiled to:
             // ValueTuple<string, decimal> tuple1 = new ValueTuple<string, decimal>("Surface Pro", 899M);
 
             (int, bool, (string, decimal)) tuple2 = (1, true, ("Surface Studio", 2999M));
-            // ValueTuple<int, bool, ValueTuple<string, decimal>> tuple2 = 
+            // ValueTuple<int, bool, ValueTuple<string, decimal>> tuple2 =
             //    new ValueTuple<int, bool, ValueTuple<string, decimal>>(1, true, new ValueTuple<string, decimal>("Surface Studio", 2999M));
         }
 
@@ -402,7 +403,7 @@
             (string Name, decimal Price) tuple1 = ("Surface Pro", 899M);
             tuple1.Name.WriteLine();
             tuple1.Price.WriteLine();
-            // Compiled to: 
+            // Compiled to:
             // ValueTuple<string, decimal> tuple1 = new ValueTuple<string, decimal>("Surface Pro", 899M);
             // TraceExtensions.WriteLine(tuple1.Item1);
             // TraceExtensions.WriteLine(tuple1.Item2);
@@ -421,7 +422,7 @@
             {
                 tuple.Name.WriteLine(); // Input tuple’s element names are available in function.
                 return (tuple.Name, tuple.Price - 10M);
-            };
+            }
             var tuple5 = Function(("Xbox One", 299M));
             tuple5.Name.WriteLine(); // Output tuple’s element names are available through var.
             tuple5.Price.WriteLine();

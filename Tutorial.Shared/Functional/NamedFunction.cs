@@ -436,9 +436,9 @@ namespace Tutorial.Functional
     using System.Collections.Generic;
 
     using static System.DayOfWeek;
-    using static System.Math;
     using static System.Diagnostics.Trace;
     using static System.Linq.Enumerable;
+    using static System.Math;
 
     internal static partial class NamedFunctions
     {

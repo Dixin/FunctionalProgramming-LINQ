@@ -153,7 +153,7 @@
         {
             IEnumerable<IGrouping<char, ConsoleColor>> query;
             query = from int32 in int32Sequence
-                    from @string in stringSequence // SelectMant.
+                    from @string in stringSequence // SelectMany.
                     let length = @string.Length // Select.
                     where length > 1 // Where.
                     select int32 + length
@@ -163,7 +163,7 @@
                     group color by color.ToString()[0]; // GroupBy.
 
             query = int32Sequence
-                .SelectMany(int32 => stringSequence, (int32, @string) => new { int32, @string }) // Multiple from cluases.
+                .SelectMany(int32 => stringSequence, (int32, @string) => new { int32, @string }) // Multiple from clauses.
                 .Select(context => new { context, length = context.@string.Length }) // let clause.
                 .Where(context => context.length > 1) // where clause.
                 .Select(context => context.context.int32 + context.length) // select clause.
@@ -171,7 +171,7 @@
                     int32Sequence.Cast<ConsoleColor>(),
                     sum => sum % 15,
                     color => (int)color,
-                    (sum, color) => new { sum, color }) // jopin clause without into.
+                    (sum, color) => new { sum, color }) // join clause without into.
                 .OrderBy(context => context.color) // orderby clause.
                 .GroupBy(
                     context => context.color.ToString()[0],
@@ -383,7 +383,7 @@
         }
     }
 
-    internal static partial class CompostionsWithLinq
+    internal static partial class CompositionsWithLinq
     {
         private static TResult Select<TSource, TResult>(
             this TSource source, Func<TSource, TResult> selector) =>
@@ -413,7 +413,7 @@
             return resultSelector(source, selectorResult);
         }
 
-        internal static void ForwardPipingWithQueryExpressiony()
+        internal static void ForwardPipingWithQueryExpression()
         {
             double result;
             result = from @string in "-2"

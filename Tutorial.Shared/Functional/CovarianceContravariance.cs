@@ -1,13 +1,12 @@
 ﻿namespace Tutorial.Functional
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
 
-    internal interface ISupertype { /* Memebers. */ }
+    internal interface ISupertype { /* Members. */ }
 
-    internal interface ISubtype : ISupertype { /* More memebers. */ }
+    internal interface ISubtype : ISupertype { /* More members. */ }
 
     internal class Base { }
 
@@ -68,7 +67,7 @@
 
             // When calling derivedToBase, DerivedToDerived executes.
             // derivedToBase should output Base, while DerivedToDerived outputs Derived.
-            // The actual Derived output substitues the required Base output. This call always works.
+            // The actual Derived output substitutes the required Base output. This call always works.
             Base output = derivedToBase(input: new Derived());
         }
 
@@ -81,22 +80,22 @@
 
             // When calling derivedToBase, BaseToBase executes.
             // derivedToBase should accept Derived input, while BaseToBase accepts Base input.
-            // The required Derived input substitues the accepted Base input. This always works.
+            // The required Derived input substitutes the accepted Base input. This always works.
             Base output = derivedToBase(input: new Derived());
         }
 
-        internal static void NonGenericeDelegateCovarianceAndContravariance()
+        internal static void NonGenericDelegateCovarianceAndContravariance()
         {
             DerivedToBase derivedToBase = DerivedToBase; // Derived -> Base
 
-            // Covariance and contravariance: Derived <: Base, so that Base -> Derived <: Derived -> Base. 
+            // Covariance and contravariance: Derived <: Base, so that Base -> Derived <: Derived -> Base.
             derivedToBase = BaseToDerived; // Base -> Derived
 
             // When calling derivedToBase, BaseToDerived executes.
             // derivedToBase should accept Derived input, while BaseToDerived accepts Base input.
-            // The required Derived input substitues the accepted Base input.
+            // The required Derived input substitutes the accepted Base input.
             // derivedToBase should output Base, while BaseToDerived outputs Derived.
-            // The actual Derived output substitues the required Base output. This always works.
+            // The actual Derived output substitutes the required Base output. This always works.
             Base output = derivedToBase(input: new Derived());
         }
 
@@ -104,17 +103,17 @@
         {
 #if DEMO
             // baseToDerived should output Derived, while BaseToBase outputs Base. 
-            // The actual Base output does not subsituted the required Derived output. This cannot be compiled.
+            // The actual Base output does not substitute the required Derived output. This cannot be compiled.
             BaseToDerived baseToDerived = BaseToBase; // Base -> Derived
 
             // baseToDerived should accept Base input, while DerivedToDerived accepts Derived input.
-            // The required Base input does not substitue the accepted Derived input. This cannot be compiled.
+            // The required Base input does not substitute the accepted Derived input. This cannot be compiled.
             baseToDerived = DerivedToDerived; // Derived -> Derived
 
             // baseToDerived should accept Base input, while DerivedToBase accepts Derived input.
-            // The required Base input does not subsituted the expected Derived input.
+            // The required Base input does not substitute the expected Derived input.
             // baseToDerived should output Derived, while DerivedToBase outputs Base.
-            // The actual Base output does not subsituted the required Derived output. This cannot be compiled.
+            // The actual Base output does not substitute the required Derived output. This cannot be compiled.
             baseToDerived = DerivedToBase; // Derived -> Base
 #endif
         }
@@ -197,7 +196,7 @@
 
             // When calling inputDerived.Input, inputBase.Input executes.
             // inputDerived.Input should accept Derived input, while inputBase.Input accepts Base input.
-            // The required Derived output substitues the accepted Base input. This always works.
+            // The required Derived output substitutes the accepted Base input. This always works.
             inputDerived.InputToVoid(input: new Derived());
 
             inputDerived.Input = new Derived(); // .set_Input(input: new Derived());
@@ -311,7 +310,7 @@
             baseArray = derivedArray; // Array covariance: Derived <: Base, so that Derived[] <: Base[], baseArray refers to a Derived array at runtime.
             baseArray[1] = new Derived(); // .set_Item(new Derived());
             baseArray[2] = new Base(); // .set_Item(new Base());
-            // ArrayTypeMismatchException at runtime. The actual Derived array requires Derived instance, the provided Base instance cannot substitue Derived instance.
+            // ArrayTypeMismatchException at runtime. The actual Derived array requires Derived instance, the provided Base instance cannot substitute Derived instance.
         }
 
         internal static void TypesWithVariance()
@@ -368,7 +367,6 @@
 
         internal static void Select(IEnumerable<Derived> enumerableOfDerived)
         {
-
             IEnumerable<Base> enumerableOfBase;
             // Default with no variance.
             // Select: (IEnumerable<Derived>, Derived -> Base) -> IEnumerable<Base>.
@@ -385,16 +383,6 @@
             // Covariance of Select input and output: IEnumerable<Derived> <: IEnumerable<Base>.
             // Select: (IEnumerable<Base>, Base -> Derived) -> IEnumerable<Derived>.
             enumerableOfBase = enumerableOfDerived.Select(BaseToDerived);
-        }
-
-        internal static void Where(
-            IEnumerable<Derived> enumerableOfDerived,
-            Func<Derived, Base> derivedToBase,
-            Func<Derived, Derived> derivedToDerived,
-            Func<Base, Derived> baseToDerived,
-            Func<Base, Base> baseToBase)
-        {
-
         }
     }
 }

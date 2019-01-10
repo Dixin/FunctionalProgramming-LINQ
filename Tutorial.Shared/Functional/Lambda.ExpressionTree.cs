@@ -89,7 +89,7 @@
                         return ((ParameterExpression)node).Name;
 
                     default:
-                        throw new ArgumentOutOfRangeException(nameof(node));
+                        throw new ArgumentOutOfRangeException(nameof(expression));
                 }
             }
 
@@ -136,7 +136,7 @@
                         };
 
                     default:
-                        throw new ArgumentOutOfRangeException(nameof(node));
+                        throw new ArgumentOutOfRangeException(nameof(expression));
                 }
             }
 

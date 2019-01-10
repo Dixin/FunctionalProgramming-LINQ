@@ -197,7 +197,7 @@
 
             // case string text:
             string @string = @object as string;
-            if (@string != null && DateTime.TryParse(@string, out DateTime parsedDateTime)) // when cluase.
+            if (@string != null && DateTime.TryParse(@string, out DateTime parsedDateTime)) // when clause.
             {
                 return parsedDateTime;
             }
