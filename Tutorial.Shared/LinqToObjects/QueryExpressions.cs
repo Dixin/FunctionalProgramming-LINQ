@@ -382,14 +382,14 @@ namespace Tutorial.LinqToObjects
         internal static void CastGenericIEnumerable()
         {
             IEnumerable<Base> source = new Base[] { new Derived(), new Derived() };
-            IEnumerable<Derived> casted = from Derived derived in source
+            IEnumerable<Derived> cast = from Derived derived in source
                                           select derived;
         }
 
         internal static void CastGenericIEnumerableWithException()
         {
             IEnumerable<Base> source = new Base[] { new Derived(), new Base() };
-            IEnumerable<Derived> casted = from Derived derived in source
+            IEnumerable<Derived> cast = from Derived derived in source
                                           select derived;
         }
 
@@ -405,7 +405,7 @@ namespace Tutorial.LinqToObjects
         internal static void CastGenericIEnumerableWithRestriction()
         {
             object[] source = { 1, 2, 'a', 'b', "aa", "bb", new object(), 3 };
-            IEnumerable<int> casted = from int value in (from value in source
+            IEnumerable<int> cast = from int value in (from value in source
                                                          where value is int
                                                          select value)
                                       select value;
@@ -414,7 +414,7 @@ namespace Tutorial.LinqToObjects
         internal static void CastGenericIEnumerableWithRestriction2()
         {
             object[] source = { 1, 2, 'a', 'b', "aa", "bb", new object(), 3 };
-            IEnumerable<int> casted = from value in source
+            IEnumerable<int> cast = from value in source
                                       where value is int
                                       select (int)value;
         }

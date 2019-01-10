@@ -133,8 +133,8 @@
 
         internal static void DefaultIfEmptyWithDefaultValue()
         {
-            IEnumerable<int> souce = Enumerable.Empty<int>();
-            IEnumerable<int> singletonIfEmpty = souce.DefaultIfEmpty(1);
+            IEnumerable<int> source = Enumerable.Empty<int>();
+            IEnumerable<int> singletonIfEmpty = source.DefaultIfEmpty(1);
             singletonIfEmpty.WriteLines(); // Execute query. 1
         }
 
@@ -211,8 +211,8 @@
         internal static void SelectMany()
         {
             IEnumerable<Type> source = CoreLibrary.ExportedTypes;
-            IEnumerable<MemberInfo> oneToManymapped = source.SelectMany(type => type.GetDeclaredMembers()); // Define query.
-            IEnumerable<MemberInfo> filtered = oneToManymapped.Where(member => member.IsObsolete()); // Define query.
+            IEnumerable<MemberInfo> oneToManyMapped = source.SelectMany(type => type.GetDeclaredMembers()); // Define query.
+            IEnumerable<MemberInfo> filtered = oneToManyMapped.Where(member => member.IsObsolete()); // Define query.
             filtered.WriteLines(obsoleteMember => $"{obsoleteMember.DeclaringType}:{obsoleteMember}"); // Execute query.
             // Equivalent to:
             // foreach (MemberInfo obsoleteMember in filtered)
@@ -800,15 +800,15 @@
         internal static void CastGenericIEnumerable()
         {
             IEnumerable<Base> source = new Base[] { new Derived(), new Derived() };
-            IEnumerable<Derived> casted = source.Cast<Derived>(); // Define query.
-            casted.WriteLines(result => result.GetType().Name); // Execute query. Derived Derived
+            IEnumerable<Derived> cast = source.Cast<Derived>(); // Define query.
+            cast.WriteLines(result => result.GetType().Name); // Execute query. Derived Derived
         }
 
         internal static void CastGenericIEnumerableWithException()
         {
             IEnumerable<Base> source = new Base[] { new Derived(), new Base() };
-            IEnumerable<Derived> casted = source.Cast<Derived>(); // Define query.
-            casted.WriteLines(result => result.GetType().Name); // Execute query. Derived InvalidCastException
+            IEnumerable<Derived> cast = source.Cast<Derived>(); // Define query.
+            cast.WriteLines(result => result.GetType().Name); // Execute query. Derived InvalidCastException
         }
 
         internal static void CastWithJoin()
@@ -976,11 +976,11 @@
             int firstOfSource = Int32Source().First().WriteLine(); // -1
             int lastOfSource = Int32Source().Last().WriteLine(); // -4
 
-            int firstOfSingleSOurce = SingleInt32Source().First().WriteLine(); // 5
-            int lastOfSingleSOurce = SingleInt32Source().Last().WriteLine(); // 5
+            int firstOfSingleSource = SingleInt32Source().First().WriteLine(); // 5
+            int lastOfSingleSource = SingleInt32Source().Last().WriteLine(); // 5
 
-            int firstOfEmptySOurce = EmptyInt32Source().First(); // InvalidOperationException.
-            int lastOfEmptySOurce = EmptyInt32Source().Last(); // InvalidOperationException.
+            int firstOfEmptySource = EmptyInt32Source().First(); // InvalidOperationException.
+            int lastOfEmptySource = EmptyInt32Source().Last(); // InvalidOperationException.
         }
 
         internal static void FirstLastWithPredicate()
@@ -988,22 +988,22 @@
             int firstPositiveOfSource = Int32Source().First(int32 => int32 > 0).WriteLine(); // 1
             int lastNegativeOfSource = Int32Source().Last(int32 => int32 < 0).WriteLine(); // -4
 
-            int firstPositiveOfSingleSOurce = SingleInt32Source().First(int32 => int32 > 0).WriteLine(); // 1
-            int lastNegativeOfSingleSOurce = SingleInt32Source().Last(int32 => int32 < 0); // InvalidOperationException.
+            int firstPositiveOfSingleSource = SingleInt32Source().First(int32 => int32 > 0).WriteLine(); // 1
+            int lastNegativeOfSingleSource = SingleInt32Source().Last(int32 => int32 < 0); // InvalidOperationException.
 
-            int firstPositiveOfEmptySOurce = EmptyInt32Source().First(int32 => int32 > 0); // InvalidOperationException.
-            int lastNegativeOfEmptySOurce = EmptyInt32Source().Last(int32 => int32 < 0); // InvalidOperationException.
+            int firstPositiveOfEmptySource = EmptyInt32Source().First(int32 => int32 > 0); // InvalidOperationException.
+            int lastNegativeOfEmptySource = EmptyInt32Source().Last(int32 => int32 < 0); // InvalidOperationException.
         }
 
         internal static void FirstOrDefaultLastOrDefault()
         {
-            int firstOrDefaultOfEmptySOurce = EmptyInt32Source().FirstOrDefault().WriteLine(); // 0
-            int lastOrDefaultOfEmptySOurce = EmptyInt32Source().LastOrDefault().WriteLine(); // 0
+            int firstOrDefaultOfEmptySource = EmptyInt32Source().FirstOrDefault().WriteLine(); // 0
+            int lastOrDefaultOfEmptySource = EmptyInt32Source().LastOrDefault().WriteLine(); // 0
 
-            int lastNegativeOrDefaultOfSingleSOurce = SingleInt32Source().LastOrDefault(int32 => int32 < 0).WriteLine(); // 0
+            int lastNegativeOrDefaultOfSingleSource = SingleInt32Source().LastOrDefault(int32 => int32 < 0).WriteLine(); // 0
 
-            int firstPositiveOrDefaultOfEmptySOurce = EmptyInt32Source().FirstOrDefault(int32 => int32 > 0).WriteLine(); // 0
-            int lastNegativeOrDefaultOfEmptySOurce = EmptyInt32Source().LastOrDefault(int32 => int32 < 0).WriteLine(); // 0
+            int firstPositiveOrDefaultOfEmptySource = EmptyInt32Source().FirstOrDefault(int32 => int32 > 0).WriteLine(); // 0
+            int lastNegativeOrDefaultOfEmptySource = EmptyInt32Source().LastOrDefault(int32 => int32 < 0).WriteLine(); // 0
 
             Character lokiOrDefault = Characters()
                 .FirstOrDefault(character => "Loki".Equals(character.Name, StringComparison.Ordinal));
@@ -1309,9 +1309,9 @@
 
         internal static void SequentialEqualOfEmpty()
         {
-            IEnumerable<Derived> emptyfirst = new ConcurrentQueue<Derived>();
-            IEnumerable<Base> emptysecond = ImmutableHashSet.Create<Base>();
-            bool sequentialEqual = emptyfirst.SequenceEqual(emptysecond).WriteLine(); // True
+            IEnumerable<Derived> emptyFirst = new ConcurrentQueue<Derived>();
+            IEnumerable<Base> emptySecond = ImmutableHashSet.Create<Base>();
+            bool sequentialEqual = emptyFirst.SequenceEqual(emptySecond).WriteLine(); // True
         }
 
         internal static void SequentialEqualWithComparer()

@@ -1,8 +1,6 @@
 ﻿namespace Tutorial.LinqToObjects
 {
     using System;
-    using System.Collections;
-    using System.Collections.Generic;
 
     internal static partial class IteratorPattern
     {
