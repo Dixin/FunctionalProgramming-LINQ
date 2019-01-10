@@ -2,9 +2,8 @@
 {
     using System;
     using System.Diagnostics;
-    using Tutorial.LambdaCalculus;
-
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Tutorial.LambdaCalculus;
 
     [TestClass]
     public class ChurchNestedListTests

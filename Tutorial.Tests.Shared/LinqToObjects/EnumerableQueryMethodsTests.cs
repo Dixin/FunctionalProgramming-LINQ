@@ -3,10 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-
-    using Tutorial.LinqToObjects;
-
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Tutorial.LinqToObjects;
 
     [TestClass]
     public partial class EnumerableQueryMethodsTests

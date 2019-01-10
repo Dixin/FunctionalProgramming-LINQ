@@ -1,8 +1,8 @@
 ﻿namespace Tutorial.Tests.Functional
 {
     using System.Linq;
-    using Tutorial.Functional;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Tutorial.Functional;
 
     [TestClass]
     public class LocalFunctionTests

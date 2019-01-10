@@ -1,9 +1,7 @@
 ﻿namespace Tutorial.Tests.LambdaCalculus
 {
-    using Tutorial.LambdaCalculus;
-
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-
+    using Tutorial.LambdaCalculus;
     using static Tutorial.LambdaCalculus.ChurchBoolean;
 
     public partial class ChurchBooleanTests

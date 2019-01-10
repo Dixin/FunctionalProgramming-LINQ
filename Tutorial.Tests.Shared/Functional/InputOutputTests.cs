@@ -1,8 +1,7 @@
 ﻿namespace Tutorial.Tests.Functional
 {
-    using Tutorial.Functional;
-
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Tutorial.Functional;
 
     [TestClass]
     public class ParametersTests

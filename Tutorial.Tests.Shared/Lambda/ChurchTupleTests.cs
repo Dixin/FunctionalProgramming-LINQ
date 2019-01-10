@@ -1,9 +1,8 @@
 ﻿namespace Tutorial.Tests.LambdaCalculus
 {
     using System;
-    using Tutorial.LambdaCalculus;
-
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Tutorial.LambdaCalculus;
 
     [TestClass]
     public class ChurchTupleTests

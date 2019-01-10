@@ -19,7 +19,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)CategoryTheory\MonoidTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CategoryTheory\NaturalTransformationsTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CategoryTheory\PerformanceTests.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Connection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\ConnectionTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\AsynchronousFunctionTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\DelegateTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GettingStarted\BasicsTests.cs" />
