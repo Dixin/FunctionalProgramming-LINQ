@@ -18,7 +18,7 @@
 
     using static Tutorial.LinqToObjects.EnumerableX;
 
-    public static partial class FuncPaitialApplicationExtensions
+    public static partial class FuncPartialApplicationExtensions
     {
         public static Func<TResult> Partial<T1, TResult>(
             this Func<T1, TResult> function, T1 value1) =>
@@ -576,9 +576,9 @@
             string rightLog = right.Content.Single();
             Assert.AreEqual("a", right.Content.Single().Split(' ').Last());
             // Monad law 2: M.SelectMany(Monad) == M
-            Func<int, Writer<string, int>> Resturn = x => x.LogWriter("abc");
-            Writer<string, int> M = Resturn(1);
-            left = M.SelectMany(Resturn, False);
+            Func<int, Writer<string, int>> Return = x => x.LogWriter("abc");
+            Writer<string, int> M = Return(1);
+            left = M.SelectMany(Return, False);
             right = M;
             Assert.AreEqual(left.Value, right.Value);
             EnumerableAssert.AreSequentialEqual(new string[] { "abc", "abc" }, left.Content.Select(log => log.Split(' ').Last()));

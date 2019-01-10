@@ -1,10 +1,8 @@
 ﻿namespace Tutorial.Tests.CategoryTheory
 {
     using System.Diagnostics;
-
-    using Tutorial.CategoryTheory;
-
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Tutorial.CategoryTheory;
 
     [TestClass]
     public class PerformanceTests

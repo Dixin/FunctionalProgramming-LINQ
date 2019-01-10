@@ -38,7 +38,7 @@
         private static Reader<IConfiguration, FileInfo> DownloadHtml(Uri uri) =>
             configuration => default;
 
-        private static Reader<IConfiguration, FileInfo> ConverToWord(FileInfo htmlDocument, FileInfo template) =>
+        private static Reader<IConfiguration, FileInfo> ConvertToWord(FileInfo htmlDocument, FileInfo template) =>
             configuration => default;
 
         private static Reader<IConfiguration, Unit> UploadToOneDrive(FileInfo file) =>
@@ -48,7 +48,7 @@
         {
             Reader<IConfiguration, (FileInfo, FileInfo)> query =
                 from htmlDocument in DownloadHtml(uri) // Reader<IConfiguration, FileInfo>.
-                from wordDocument in ConverToWord(htmlDocument, template) // Reader<IConfiguration, FileInfo>.
+                from wordDocument in ConvertToWord(htmlDocument, template) // Reader<IConfiguration, FileInfo>.
                 from unit in UploadToOneDrive(wordDocument) // Reader<IConfiguration, Unit>.
                 select (htmlDocument, wordDocument); // Define query.
             (FileInfo, FileInfo) result = query(configuration); // Execute query.

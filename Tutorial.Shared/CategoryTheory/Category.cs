@@ -2,12 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
-#if WINDOWS_UWP
-    using System.IO;
-#endif
     using System.Linq;
     using System.Linq.Expressions;
-    using System.Reflection;
 
     public interface ICategory<TObject, TMorphism>
     {
@@ -50,8 +46,7 @@
     public partial class DotNetCategory : ICategory<Type, Delegate>
     {
         public IEnumerable<Type> Objects =>
-            SelfAndReferences(typeof(DotNetCategory).Assembly)
-                .SelectMany(assembly => assembly.GetExportedTypes());
+            AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => assembly.ExportedTypes);
 
         public Delegate Compose(Delegate morphism2, Delegate morphism1) =>
             // return (Func<TSource, TResult>)Functions.Compose<TSource, TMiddle, TResult>(
@@ -66,31 +61,5 @@
         public Delegate Id(Type @object) => // Functions.Id<TSource>
             typeof(Functions).GetMethod(nameof(Functions.Id)).MakeGenericMethod(@object)
                 .CreateDelegate(typeof(Func<,>).MakeGenericType(@object, @object));
-
-        private static IEnumerable<Assembly> SelfAndReferences(
-            Assembly self, HashSet<Assembly> selfAndReferences = null)
-        {
-            selfAndReferences = selfAndReferences ?? new HashSet<Assembly>();
-            if (selfAndReferences.Add(self))
-            {
-                self.GetReferencedAssemblies()
-#if !WINDOWS_UWP
-                    .ForEach(reference =>
-                        SelfAndReferences(Assembly.Load(reference), selfAndReferences));
-#else
-                    .ForEach(reference =>
-                    {
-                        try
-                        {
-                            // UWP throws FileLoadException for Windows, Windows.Foundation.UniversalApiContract, Windows.Foundation.FoundationContract: Could not load file or assembly 'Windows, Version=255.255.255.255, Culture=neutral, PublicKeyToken=null, ContentType=WindowsRuntime'. Operation is not supported. (Exception from HRESULT: 0x80131515)
-                            SelfAndReferences(Assembly.Load(reference), selfAndReferences);
-                        }
-                        catch (FileLoadException) { }
-                    });
-#endif
-                return selfAndReferences;
-            }
-            return Enumerable.Empty<Assembly>(); // Circular or duplicate reference.
-        }
     }
 }

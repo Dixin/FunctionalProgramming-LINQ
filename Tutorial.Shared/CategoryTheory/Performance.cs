@@ -45,14 +45,14 @@
 
                 T first = iterator.Current;
                 comparer = comparer ?? Comparer<T>.Default;
-                List<T> smallerThanOrEqualToFIrst = new List<T>();
+                List<T> smallerThanOrEqualToFirst = new List<T>();
                 List<T> greaterThanFirst = new List<T>();
                 while (iterator.MoveNext())
                 {
                     T value = iterator.Current;
                     if (comparer.Compare(value, first) <= 0)
                     {
-                        smallerThanOrEqualToFIrst.Add(value);
+                        smallerThanOrEqualToFirst.Add(value);
                     }
                     else
                     {
@@ -60,7 +60,7 @@
                     }
                 } // Eager evaluation.
 
-                foreach (T value in smallerThanOrEqualToFIrst.QuickSort()) // Recursion.
+                foreach (T value in smallerThanOrEqualToFirst.QuickSort()) // Recursion.
                 {
                     yield return value;
                 }

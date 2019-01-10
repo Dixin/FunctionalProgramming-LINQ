@@ -2,10 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
-
-    using Tutorial.CategoryTheory;
-
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Tutorial.CategoryTheory;
 
     [TestClass]
     public partial class NaturalTransformationsTests

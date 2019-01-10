@@ -164,7 +164,7 @@
         }
 
         [TestMethod]
-        public void OptonalTest()
+        public void OptionalTest()
         {
             bool isExecuted1 = false;
             Func<int, int> addOne = x => { isExecuted1 = true; return x + 1; };
