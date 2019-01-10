@@ -101,7 +101,7 @@ namespace System
 
         internal long _ticks; // Field.
 
-        public TimeSpan(long ticks) // COnstructor.
+        public TimeSpan(long ticks) // Constructor.
         {
             this._ticks = ticks;
         }
@@ -329,10 +329,7 @@ namespace Tutorial.GettingStarted
         {
             Point[] referenceArrayOnHeap = new Point[] { new Point(5, 6) };
             ValuePoint[] valueArrayOnHeap = new ValuePoint[] { new ValuePoint(7, 8) };
-
-#if NETSTANDARD2_0 || __IOS__
             Span<ValuePoint> valueArrayOnStack = stackalloc ValuePoint[] { new ValuePoint(9, 10) };
-#endif
         }
 
 #pragma warning disable SA1206 // Declaration keywords must follow order
@@ -543,7 +540,7 @@ namespace Tutorial.GettingStarted
 
     internal partial class Constraints<T1, T2, T3, T4, T5, T6, T7>
     {
-        internal static void Method(T3 connection) // where T3 : DbConnectiong
+        internal static void Method(T3 connection) // T3 : DbConnection
         {
             using (connection) // DbConnection implements IDisposable.
             {
@@ -595,7 +592,7 @@ namespace Tutorial.GettingStarted
     {
         public string FormattedName
         {
-            get { return this.name.ToUpper(); }
+            get { return this.name.ToUpperInvariant(); }
         }
     }
 

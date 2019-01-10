@@ -68,7 +68,7 @@
             Assembly coreLibrary = typeof(object).Assembly;
             IEnumerable<Type> allTypes = coreLibrary.ExportedTypes;
 
-            // Filter delagate types from all types, and group them by namespace.
+            // Filter delegate types from all types, and group them by namespace.
             Dictionary<string, List<Type>> delegateGroups = new Dictionary<string, List<Type>>();
             foreach (Type type in allTypes)
             {

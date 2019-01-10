@@ -2,7 +2,7 @@
 {
     using System.ComponentModel.DataAnnotations;
 
-    using Tutorial.Resources;
+    using Tutorial.Properties;
 
     public class Contact
     {
