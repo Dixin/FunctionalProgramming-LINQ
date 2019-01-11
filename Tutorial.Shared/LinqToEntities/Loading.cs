@@ -10,7 +10,7 @@
     using Microsoft.EntityFrameworkCore.Query.Expressions;
     using Microsoft.EntityFrameworkCore.Storage;
 
-    public static class QueryableExtensions
+    internal static partial class Loading
     {
         public static IEnumerator<TEntity> GetEntityIterator<TEntity>(
             this IQueryable<TEntity> query, DbContext dbContext) where TEntity : class
@@ -42,10 +42,7 @@
                 dispose: () => entityIterator.Dispose(),
                 end: () => "  |_End.".WriteLine()).Start();
         }
-    }
 
-    internal static partial class Loading
-    {
         internal static void DeferredExecution(AdventureWorks adventureWorks)
         {
             IQueryable<Product> categories = adventureWorks.Products
@@ -82,10 +79,7 @@
             // |_Iterator - [3] MoveNext: False.
             //   |_End.
         }
-    }
 
-    internal static partial class Loading
-    {
         internal static void ExplicitLoading(AdventureWorks adventureWorks)
         {
             ProductSubcategory subcategory = adventureWorks.ProductSubcategories.First(); // Execute query.

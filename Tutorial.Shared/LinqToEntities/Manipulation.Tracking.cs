@@ -17,10 +17,7 @@ namespace Tutorial.LinqToEntities
             adventureWorks.ChangeTracker.Entries().Count().WriteLine(); // 1
             object.ReferenceEquals(productById, productByName).WriteLine(); // True
         }
-    }
 
-    internal static partial class Tracking
-    {
         internal static void ObjectsFromSameDbContext(AdventureWorks adventureWorks)
         {
             var productById = adventureWorks.Products

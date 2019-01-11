@@ -54,10 +54,7 @@
                 return category;
             } // Unit of work.
         }
-    }
 
-    internal static partial class Changes
-    {
         internal static void Update(int categoryId, int subcategoryId)
         {
             using (AdventureWorks adventureWorks = new AdventureWorks())

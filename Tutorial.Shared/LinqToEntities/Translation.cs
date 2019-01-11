@@ -41,10 +41,7 @@
                 result.WriteLine();
             }
         }
-    }
 
-    internal static partial class Translation
-    {
         internal static void WhereAndSelectLinqExpressions(AdventureWorks adventureWorks)
         {
             IQueryable<Product> sourceQueryable = adventureWorks.Products; // DbSet<Product>.
@@ -221,10 +218,7 @@
             selectExpression.Limit = Expression.Constant(1);
             return selectExpression.WriteLine();
         }
-    }
 
-    public static partial class DbContextExtensions
-    {
         public static (SelectExpression, IReadOnlyDictionary<string, object>) Compile(
             this DbContext dbContext, Expression linqExpression)
         {
@@ -263,10 +257,7 @@
             databaseExpression.QuerySource = queryModel.MainFromClause;
             return (databaseExpression, queryContext.ParameterValues);
         }
-    }
 
-    public static partial class DbContextExtensions
-    {
         public partial class ApiCompilationFilter : EvaluatableExpressionFilterBase
         {
             private static readonly PropertyInfo DateTimeUtcNow = typeof(DateTime)
@@ -275,10 +266,7 @@
             public override bool IsEvaluatableMember(MemberExpression memberExpression) =>
                 memberExpression.Member != DateTimeUtcNow;
         }
-    }
 
-    public static partial class DbContextExtensions
-    {
         public static IRelationalCommand Generate(
             this DbContext dbContext,
             SelectExpression databaseExpression,
@@ -336,10 +324,7 @@
                 sql: sql.CommandText,
                 parameters: parameters.Select(parameter => new SqlParameter(parameter.Key, parameter.Value)).ToArray());
         }
-    }
 
-    internal static partial class Translation
-    {
         private static bool FilterName(string name) => name.Length > 10;
 
         internal static void WhereAndSelectWithCustomPredicate(AdventureWorks adventureWorks)

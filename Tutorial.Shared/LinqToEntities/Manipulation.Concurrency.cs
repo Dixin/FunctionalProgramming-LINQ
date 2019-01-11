@@ -10,28 +10,28 @@ namespace Tutorial.LinqToEntities
     using Microsoft.EntityFrameworkCore.ChangeTracking;
     using Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling;
 
-    internal partial class DbReaderWriter : IDisposable
-    {
-        private readonly DbContext context;
-
-        internal DbReaderWriter(DbContext context) => this.context = context;
-
-        internal TEntity Read<TEntity>(params object[] keys) where TEntity : class =>
-            this.context.Set<TEntity>().Find(keys);
-
-        internal int Write(Action change)
-        {
-            change();
-            return this.context.SaveChanges();
-        }
-
-        internal DbSet<TEntity> Set<TEntity>() where TEntity : class => this.context.Set<TEntity>();
-
-        public void Dispose() => this.context.Dispose();
-    }
-
     internal static partial class Concurrency
     {
+        internal partial class DbReaderWriter : IDisposable
+        {
+            private readonly DbContext context;
+
+            internal DbReaderWriter(DbContext context) => this.context = context;
+
+            internal TEntity Read<TEntity>(params object[] keys) where TEntity : class =>
+                this.context.Set<TEntity>().Find(keys);
+
+            internal int Write(Action change)
+            {
+                change();
+                return this.context.SaveChanges();
+            }
+
+            internal DbSet<TEntity> Set<TEntity>() where TEntity : class => this.context.Set<TEntity>();
+
+            public void Dispose() => this.context.Dispose();
+        }
+
         internal static void NoCheck(
             DbReaderWriter readerWriter1, DbReaderWriter readerWriter2, DbReaderWriter readerWriter3)
         {
@@ -55,10 +55,7 @@ namespace Tutorial.LinqToEntities
             ProductCategory category3 = readerWriter3.Read<ProductCategory>(id);
             category3.Name.WriteLine(); // readerWriter2
         }
-    }
 
-    internal static partial class Concurrency
-    {
         internal static void ConcurrencyCheck(DbReaderWriter readerWriter1, DbReaderWriter readerWriter2)
         {
             int id = 1;
@@ -128,30 +125,27 @@ namespace Tutorial.LinqToEntities
             // ',N'@p0 int,@p1 varbinary(8)',@p0=995,@p1=0x0000000000000803
             // DbUpdateConcurrencyException: Database operation expected to affect 1 row(s) but actually affected 0 row(s). Data may have been modified or deleted since entities were loaded. See http://go.microsoft.com/fwlink/?LinkId=527962 for information on understanding and handling optimistic concurrency exceptions.
         }
-    }
 
-    internal partial class DbReaderWriter
-    {
-        internal int Write(Action change, Action<DbUpdateConcurrencyException> handleException, int retryCount = 3)
+        internal partial class DbReaderWriter
         {
-            change();
-            for (int retry = 1; retry < retryCount; retry++)
+            internal int Write(Action change, Action<DbUpdateConcurrencyException> handleException, int retryCount = 3)
             {
-                try
+                change();
+                for (int retry = 1; retry < retryCount; retry++)
                 {
-                    return this.context.SaveChanges();
+                    try
+                    {
+                        return this.context.SaveChanges();
+                    }
+                    catch (DbUpdateConcurrencyException exception)
+                    {
+                        handleException(exception);
+                    }
                 }
-                catch (DbUpdateConcurrencyException exception)
-                {
-                    handleException(exception);
-                }
+                return this.context.SaveChanges();
             }
-            return this.context.SaveChanges();
         }
-    }
 
-    internal static partial class Concurrency
-    {
         internal static void UpdateProduct(
             DbReaderWriter readerWriter1, DbReaderWriter readerWriter2, DbReaderWriter readerWriter3,
             Action<EntityEntry> resolveConflicts)
@@ -191,26 +185,23 @@ namespace Tutorial.LinqToEntities
             $"Resolved:  ({resolved.Name}, {resolved.ListPrice}, {resolved.ProductSubcategoryID}, {resolved.RowVersionString})"
                 .WriteLine();
         }
-    }
 
-    internal partial class DbReaderWriter
-    {
-        internal int WriteDatabaseWins(Action change)
+        internal partial class DbReaderWriter
         {
-            change();
-            try
+            internal int WriteDatabaseWins(Action change)
             {
-                return this.context.SaveChanges();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                return 0; // this.context is in a corrupted state.
+                change();
+                try
+                {
+                    return this.context.SaveChanges();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    return 0; // this.context is in a corrupted state.
+                }
             }
         }
-    }
 
-    internal static partial class Concurrency
-    {
         internal static void DatabaseWins(
             DbReaderWriter readerWriter1, DbReaderWriter readerWriter2, DbReaderWriter readerWriter3)
         {
@@ -315,10 +306,7 @@ namespace Tutorial.LinqToEntities
 
             (readerWriter3.Read<Product>(id) == null).WriteLine();
         }
-    }
 
-    public static partial class DbContextExtensions
-    {
         public static int SaveChanges(
             this DbContext context, Action<IEnumerable<EntityEntry>> resolveConflicts, int retryCount = 3)
         {
@@ -340,16 +328,13 @@ namespace Tutorial.LinqToEntities
             }
             return context.SaveChanges();
         }
-    }
 
-    public class TransientDetection<TException> : ITransientErrorDetectionStrategy
-        where TException : Exception
-    {
-        public bool IsTransient(Exception ex) => ex is TException;
-    }
+        public class TransientDetection<TException> : ITransientErrorDetectionStrategy
+            where TException : Exception
+        {
+            public bool IsTransient(Exception ex) => ex is TException;
+        }
 
-    public static partial class DbContextExtensions
-    {
         public static int SaveChanges(
             this DbContext context, Action<IEnumerable<EntityEntry>> resolveConflicts, RetryStrategy retryStrategy)
         {
@@ -360,19 +345,16 @@ namespace Tutorial.LinqToEntities
                 resolveConflicts(((DbUpdateConcurrencyException)e.LastException).Entries);
             return retryPolicy.ExecuteAction(context.SaveChanges);
         }
-    }
 
-    public enum RefreshConflict
-    {
-        StoreWins,
+        public enum RefreshConflict
+        {
+            StoreWins,
 
-        ClientWins,
+            ClientWins,
 
-        MergeClientAndStore
-    }
+            MergeClientAndStore
+        }
 
-    public static partial class DbContextExtensions
-    {
         public static int SaveChanges(this DbContext context, RefreshConflict refreshMode, int retryCount = 3)
         {
             if (retryCount <= 0)
@@ -388,10 +370,7 @@ namespace Tutorial.LinqToEntities
             this DbContext context, RefreshConflict refreshMode, RetryStrategy retryStrategy) =>
                 context.SaveChanges(
                     conflicts => conflicts.ForEach(tracking => tracking.Refresh(refreshMode)), retryStrategy);
-    }
 
-    public static partial class DbEntityEntryExtensions
-    {
         public static EntityEntry Refresh(this EntityEntry tracking, RefreshConflict refreshMode)
         {
             switch (refreshMode)
@@ -448,10 +427,7 @@ namespace Tutorial.LinqToEntities
             }
             return tracking;
         }
-    }
 
-    internal static partial class Concurrency
-    {
         internal static void SaveChanges(AdventureWorks adventureWorks1, AdventureWorks adventureWorks2)
         {
             int id = 999;

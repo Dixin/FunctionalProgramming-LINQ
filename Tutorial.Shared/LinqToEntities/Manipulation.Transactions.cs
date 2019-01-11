@@ -94,10 +94,7 @@ namespace Tutorial.LinqToEntities
                     }
                 });
         }
-    }
 
-    internal static partial class Transactions
-    {
         internal static void DbTransaction()
         {
             using (DbConnection connection = new SqlConnection(ConnectionStrings.AdventureWorks))
