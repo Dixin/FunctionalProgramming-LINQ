@@ -28,7 +28,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)CategoryTheory\NaturalTransformation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CategoryTheory\Optional`1.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CategoryTheory\Performance.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\ConnectionStrings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Modeling.ConnectionStrings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\Lambda.AnonymousFunction.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\AsynchronousFunction.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functional\Composition.cs" />
@@ -47,24 +47,23 @@
     <Compile Include="$(MSBuildThisFileDirectory)Functional\CovarianceContravariance.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GettingStarted\Overview.Linq.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GettingStarted\Overview.Linq.NetFX.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Relationship.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Changes.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Concurrency.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Database.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Functions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Inheritance.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Modeling.Relationship.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Manipulation.Changes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Manipulation.Concurrency.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Modeling.Database.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Modeling.Inheritance.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Loading.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Tracing.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\QueryTracing.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Performance.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\QueryExpressions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\QueryMethods.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\RemoteQuery.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Tables.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Tracking.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Transactions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Modeling.Tables.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Manipulation.Tracking.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Manipulation.Transactions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Translation.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\UnitOfWork.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Views.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Manipulation.UnitOfWork.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Modeling.Views.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToObjects\EnumerableX.Compare.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToObjects\EnumerableX.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToObjects\EnumerableX.List.cs" />
@@ -128,8 +127,8 @@
     <Content Include="$(MSBuildThisFileDirectory)Functional\InputOutput.OptionalParameter.il" />
     <Content Include="$(MSBuildThisFileDirectory)GettingStarted\Overview.Linq.LinqToNoSql.All.json" />
     <Content Include="$(MSBuildThisFileDirectory)LinqToEntities\AdventureWorks.Trim.sql" />
-    <Content Include="$(MSBuildThisFileDirectory)LinqToEntities\Inheritance.sql" />
-    <Content Include="$(MSBuildThisFileDirectory)LinqToEntities\Tracing.sql" />
+    <Content Include="$(MSBuildThisFileDirectory)LinqToEntities\Modeling.Inheritance.sql" />
+    <Content Include="$(MSBuildThisFileDirectory)LinqToEntities\QueryTracing.sql" />
     <Content Include="$(MSBuildThisFileDirectory)LinqToEntities\Translation.txt" />
     <Content Include="$(MSBuildThisFileDirectory)GettingStarted\Overview.Linq.LinqToNoSql.json" />
     <Content Include="$(MSBuildThisFileDirectory)GettingStarted\Overview.Linq.LinqToNoSql.sql" />
@@ -146,16 +145,15 @@
     <Content Include="$(MSBuildThisFileDirectory)ParallelLinq\Partitioning.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)LinqToEntities\Changes.sql" />
-    <None Include="$(MSBuildThisFileDirectory)LinqToEntities\Concurrency.sql" />
-    <None Include="$(MSBuildThisFileDirectory)LinqToEntities\Database.sql" />
-    <None Include="$(MSBuildThisFileDirectory)LinqToEntities\Functions.sql" />
+    <None Include="$(MSBuildThisFileDirectory)LinqToEntities\Manipulation.Changes.sql" />
+    <None Include="$(MSBuildThisFileDirectory)LinqToEntities\Manipulation.Concurrency.sql" />
+    <None Include="$(MSBuildThisFileDirectory)LinqToEntities\Modeling.Database.sql" />
     <None Include="$(MSBuildThisFileDirectory)LinqToEntities\Loading.sql" />
-    <None Include="$(MSBuildThisFileDirectory)LinqToEntities\Mapping.sql" />
+    <None Include="$(MSBuildThisFileDirectory)LinqToEntities\Modeling.Mapping.sql" />
     <None Include="$(MSBuildThisFileDirectory)LinqToEntities\Performance.sql" />
     <None Include="$(MSBuildThisFileDirectory)LinqToEntities\RemoteQuery.sql" />
-    <None Include="$(MSBuildThisFileDirectory)LinqToEntities\Tables.sql" />
-    <None Include="$(MSBuildThisFileDirectory)LinqToEntities\Views.sql" />
+    <None Include="$(MSBuildThisFileDirectory)LinqToEntities\Modeling.Tables.sql" />
+    <None Include="$(MSBuildThisFileDirectory)LinqToEntities\Modeling.Views.sql" />
     <None Include="$(MSBuildThisFileDirectory)LambdaCalculus\SkiCompiler.hs" />
   </ItemGroup>
 </Project>
