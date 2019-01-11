@@ -212,6 +212,18 @@
         internal static void GroupBy(AdventureWorks adventureWorks)
         {
             IQueryable<ProductSubcategory> source = adventureWorks.ProductSubcategories;
+            IQueryable<ProductSubcategory> grouped = source
+                .GroupBy(keySelector: subcategory => subcategory.ProductCategoryID)
+                .SelectMany(group => group); // Define query.
+            grouped.WriteLines(subcategory => subcategory.Name); // Execute query.
+            // SELECT [subcategory].[ProductSubcategoryID], [subcategory].[Name], [subcategory].[ProductCategoryID]
+            // FROM [Production].[ProductSubcategory] AS [subcategory]
+            // ORDER BY [subcategory].[ProductCategoryID]
+        }
+
+        internal static void GroupByWithElementSelector(AdventureWorks adventureWorks)
+        {
+            IQueryable<ProductSubcategory> source = adventureWorks.ProductSubcategories;
             IQueryable<IGrouping<int, string>> groups = source.GroupBy(
                 keySelector: subcategory => subcategory.ProductCategoryID,
                 elementSelector: subcategory => subcategory.Name); // Define query.
@@ -229,9 +241,9 @@
                 elementSelector: subcategory => subcategory.Name,
                 resultSelector: (key, group) => new { CategoryID = key, SubcategoryCount = group.Count() }); // Define query.
             groups.WriteLines(); // Execute query.
-            // SELECT [subcategory].[ProductSubcategoryID], [subcategory].[Name], [subcategory].[ProductCategoryID]
+            // SELECT [subcategory].[ProductCategoryID] AS [CategoryID], COUNT(*) AS [SubcategoryCount]
             // FROM [Production].[ProductSubcategory] AS [subcategory]
-            // ORDER BY [subcategory].[ProductCategoryID]
+            // GROUP BY [subcategory].[ProductCategoryID]
         }
 
         internal static void GroupByAndSelect(AdventureWorks adventureWorks)
@@ -243,35 +255,33 @@
                     elementSelector: subcategory => subcategory.Name)
                 .Select(group => new { CategoryID = group.Key, SubcategoryCount = group.Count() }); // Define query.
             groups.WriteLines(); // Execute query.
-        }
-
-        internal static void GroupByAndSelectMany(AdventureWorks adventureWorks)
-        {
-            IQueryable<ProductSubcategory> source = adventureWorks.ProductSubcategories;
-            IQueryable<ProductSubcategory> distinct = source
-                .GroupBy(keySelector: subcategory => subcategory.ProductCategoryID)
-                .SelectMany(group => group); // Define query.
-            distinct.WriteLines(subcategory => subcategory.Name); // Execute query.
-            // SELECT [subcategory].[ProductSubcategoryID], [subcategory].[Name], [subcategory].[ProductCategoryID]
+            // SELECT [subcategory].[ProductCategoryID] AS [CategoryID], COUNT(*) AS [SubcategoryCount]
             // FROM [Production].[ProductSubcategory] AS [subcategory]
-            // ORDER BY [subcategory].[ProductCategoryID]
+            // GROUP BY [subcategory].[ProductCategoryID]
         }
 
         internal static void GroupByMultipleKeys(AdventureWorks adventureWorks)
         {
             IQueryable<Product> source = adventureWorks.Products;
-            var groups = source.GroupBy(
-                keySelector: product => new { ProductSubcategoryID = product.ProductSubcategoryID, ListPrice = product.ListPrice },
-                resultSelector: (key, group) => new
-                {
-                    ProductSubcategoryID = key.ProductSubcategoryID,
-                    ListPrice = key.ListPrice,
-                    Count = group.Count()
-                }); // Define query.
+            var groups = source
+                .GroupBy(
+                    keySelector: product => new
+                    {
+                        ProductSubcategoryID = product.ProductSubcategoryID,
+                        ListPrice = product.ListPrice
+                    },
+                    resultSelector: (key, group) => new
+                    {
+                        ProductSubcategoryID = key.ProductSubcategoryID,
+                        ListPrice = key.ListPrice,
+                        Count = group.Count()
+                    })
+                .Where(group => group.Count > 1); // Define query.
             groups.WriteLines(); // Execute query.
-            // SELECT [product].[ProductID], [product].[ListPrice], [product].[Name], [product].[ProductSubcategoryID]
+            // SELECT [product].[ProductSubcategoryID], [product].[ListPrice], COUNT(*) AS [Count]
             // FROM [Production].[Product] AS [product]
-            // ORDER BY [product].[ProductSubcategoryID], [product].[ListPrice]
+            // GROUP BY [product].[ProductSubcategoryID], [product].[ListPrice]
+            // HAVING COUNT(*) > 1
         }
 
         #endregion

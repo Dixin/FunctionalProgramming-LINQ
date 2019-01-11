@@ -6,35 +6,7 @@
 
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
-
-    public class TraceLogger : ILogger
-    {
-        private readonly string categoryName;
-
-        public TraceLogger(string categoryName) => this.categoryName = categoryName;
-
-        public bool IsEnabled(LogLevel logLevel) => true;
-
-        public void Log<TState>(
-            LogLevel logLevel,
-            EventId eventId,
-            TState state,
-            Exception exception,
-            Func<TState, Exception, string> formatter)
-        {
-            Trace.WriteLine($"{DateTime.Now.ToString("o")} {logLevel} {eventId.Id} {this.categoryName}");
-            Trace.WriteLine(formatter(state, exception));
-        }
-
-        public IDisposable BeginScope<TState>(TState state) => null;
-    }
-
-    public class TraceLoggerProvider : ILoggerProvider
-    {
-        public ILogger CreateLogger(string categoryName) => new TraceLogger(categoryName);
-
-        public void Dispose() { }
-    }
+    using TraceLoggerProvider = Tracing.TraceLoggerProvider;
 
     public partial class AdventureWorks
     {
@@ -48,7 +20,36 @@
 
     internal static partial class Tracing
     {
-        internal static void TraceLogger()
+        public class TraceLogger : ILogger
+        {
+            private readonly string categoryName;
+
+            public TraceLogger(string categoryName) => this.categoryName = categoryName;
+
+            public bool IsEnabled(LogLevel logLevel) => true;
+
+            public void Log<TState>(
+                LogLevel logLevel,
+                EventId eventId,
+                TState state,
+                Exception exception,
+                Func<TState, Exception, string> formatter)
+            {
+                Trace.WriteLine($"{DateTime.Now.ToString("o")} {logLevel} {eventId.Id} {this.categoryName}");
+                Trace.WriteLine(formatter(state, exception));
+            }
+
+            public IDisposable BeginScope<TState>(TState state) => null;
+        }
+
+        public class TraceLoggerProvider : ILoggerProvider
+        {
+            public ILogger CreateLogger(string categoryName) => new TraceLogger(categoryName);
+
+            public void Dispose() { }
+        }
+
+        internal static void Logger()
         {
             using (AdventureWorks adventureWorks = new AdventureWorks())
             {
@@ -77,7 +78,7 @@
             // )
 
             // 2017-01-11T22:15:43.7272876-08:00 Debug 3 Microsoft.EntityFrameworkCore.Storage.Internal.SqlServerConnection
-            // Opening connection to database 'AdventureWorks' on server 'tcp:tutorialsql.database.windows.net,1433'.
+            // Opening connection to database 'AdventureWorks' on server 'tcp:dixin.database.windows.net,1433'.
 
             // 2017-01-11T22:15:44.1024201-08:00 Information 1 Microsoft.EntityFrameworkCore.Storage.IRelationalCommandBuilderFactory
             // Executed DbCommand (66ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
@@ -85,7 +86,19 @@
             // FROM [Production].[ProductCategory] AS [p]
 
             // 2017-01-11T22:15:44.1505353-08:00 Debug 4 Microsoft.EntityFrameworkCore.Storage.Internal.SqlServerConnection
-            // Closing connection to database 'AdventureWorks' on server 'tcp:tutorialsql.database.windows.net,1433'.
+            // Closing connection to database 'AdventureWorks' on server 'tcp:dixin.database.windows.net,1433'.
+        }
+
+        internal static void TagWith(AdventureWorks adventureWorks)
+        {
+            IQueryable<ProductCategory> source = adventureWorks.ProductCategories
+                .TagWith("Query categories with id greater than 1.")
+                .Where(category => category.ProductCategoryID > 1); // Define query.
+            source.WriteLines(category => category.Name); // Execute query.
+            // -- Query categories with id greater than 1.
+            // SELECT [category].[ProductCategoryID], [category].[Name]
+            // FROM [Production].[ProductCategory] AS [category]
+            // WHERE [category].[ProductCategoryID] > 1
         }
     }
 }

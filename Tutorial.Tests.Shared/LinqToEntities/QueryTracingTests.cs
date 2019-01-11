@@ -10,7 +10,8 @@
         [TestMethod]
         public void TracingTest()
         {
-            Tracing.TraceLogger();
+            Tracing.Logger();
+            Tracing.TagWith(new AdventureWorks());
         }
     }
 }

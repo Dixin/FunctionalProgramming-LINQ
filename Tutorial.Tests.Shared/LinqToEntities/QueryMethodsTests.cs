@@ -48,9 +48,9 @@
         public void GroupingTest()
         {
             QueryMethods.GroupBy(new AdventureWorks());
+            QueryMethods.GroupByWithElementSelector(new AdventureWorks());
             QueryMethods.GroupByWithResultSelector(new AdventureWorks());
             QueryMethods.GroupByAndSelect(new AdventureWorks());
-            QueryMethods.GroupByAndSelectMany(new AdventureWorks());
             QueryMethods.GroupByMultipleKeys(new AdventureWorks());
         }
 
