@@ -1,15 +1,5 @@
 ﻿namespace Tutorial.Tests.LinqToEntities
 {
-#if NETFX
-    using System.Data.Entity;
-    using System.Data.Entity.Core.Objects;
-    using System.Linq;
-
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-    using Tutorial.LinqToEntities;
-    using Tutorial.Tests.LinqToObjects;
-#else
     using System.Linq;
 
     using Microsoft.EntityFrameworkCore;
@@ -17,22 +7,10 @@
 
     using Tutorial.LinqToEntities;
     using Tutorial.Tests.LinqToObjects;
-#endif
 
     [TestClass]
     public class DatabaseTests
     {
-#if NETFX
-        [TestMethod]
-        public void ContainerTest()
-        {
-            using (AdventureWorks adventureWorks = new AdventureWorks())
-            {
-                Assert.AreEqual(nameof(AdventureWorks), adventureWorks.Container().Name);
-            }
-        }
-#endif
-
         [TestMethod]
         public void TableTest()
         {
@@ -72,21 +50,13 @@
             {
                 Product[] products = adventureWorks
                     .Products
-#if NETFX
-                    .Include(product => product.ProductProductPhotos.Select(productProductPhoto => productProductPhoto.ProductPhoto))
-#else
                     .Include(product => product.ProductProductPhotos).ThenInclude(productProductPhoto => productProductPhoto.ProductPhoto)
-#endif
                     .ToArray();
                 EnumerableAssert.Multiple(products);
                 EnumerableAssert.Any(products.Where(product => product.ProductProductPhotos.Any(productProductPhoto => productProductPhoto.ProductPhoto != null)));
 
                 ProductPhoto[] photos = adventureWorks.ProductPhotos
-#if NETFX
-                    .Include(photo => photo.ProductProductPhotos.Select(productProductPhoto => productProductPhoto.Product))
-#else
                     .Include(photo => photo.ProductProductPhotos).ThenInclude(productProductPhoto => productProductPhoto.Product)
-#endif
                     .ToArray();
                 EnumerableAssert.Multiple(photos);
                 Assert.IsTrue(photos.All(photo => photo.ProductProductPhotos.Any(productProductPhoto => productProductPhoto.Product != null)));
@@ -105,18 +75,6 @@
                 EnumerableAssert.Multiple(transactions);
             }
         }
-
-#if NETFX
-        [TestMethod]
-        public void StoredProcedureWithComplexTypeTest()
-        {
-            using (AdventureWorks adventureWorks = new AdventureWorks())
-            {
-                ObjectResult<ManagerEmployee> employees = adventureWorks.GetManagerEmployees(2);
-                EnumerableAssert.Any(employees);
-            }
-        }
-#endif
 
         [TestMethod]
         public void ViewTest()

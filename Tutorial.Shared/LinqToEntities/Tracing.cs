@@ -1,73 +1,5 @@
 ﻿namespace Tutorial.LinqToEntities
 {
-#if EF
-    using System.Diagnostics;
-    using System.Data.Entity.Infrastructure.Interception;
-    using System.Linq;
-
-    using static Tutorial.LinqToObjects.EnumerableX;
-
-    internal static partial class Tracing
-    {
-        internal static void DbQueryToString()
-        {
-            using (AdventureWorks adventureWorks = new AdventureWorks())
-            {
-                IQueryable<ProductCategory> source = adventureWorks.ProductCategories; // Define query.
-                source.ToString().WriteLine();
-                // SELECT 
-                //    [Extent1].[ProductCategoryID] AS [ProductCategoryID], 
-                //    [Extent1].[Name] AS [Name]
-                //    FROM [Production].[ProductCategory] AS [Extent1]
-                source.ForEach(); // Execute query.
-            }
-        }
-    }
-
-    internal static partial class Tracing
-    {
-        internal static void DatabaseLog()
-        {
-            using (AdventureWorks adventureWorks = new AdventureWorks())
-            {
-                adventureWorks.Database.Log = log => Trace.Write(log);
-                IQueryable<ProductCategory> source = adventureWorks.ProductCategories; // Define query.
-                source.ForEach(); // Execute query.
-            }
-            // Opened connection at 5/21/2016 12:33:34 AM -07:00
-            // SELECT 
-            //    [Extent1].[ProductCategoryID] AS [ProductCategoryID], 
-            //    [Extent1].[Name] AS [Name]
-            //    FROM [Production].[ProductCategory] AS [Extent1]
-            // -- Executing at 5/21/2016 12:31:58 AM -07:00
-            // -- Completed in 11 ms with result: SqlDataReader4
-            // Closed connection at 5/21/2016 12:33:35 AM -07:00
-        }
-    }
-
-    internal static partial class Tracing
-    {
-        internal static void Interceptor()
-        {
-            DatabaseLogFormatter interceptor = new DatabaseLogFormatter(writeAction: log => Trace.WriteLine(log));
-            DbInterception.Add(interceptor);
-            using (AdventureWorks adventureWorks = new AdventureWorks())
-            {
-                IQueryable<ProductCategory> source = adventureWorks.ProductCategories; // Define query.
-                source.ForEach(); // Execute query.
-            }
-            // Opened connection at 1/11/2017 11:51:06 PM -08:00
-            // SELECT 
-            // [Extent1].[ProductCategoryID] AS [ProductCategoryID], 
-            // [Extent1].[Name] AS [Name]
-            // FROM [Production].[ProductCategory] AS [Extent1]
-            // -- Executing at 1/11/2017 11:51:06 PM -08:00
-            // -- Completed in 10 ms with result: SqlDataReader
-            // Closed connection at 1/11/2017 11:51:06 PM -08:00
-            DbInterception.Remove(interceptor);
-        }
-    }
-#else
     using System;
     using System.Diagnostics;
     using System.Linq;
@@ -75,10 +7,6 @@
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
 
-    using static Tutorial.LinqToObjects.EnumerableX;
-#endif
-
-#if !EF
     public class TraceLogger : ILogger
     {
         private readonly string categoryName;
@@ -107,9 +35,7 @@
 
         public void Dispose() { }
     }
-#endif
 
-#if !EF
     public partial class AdventureWorks
     {
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -119,7 +45,6 @@
             optionsBuilder.UseLoggerFactory(loggerFactory);
         }
     }
-#endif
 
     internal static partial class Tracing
     {
@@ -128,7 +53,7 @@
             using (AdventureWorks adventureWorks = new AdventureWorks())
             {
                 IQueryable<ProductCategory> source = adventureWorks.ProductCategories; // Define query.
-                source.ForEach(); // Execute query.
+                source.WriteLines(category => category.Name); // Execute query.
             }
             // 2017-01-11T22:15:43.4625876-08:00 Debug 2 Microsoft.EntityFrameworkCore.Query.Internal.SqlServerQueryCompilationContextFactory
             // Compiling query model:

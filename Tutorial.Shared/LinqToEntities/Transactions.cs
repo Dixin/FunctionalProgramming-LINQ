@@ -1,39 +1,24 @@
 namespace Tutorial.LinqToEntities
 {
-#if EF
-    using System.Data.Common;
-    using System.Data.Entity;
-    using System.Data.Entity.Infrastructure;
-    using System.Data.SqlClient;
-    using System.Linq;
-    using System.Transactions;
-    
-    using IDbContextTransaction = System.Data.Entity.DbContextTransaction;
-    using IsolationLevel = System.Data.IsolationLevel;
-#else
+    using System;
     using System.Data.Common;
     using System.Data.SqlClient;
     using System.Linq;
-
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Storage;
 
     using IsolationLevel = System.Data.IsolationLevel;
-#endif
 
     internal static partial class Transactions
     {
-        internal static void ExecutionStrategy2(AdventureWorks adventureWorks)
+        internal static void ExecutionStrategy(AdventureWorks adventureWorks)
         {
             adventureWorks.Database.CreateExecutionStrategy().Execute(() =>
             {
                 // Single retry operation, which can have custom transactions.
             });
         }
-    }
 
-    internal static partial class Transactions
-    {
         internal static void Default(AdventureWorks adventureWorks)
         {
             ProductCategory category = adventureWorks.ProductCategories.First();
@@ -56,68 +41,58 @@ namespace Tutorial.LinqToEntities
                 subcategory.ProductCategoryID.WriteLine(); // 1
             }
         }
-    }
 
-    public static partial class DbContextExtensions
-    {
-        public static readonly string CurrentIsolationLevelSql = $@"
-            SELECT
-                CASE transaction_isolation_level
-                    WHEN 0 THEN N'{IsolationLevel.Unspecified}'
-                    WHEN 1 THEN N'{IsolationLevel.ReadUncommitted}'
-                    WHEN 2 THEN N'{IsolationLevel.ReadCommitted}'
-                    WHEN 3 THEN N'{IsolationLevel.RepeatableRead}'
-                    WHEN 4 THEN N'{IsolationLevel.Serializable}'
-                    WHEN 5 THEN N'{IsolationLevel.Snapshot}'
-                END
-            FROM sys.dm_exec_sessions
-            WHERE session_id = @@SPID";
-
-#if EF
-        public static string CurrentIsolationLevel(this DbContext context) =>
-            context.Database.SqlQuery<string>(CurrentIsolationLevelSql).Single();
-#else
-        public static string CurrentIsolationLevel(this DbContext context)
+        internal static IsolationLevel CurrentIsolationLevel(this DbConnection connection,
+            DbTransaction transaction = null)
         {
-            using (DbCommand command = context.Database.GetDbConnection().CreateCommand())
+            using (DbCommand command = connection.CreateCommand())
             {
-                command.CommandText = CurrentIsolationLevelSql;
-                command.Transaction = context.Database.CurrentTransaction.GetDbTransaction();
-                return (string)command.ExecuteScalar();
+                command.CommandText =
+                    @"SELECT transaction_isolation_level FROM sys.dm_exec_sessions WHERE session_id = @@SPID";
+                command.Transaction = transaction;
+                switch ((short)command.ExecuteScalar())
+                {
+                    case 0: return IsolationLevel.Unspecified;
+                    case 1: return IsolationLevel.ReadUncommitted;
+                    case 2: return IsolationLevel.ReadCommitted;
+                    case 3: return IsolationLevel.RepeatableRead;
+                    case 4: return IsolationLevel.Serializable;
+                    case 5: return IsolationLevel.Snapshot;
+                    default: throw new InvalidOperationException();
+                }
             }
         }
-#endif
-    }
 
-    internal static partial class Transactions
-    {
+        internal static IsolationLevel CurrentIsolationLevel(this DbContext dbContext) =>
+            dbContext.Database.GetDbConnection().CurrentIsolationLevel(
+                dbContext.Database.CurrentTransaction?.GetDbTransaction());
+
         internal static void DbContextTransaction(AdventureWorks adventureWorks)
         {
             adventureWorks.Database.CreateExecutionStrategy().Execute(() =>
-            {
-                using (IDbContextTransaction transaction = adventureWorks.Database.BeginTransaction(
-                    IsolationLevel.ReadUncommitted))
                 {
-                    try
+                    using (IDbContextTransaction transaction = adventureWorks.Database
+                        .BeginTransaction(IsolationLevel.ReadUncommitted))
                     {
-                        adventureWorks.CurrentIsolationLevel().WriteLine(); // ReadUncommitted
+                        try
+                        {
+                            ProductCategory category = new ProductCategory() { Name = nameof(ProductCategory) };
+                            adventureWorks.ProductCategories.Add(category);
+                            adventureWorks.SaveChanges().WriteLine(); // 1
 
-                        ProductCategory category = new ProductCategory() { Name = nameof(ProductCategory) };
-                        adventureWorks.ProductCategories.Add(category);
-                        adventureWorks.SaveChanges().WriteLine(); // 1
-
-                        adventureWorks.Database.ExecuteSqlCommand(
-                            sql: "DELETE FROM [Production].[ProductCategory] WHERE [Name] = {0}",
-                            parameters: nameof(ProductCategory)).WriteLine(); // 1
-                        transaction.Commit();
+                            adventureWorks.Database
+                                .ExecuteSqlCommand($@"DELETE FROM [Production].[ProductCategory] WHERE [Name] = {nameof(ProductCategory)}")
+                                .WriteLine(); // 1
+                            adventureWorks.CurrentIsolationLevel().WriteLine(); // ReadUncommitted
+                            transaction.Commit();
+                        }
+                        catch
+                        {
+                            transaction.Rollback();
+                            throw;
+                        }
                     }
-                    catch
-                    {
-                        transaction.Rollback();
-                        throw;
-                    }
-                }
-            });
+                });
         }
     }
 
@@ -135,25 +110,28 @@ namespace Tutorial.LinqToEntities
                         using (AdventureWorks adventureWorks = new AdventureWorks(connection))
                         {
                             adventureWorks.Database.CreateExecutionStrategy().Execute(() =>
-                            {
-                                adventureWorks.Database.UseTransaction(transaction);
-                                adventureWorks.CurrentIsolationLevel().WriteLine(); // RepeatableRead
+                                {
+                                    adventureWorks.Database.UseTransaction(transaction);
+                                    adventureWorks.CurrentIsolationLevel().WriteLine(); // RepeatableRead
 
-                                ProductCategory category = new ProductCategory() { Name = nameof(ProductCategory) };
-                                adventureWorks.ProductCategories.Add(category);
-                                adventureWorks.SaveChanges().WriteLine(); // 1.
-                            });
+                                    ProductCategory category = new ProductCategory() { Name = nameof(ProductCategory) };
+                                    adventureWorks.ProductCategories.Add(category);
+                                    adventureWorks.SaveChanges().WriteLine(); // 1.
+                                });
                         }
+
                         using (DbCommand command = connection.CreateCommand())
                         {
-                            command.CommandText = "DELETE FROM [Production].[ProductCategory] WHERE [Name] = @p0";
+                            command.CommandText = "DELETE FROM [Production].[ProductCategory] WHERE [Name] = @Name";
                             DbParameter parameter = command.CreateParameter();
-                            parameter.ParameterName = "@p0";
+                            parameter.ParameterName = "@Name";
                             parameter.Value = nameof(ProductCategory);
                             command.Parameters.Add(parameter);
                             command.Transaction = transaction;
                             command.ExecuteNonQuery().WriteLine(); // 1
+                            connection.CurrentIsolationLevel(transaction).WriteLine(); // RepeatableRead
                         }
+
                         transaction.Commit();
                     }
                     catch
@@ -164,63 +142,53 @@ namespace Tutorial.LinqToEntities
                 }
             }
         }
+    }
+}
 
-#if EF
-        // https://github.com/dotnet/corefx/issues/22484
-        // SqlClient transaction support was added recently in 6de0d94
-        // It will be included in the 2.1.0 release.
-        internal static void TransactionScope()
+namespace Tutorial.LinqToEntities
+{
+    using System.Data.Common;
+    using System.Data.SqlClient;
+    using System.Linq;
+    using System.Transactions;
+    using Microsoft.EntityFrameworkCore;
+
+    internal static partial class Transactions
+    {
+        internal static void TransactionScope(AdventureWorks adventureWorks)
         {
-            new ExecutionStrategy().Execute(() =>
+            adventureWorks.Database.CreateExecutionStrategy().Execute(() =>
             {
                 using (TransactionScope scope = new TransactionScope(
-                    scopeOption: TransactionScopeOption.Required,
-                    transactionOptions: new TransactionOptions()
-                    {
-                        IsolationLevel = System.Transactions.IsolationLevel.Serializable
-                    }))
+                    TransactionScopeOption.Required,
+                    new TransactionOptions() { IsolationLevel = IsolationLevel.Serializable }))
                 {
                     using (DbConnection connection = new SqlConnection(ConnectionStrings.AdventureWorks))
                     using (DbCommand command = connection.CreateCommand())
                     {
-                        command.CommandText = DbContextExtensions.CurrentIsolationLevelSql;
-                        connection.Open();
-                        using (DbDataReader reader = command.ExecuteReader())
-                        {
-                            reader.Read();
-                            reader[0].WriteLine(); // RepeatableRead
-                        }
-                    }
-
-                    using (AdventureWorks adventureWorks = new AdventureWorks())
-                    {
-                        ProductCategory category = new ProductCategory() { Name = nameof(ProductCategory) };
-                        adventureWorks.ProductCategories.Add(category);
-                        adventureWorks.SaveChanges().WriteLine(); // 1
-                    }
-
-                    using (AdventureWorks adventureWorks = new AdventureWorks())
-                    {
-                        adventureWorks.CurrentIsolationLevel().WriteLine(); // Serializable
-                    }
-
-                    using (DbConnection connection = new SqlConnection(ConnectionStrings.AdventureWorks))
-                    using (DbCommand command = connection.CreateCommand())
-                    {
-                        command.CommandText = "DELETE FROM [Production].[ProductCategory] WHERE [Name] = @p0";
+                        command.CommandText = "INSERT INTO [Production].[ProductCategory] ([Name]) VALUES(@Name); ";
                         DbParameter parameter = command.CreateParameter();
-                        parameter.ParameterName = "@p0";
+                        parameter.ParameterName = "@Name";
                         parameter.Value = nameof(ProductCategory);
                         command.Parameters.Add(parameter);
 
                         connection.Open();
                         command.ExecuteNonQuery().WriteLine(); // 1
+                        connection.CurrentIsolationLevel().WriteLine(); // Serializable
+                    }
+
+                    using (AdventureWorks adventureWorks1 = new AdventureWorks())
+                    {
+                        ProductCategory category = adventureWorks1.ProductCategories
+                            .Single(entity => entity.Name == nameof(ProductCategory));
+                        adventureWorks1.ProductCategories.Remove(category);
+                        adventureWorks1.SaveChanges().WriteLine(); // 1
+                        adventureWorks1.CurrentIsolationLevel().WriteLine(); // Serializable
                     }
 
                     scope.Complete();
                 }
             });
         }
-#endif
     }
 }

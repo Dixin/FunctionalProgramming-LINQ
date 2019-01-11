@@ -1,37 +1,11 @@
 ﻿namespace Tutorial.Tests.LinqToEntities
 {
-#if NETFX
-    using System;
-    using System.Transactions;
-
-    using Tutorial.LinqToEntities;
-#else
     using System;
     using System.Data.Common;
     using System.Data.SqlClient;
 
-    using Tutorial.LinqToEntities;
     using Microsoft.EntityFrameworkCore;
-#endif
-
-#if NETFX
-    internal class TransactionHelper : IDisposable
-    {
-        private readonly TransactionScope transaction;
-
-        internal TransactionHelper(TransactionScopeAsyncFlowOption option = TransactionScopeAsyncFlowOption.Enabled)
-        {
-            ExecutionStrategy.DisableExecutionStrategy = true;
-            this.transaction = new TransactionScope(option);
-        }
-
-        public void Dispose()
-        {
-            this.transaction.Dispose();
-            ExecutionStrategy.DisableExecutionStrategy = false;
-        }
-    }
-#else
+    using Tutorial.LinqToEntities;
 
     internal static class TransactionHelper
     {
@@ -171,5 +145,4 @@
             }
         }
     }
-#endif
 }

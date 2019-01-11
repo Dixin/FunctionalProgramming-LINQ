@@ -1,13 +1,8 @@
 namespace Tutorial.LinqToEntities
 {
-#if EF
-    using System.Data.Entity;
-    using System.Linq;
-#else
     using System.Linq;
 
     using Microsoft.EntityFrameworkCore;
-#endif
 
     internal static partial class Tracking
     {
@@ -137,11 +132,7 @@ namespace Tutorial.LinqToEntities
 
         internal static void DetectChanges(AdventureWorks adventureWorks)
         {
-#if EF
-            adventureWorks.Configuration.AutoDetectChangesEnabled = false;
-#else
             adventureWorks.ChangeTracker.AutoDetectChangesEnabled = false;
-#endif
             Product product = adventureWorks.Products.First();
             product.ListPrice += 100;
             adventureWorks.ChangeTracker.HasChanges().WriteLine(); // False

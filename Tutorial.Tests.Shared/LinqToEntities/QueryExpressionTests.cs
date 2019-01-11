@@ -1,8 +1,7 @@
 ﻿namespace Tutorial.Tests.LinqToEntities
 {
-    using Tutorial.LinqToEntities;
-
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Tutorial.LinqToEntities;
 
     [TestClass]
     public class QueryExpressionTests

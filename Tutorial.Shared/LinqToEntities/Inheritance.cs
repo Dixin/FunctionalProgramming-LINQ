@@ -1,19 +1,10 @@
 ﻿namespace Tutorial.LinqToEntities
 {
-#if EF
-    using System;
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
-    using System.Data.Entity;
-    
-    using ModelBuilder = System.Data.Entity.DbModelBuilder;
-#else
     using System;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
 
     using Microsoft.EntityFrameworkCore;
-#endif
 
     [Table(nameof(TransactionHistory), Schema = AdventureWorks.Production)]
     public abstract class TransactionHistory
@@ -42,22 +33,11 @@
     {
         private static void MapDiscriminator(ModelBuilder modelBuilder) // Called by OnModelCreating.
         {
-#if EF
-            modelBuilder
-                .Entity<TransactionHistory>()
-                .Map<PurchaseTransactionHistory>(mapping => mapping.Requires(nameof(TransactionType))
-                    .HasValue(nameof(TransactionType.P)))
-                .Map<SalesTransactionHistory>(mapping => mapping.Requires(nameof(TransactionType))
-                    .HasValue(nameof(TransactionType.S)))
-                .Map<WorkTransactionHistory>(mapping => mapping.Requires(nameof(TransactionType))
-                    .HasValue(nameof(TransactionType.W)));
-#else
             modelBuilder.Entity<TransactionHistory>()
                 .HasDiscriminator<string>(nameof(TransactionType))
                 .HasValue<PurchaseTransactionHistory>(nameof(TransactionType.P))
                 .HasValue<SalesTransactionHistory>(nameof(TransactionType.S))
                 .HasValue<WorkTransactionHistory>(nameof(TransactionType.W));
-#endif
         }
     }
 

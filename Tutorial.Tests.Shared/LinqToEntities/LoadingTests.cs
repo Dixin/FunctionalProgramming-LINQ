@@ -1,14 +1,11 @@
 ﻿namespace Tutorial.Tests.LinqToEntities
 {
     using System;
-#if NETFX
-    using System.Data.Entity.Core;
-#endif
     using System.Diagnostics;
 
-    using Tutorial.LinqToEntities;
-
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+    using Tutorial.LinqToEntities;
 
     [TestClass]
     public class LoadingTests
@@ -18,7 +15,7 @@
         {
             try
             {
-                UI.RenderCategoryProducts("Bikes");
+                Loading.UI.RenderCategoryProducts("Bikes");
                 Assert.Fail();
             }
             catch (InvalidOperationException exception)
@@ -43,31 +40,8 @@
         [TestMethod]
         public void LazyLoadingTest()
         {
-#if NETFX
             Loading.LazyLoading(new AdventureWorks());
-#else
-            try 
-	        {	        
-                Loading.LazyLoading(new AdventureWorks());
-		        Assert.Fail();
-	        }
-	        catch (NullReferenceException exception)
-	        {
-                Trace.WriteLine(exception);
-	        }
-#endif
-#if NETFX
             Loading.MultipleLazyLoading(new AdventureWorks());
-            try
-            {
-                Loading.LazyLoadingAndDeferredExecution(new AdventureWorks());
-            }
-            catch (EntityCommandExecutionException exception)
-            {
-                Trace.WriteLine(exception);
-            }
-            Loading.LazyLoadingAndImmediateExecution(new AdventureWorks());
-#endif
         }
 
         [TestMethod]
@@ -75,32 +49,23 @@
         {
             Loading.EagerLoadingWithInclude(new AdventureWorks());
             Loading.EagerLoadingMultipleLevels(new AdventureWorks());
-#if NETFX
-            Loading.EagerLoadingWithIncludeAndSelect(new AdventureWorks());
-#endif
             Loading.EagerLoadingWithSelect(new AdventureWorks());
-#if NETFX
-            Loading.PrintSubcategoriesWithLazyLoading(new AdventureWorks());
-            Loading.PrintSubcategoriesWithEagerLoading(new AdventureWorks());
-            Loading.ConditionalEagerLoadingWithSelect(new AdventureWorks());
             try
             {
                 Loading.ConditionalEagerLoadingWithInclude(new AdventureWorks());
+                Assert.Fail();
             }
-            catch (ArgumentException exception)
+            catch (InvalidOperationException exception)
             {
                 Trace.WriteLine(exception);
             }
-#endif
+            Loading.ConditionalEagerLoadingWithJoin(new AdventureWorks());
         }
 
         [TestMethod]
         public void DisableLazyLoadingTest()
         {
-#if NETFX
-            Loading.DisableLazyLoading(new AdventureWorks());
-            Loading.DisableProxy(new AdventureWorks());
-#endif
+            Loading.DisableLazyLoading();
         }
     }
 }

@@ -1,21 +1,11 @@
 ﻿namespace Tutorial.LinqToEntities
 {
-#if EF
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
-    using System.Data.Entity;
-    
-    using ModelBuilder = System.Data.Entity.DbModelBuilder;
-#else
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
 
     using Microsoft.EntityFrameworkCore;
-#endif
 
     public partial class AdventureWorks
     {
@@ -139,14 +129,12 @@
     {
         private static void MapCompositePrimaryKey(ModelBuilder modelBuilder) // Called by OnModelCreating.
         {
-#if !EF
             modelBuilder.Entity<ProductProductPhoto>()
                 .HasKey(productProductPhoto => new
                 {
                     ProductID = productProductPhoto.ProductID,
                     ProductPhotoID = productProductPhoto.ProductPhotoID
                 });
-#endif
         }
     }
 
@@ -154,7 +142,6 @@
     {
         private static void MapManyToMany(ModelBuilder modelBuilder) // Called by OnModelCreating.
         {
-#if !EF
             modelBuilder.Entity<ProductProductPhoto>()
                 .HasOne(productProductPhoto => productProductPhoto.Product)
                 .WithMany(product => product.ProductProductPhotos)
@@ -164,7 +151,6 @@
                 .HasOne(productProductPhoto => productProductPhoto.ProductPhoto)
                 .WithMany(photo => photo.ProductProductPhotos)
                 .HasForeignKey(productProductPhoto => productProductPhoto.ProductPhotoID);
-#endif
         }
     }
 
@@ -181,40 +167,3 @@
         public DbSet<ProductPhoto> ProductPhotos { get; set; }
     }
 }
-
-#if DEMO
-namespace Tutorial.LinqToEntities
-{
-    using System.Collections.Generic;
-    using System.Data.Entity;
-
-#if EF
-    public partial class Product
-    {
-        public virtual ICollection<ProductPhoto> ProductPhotos { get; set; }
-    }
-
-    public partial class ProductPhoto
-    {
-        public virtual ICollection<Product> Products { get; set; }
-    }
-
-    public partial class AdventureWorks
-    {
-        protected override void OnModelCreating(DbModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-
-            modelBuilder
-                .Entity<Product>()
-                .HasMany(product => product.ProductPhotos)
-                .WithMany(photo => photo.Products)
-                .Map(mapping => mapping
-                    .ToTable(nameof(ProductProductPhoto), Production)
-                    .MapLeftKey(nameof(Product.ProductID))
-                    .MapRightKey(nameof(ProductPhoto.ProductPhotoID)));
-        }
-    }
-#endif
-}
-#endif

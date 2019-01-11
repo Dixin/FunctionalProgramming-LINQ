@@ -50,7 +50,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Relationship.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Changes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Concurrency.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Modeling.Database.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Database.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Functions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Inheritance.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqToEntities\Loading.cs" />

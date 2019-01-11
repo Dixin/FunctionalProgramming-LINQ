@@ -1,31 +1,14 @@
 namespace Tutorial.LinqToEntities
 {
-#if EF
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
-    using System.Data.Entity;
-    using System.Data.Entity.Infrastructure;
-    using System.Diagnostics.CodeAnalysis;
-    using System.Linq;
-    
-    using Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling;
-
-    using EntityEntry = System.Data.Entity.Infrastructure.DbEntityEntry;
-    using PropertyValues = System.Data.Entity.Infrastructure.DbPropertyValues;
-#else
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
-    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
 
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.ChangeTracking;
     using Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling;
-#endif
 
     internal partial class DbReaderWriter : IDisposable
     {
@@ -102,18 +85,12 @@ namespace Tutorial.LinqToEntities
             // WHERE [ProductPhotoID] = @p2 AND [ModifiedDate] = @p3;
             // SELECT @@ROWCOUNT;
             // ',N'@p2 int,@p0 nvarchar(50),@p1 datetime2(7),@p3 datetime2(7)',@p2=1,@p0=N'readerWriter2',@p1='2017-01-25 22:04:59.1792263',@p3='2008-04-30 00:00:00'
-#if EF
-            // DbUpdateConcurrencyException: Store update, insert, or delete statement affected an unexpected number of rows (0).Entities may have been modified or deleted since entities were loaded.See http://go.microsoft.com/fwlink/?LinkId=472540 for information on understanding and handling optimistic concurrency exceptions. 
-            // ---> OptimisticConcurrencyException: Store update, insert, or delete statement affected an unexpected number of rows (0).Entities may have been modified or deleted since entities were loaded.See http://go.microsoft.com/fwlink/?LinkId=472540 for information on understanding and handling optimistic concurrency exceptions.
-#else
             // DbUpdateConcurrencyException: Database operation expected to affect 1 row(s) but actually affected 0 row(s). Data may have been modified or deleted since entities were loaded. See http://go.microsoft.com/fwlink/?LinkId=527962 for information on understanding and handling optimistic concurrency exceptions.
-#endif
         }
     }
 
     public partial class Product
     {
-        [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")]
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         [Timestamp]
         public byte[] RowVersion { get; set; }
@@ -149,12 +126,7 @@ namespace Tutorial.LinqToEntities
             // WHERE [ProductID] = @p0 AND [RowVersion] = @p1;
             // SELECT @@ROWCOUNT;
             // ',N'@p0 int,@p1 varbinary(8)',@p0=995,@p1=0x0000000000000803
-#if EF
-            // DbUpdateConcurrencyException: Store update, insert, or delete statement affected an unexpected number of rows (0). Entities may have been modified or deleted since entities were loaded. See http://go.microsoft.com/fwlink/?LinkId=472540 for information on understanding and handling optimistic concurrency exceptions.
-            // ---> OptimisticConcurrencyException: Store update, insert, or delete statement affected an unexpected number of rows (0). Entities may have been modified or deleted since entities were loaded. See http://go.microsoft.com/fwlink/?LinkId=472540 for information on understanding and handling optimistic concurrency exceptions.
-#else
             // DbUpdateConcurrencyException: Database operation expected to affect 1 row(s) but actually affected 0 row(s). Data may have been modified or deleted since entities were loaded. See http://go.microsoft.com/fwlink/?LinkId=527962 for information on understanding and handling optimistic concurrency exceptions.
-#endif
         }
     }
 
@@ -292,15 +264,9 @@ namespace Tutorial.LinqToEntities
                 // Refresh original values, which go to WHERE clause.
                 tracking.OriginalValues.SetValues(databaseValues);
                 // If database has an different value for a property, then retain the database value.
-#if EF
-                databaseValues.PropertyNames // Navigation properties are not included.
-                    .Where(property => !object.Equals(originalValues[property], databaseValues[property]))
-                    .ForEach(property => tracking.Property(property).IsModified = false);
-#else
                 databaseValues.Properties // Navigation properties are not included.
                     .Where(property => !object.Equals(originalValues[property.Name], databaseValues[property.Name]))
                     .ForEach(property => tracking.Property(property.Name).IsModified = false);
-#endif
                 tracking.State.WriteLine(); // Modified
                 tracking.Property(nameof(Product.Name)).IsModified.WriteLine(); // False
                 tracking.Property(nameof(Product.ListPrice)).IsModified.WriteLine(); // False
@@ -472,15 +438,9 @@ namespace Tutorial.LinqToEntities
                         PropertyValues originalValues = tracking.OriginalValues.Clone();
                         tracking.OriginalValues.SetValues(databaseValues);
                         // If database has an different value for a property, then retain the database value.
-#if EF
-                        databaseValues.PropertyNames // Navigation properties are not included.
-                            .Where(property => !object.Equals(originalValues[property], databaseValues[property]))
-                            .ForEach(property => tracking.Property(property).IsModified = false);
-#else
                         databaseValues.Properties // Navigation properties are not included.
                             .Where(property => !object.Equals(originalValues[property.Name], databaseValues[property.Name]))
                             .ForEach(property => tracking.Property(property.Name).IsModified = false);
-#endif
                         // Hereafter, SaveChanges executes UPDATE/DELETE for this entity, with refreshed values in WHERE clause.
                     }
                     break;

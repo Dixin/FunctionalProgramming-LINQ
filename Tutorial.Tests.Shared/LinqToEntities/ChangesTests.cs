@@ -1,23 +1,10 @@
 ﻿namespace Tutorial.Tests.LinqToEntities
 {
-#if NETFX
-    using System;
-    using System.Linq;
-    using System.Data.Entity.Infrastructure;
     using System.Diagnostics;
-
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-    using Tutorial.LinqToEntities;
-#else
     using System.Linq;
-    using System.Diagnostics;
-
     using Microsoft.EntityFrameworkCore;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-
     using Tutorial.LinqToEntities;
-#endif
 
     [TestClass]
     public class ChangesTests
@@ -38,34 +25,6 @@
         [TestMethod]
         public void ChangesTest()
         {
-#if NETFX
-            ProductCategory category = Changes.Create();
-            Changes.Update(category.ProductCategoryID, category.ProductSubcategories.Single().ProductSubcategoryID);
-            Changes.SaveNoChanges(1);
-            Changes.UpdateWithoutRead(category.ProductCategoryID);
-            Changes.Delete(category.ProductSubcategories.Single().ProductSubcategoryID);
-            Changes.DeleteWithoutRead(category.ProductCategoryID);
-            try
-            {
-                Changes.DeleteWithRelationship(1);
-                Assert.Fail();
-            }
-            catch (DbUpdateException exception)
-            {
-                Trace.WriteLine(exception);
-            }
-            category = Changes.Create();
-            Changes.DeleteCascade(category.ProductCategoryID);
-            try
-            {
-                Changes.UntrackedChanges();
-                Assert.Fail();
-            }
-            catch (InvalidOperationException exception)
-            {
-                Trace.WriteLine(exception);
-            }
-#else
             ProductCategory category = Changes.Create();
             Changes.Update(category.ProductCategoryID, category.ProductSubcategories.Single().ProductSubcategoryID);
             Changes.SaveNoChanges(1);
@@ -92,7 +51,6 @@
             {
                 Trace.WriteLine(exception);
             }
-#endif
         }
     }
 }

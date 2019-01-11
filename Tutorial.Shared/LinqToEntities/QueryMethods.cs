@@ -79,12 +79,8 @@
             IQueryable<Product> source = adventureWorks.Products;
             IQueryable<int> products = source.Select(product => product.ProductSubcategoryID).OfType<int>(); // Define query.
             products.ToArray().Length.WriteLine(); // Execute query.
-#if EF
-            // NotSupportedException: 'System.Int32' is not a valid metadata type for type filtering operations. Type filtering is only valid on entity types and complex types.
-#else
             // SELECT [p].[ProductSubcategoryID]
             // FROM [Production].[Product] AS [p]
-#endif
         }
 
         #endregion
@@ -122,13 +118,9 @@
                     Name = product.Name
                 }); // Define query.
             products.WriteLines(product => $"{product.ProductID}: {product.Name}"); // Execute query.
-#if EF
-            // NotSupportedException: The entity or complex type 'Product' cannot be constructed in a LINQ to Entities query.
-#else
             // SELECT [product].[ProductID], [product].[Name]
             // FROM [Production].[Product] AS [product]
             // WHERE [product].[ListPrice] > 1000.0
-#endif
         }
 
         internal static void SelectAnonymousType(AdventureWorks adventureWorks)
@@ -156,17 +148,6 @@
                 .DefaultIfEmpty(); // Define query.
             categories.ForEach( // Execute query.
                 category => (category == null).WriteLine()); // True
-#if EF
-            // SELECT 
-            //    [Project1].[ProductCategoryID] AS [ProductCategoryID], 
-            //    [Project1].[Name] AS [Name]
-            //    FROM   ( SELECT 1 AS X ) AS [SingleRowTable1]
-            //    LEFT OUTER JOIN  (SELECT 
-            //        [Extent1].[ProductCategoryID] AS [ProductCategoryID], 
-            //        [Extent1].[Name] AS [Name]
-            //        FROM [Production].[ProductCategory] AS [Extent1]
-            //        WHERE [Extent1].[ProductCategoryID] < 0 ) AS [Project1] ON 1 = 1
-#else
             // SELECT [t].[ProductCategoryID], [t].[Name]
             // FROM (
             //    SELECT NULL AS [empty]
@@ -176,7 +157,6 @@
             //    FROM [Production].[ProductCategory] AS [category]
             //    WHERE [category].[ProductCategoryID] < 0
             // ) AS [t] ON 1 = 1
-#endif
         }
 
         internal static void DefaultIfEmptyPrimitive(AdventureWorks adventureWorks)
@@ -187,16 +167,6 @@
                 .Select(category => category.ProductCategoryID)
                 .DefaultIfEmpty(); // Define query.
             categories.WriteLines(); // Execute query.
-#if EF
-            // SELECT 
-            //    CASE WHEN ([Project1].[C1] IS NULL) THEN 0 ELSE [Project1].[ProductCategoryID] END AS [C1]
-            //    FROM   ( SELECT 1 AS X ) AS [SingleRowTable1]
-            //    LEFT OUTER JOIN  (SELECT 
-            //        [Extent1].[ProductCategoryID] AS [ProductCategoryID], 
-            //        cast(1 as tinyint) AS [C1]
-            //        FROM [Production].[ProductCategory] AS [Extent1]
-            //        WHERE [Extent1].[ProductCategoryID] < 0 ) AS [Project1] ON 1 = 1
-#else
             // SELECT [t].[ProductCategoryID]
             // FROM (
             //    SELECT NULL AS [empty]
@@ -206,7 +176,6 @@
             //    FROM [Production].[ProductCategory] AS [category]
             //    WHERE [category].[ProductCategoryID] < 0
             // ) AS [t] ON 1 = 1
-#endif
         }
 
         internal static void DefaultIfEmptyWithDefaultEntity(AdventureWorks adventureWorks)
@@ -218,13 +187,9 @@
                 .DefaultIfEmpty(@default); // Define query.
             categories.WriteLines( // Execute query.
                 category => category?.Name); // ProductCategory
-#if EF
-            // NotSupportedException: Unable to create a constant value of type 'ProductCategory'. Only primitive types or enumeration types are supported in this context.
-#else
             // SELECT [category].[ProductCategoryID], [category].[Name]
             // FROM [Production].[ProductCategory] AS [category]
             // WHERE [category].[ProductCategoryID] < 0
-#endif
         }
 
         internal static void DefaultIfEmptyWithDefaultPrimitive(AdventureWorks adventureWorks)
@@ -235,20 +200,9 @@
                 .Select(category => category.ProductCategoryID)
                 .DefaultIfEmpty(-1); // Define query.
             categories.WriteLines(); // Execute query.
-#if EF
-            // SELECT 
-            //    CASE WHEN ([Project1].[C1] IS NULL) THEN -1 ELSE [Project1].[ProductCategoryID] END AS [C1]
-            //    FROM   ( SELECT 1 AS X ) AS [SingleRowTable1]
-            //    LEFT OUTER JOIN  (SELECT 
-            //        [Extent1].[ProductCategoryID] AS [ProductCategoryID], 
-            //        cast(1 as tinyint) AS [C1]
-            //        FROM [Production].[ProductCategory] AS [Extent1]
-            //        WHERE [Extent1].[ProductCategoryID] < 0 ) AS [Project1] ON 1 = 1
-#else
             // SELECT [category].[ProductCategoryID]
             // FROM [Production].[ProductCategory] AS [category]
             // WHERE [category].[ProductCategoryID] < 0
-#endif
         }
 
         #endregion
@@ -262,26 +216,9 @@
                 keySelector: subcategory => subcategory.ProductCategoryID,
                 elementSelector: subcategory => subcategory.Name); // Define query.
             groups.WriteLines(group => $"{group.Key}: {string.Join(", ", group)}"); // Execute query.
-#if EF
-            // SELECT 
-            //    [Project2].[ProductCategoryID] AS [ProductCategoryID], 
-            //    [Project2].[C1] AS [C1], 
-            //    [Project2].[Name] AS [Name]
-            //    FROM ( SELECT 
-            //        [Distinct1].[ProductCategoryID] AS [ProductCategoryID], 
-            //        [Extent2].[Name] AS [Name], 
-            //        CASE WHEN ([Extent2].[ProductCategoryID] IS NULL) THEN CAST(NULL AS int) ELSE 1 END AS [C1]
-            //        FROM   (SELECT DISTINCT 
-            //            [Extent1].[ProductCategoryID] AS [ProductCategoryID]
-            //            FROM [Production].[ProductSubcategory] AS [Extent1] ) AS [Distinct1]
-            //        LEFT OUTER JOIN [Production].[ProductSubcategory] AS [Extent2] ON [Distinct1].[ProductCategoryID] = [Extent2].[ProductCategoryID]
-            //    )  AS [Project2]
-            //    ORDER BY [Project2].[ProductCategoryID] ASC, [Project2].[C1] ASC
-#else
             // SELECT [subcategory].[ProductSubcategoryID], [subcategory].[Name], [subcategory].[ProductCategoryID]
             // FROM [Production].[ProductSubcategory] AS [subcategory]
             // ORDER BY [subcategory].[ProductCategoryID]
-#endif
         }
 
         internal static void GroupByWithResultSelector(AdventureWorks adventureWorks)
@@ -292,21 +229,9 @@
                 elementSelector: subcategory => subcategory.Name,
                 resultSelector: (key, group) => new { CategoryID = key, SubcategoryCount = group.Count() }); // Define query.
             groups.WriteLines(); // Execute query.
-#if EF
-            // SELECT 
-            //    [GroupBy1].[K1] AS [ProductCategoryID], 
-            //    [GroupBy1].[A1] AS [C1]
-            //    FROM ( SELECT 
-            //        [Extent1].[ProductCategoryID] AS [K1], 
-            //        COUNT(1) AS [A1]
-            //        FROM [Production].[ProductSubcategory] AS [Extent1]
-            //        GROUP BY [Extent1].[ProductCategoryID]
-            //    )  AS [GroupBy1]
-#else
             // SELECT [subcategory].[ProductSubcategoryID], [subcategory].[Name], [subcategory].[ProductCategoryID]
             // FROM [Production].[ProductSubcategory] AS [subcategory]
             // ORDER BY [subcategory].[ProductCategoryID]
-#endif
         }
 
         internal static void GroupByAndSelect(AdventureWorks adventureWorks)
@@ -327,20 +252,9 @@
                 .GroupBy(keySelector: subcategory => subcategory.ProductCategoryID)
                 .SelectMany(group => group); // Define query.
             distinct.WriteLines(subcategory => subcategory.Name); // Execute query.
-#if EF
-            // SELECT 
-            //    [Extent2].[ProductSubcategoryID] AS [ProductSubcategoryID], 
-            //    [Extent2].[Name] AS [Name], 
-            //    [Extent2].[ProductCategoryID] AS [ProductCategoryID]
-            //    FROM   (SELECT DISTINCT 
-            //        [Extent1].[ProductCategoryID] AS [ProductCategoryID]
-            //        FROM [Production].[ProductSubcategory] AS [Extent1] ) AS [Distinct1]
-            //    INNER JOIN [Production].[ProductSubcategory] AS [Extent2] ON [Distinct1].[ProductCategoryID] = [Extent2].[ProductCategoryID]
-#else
             // SELECT [subcategory].[ProductSubcategoryID], [subcategory].[Name], [subcategory].[ProductCategoryID]
             // FROM [Production].[ProductSubcategory] AS [subcategory]
             // ORDER BY [subcategory].[ProductCategoryID]
-#endif
         }
 
         internal static void GroupByMultipleKeys(AdventureWorks adventureWorks)
@@ -355,24 +269,9 @@
                     Count = group.Count()
                 }); // Define query.
             groups.WriteLines(); // Execute query.
-#if EF
-            // SELECT 
-            //    1 AS [C1], 
-            //    [GroupBy1].[K2] AS [ProductSubcategoryID], 
-            //    [GroupBy1].[K1] AS [ListPrice], 
-            //    [GroupBy1].[A1] AS [C2]
-            //    FROM ( SELECT 
-            //        [Extent1].[ListPrice] AS [K1], 
-            //        [Extent1].[ProductSubcategoryID] AS [K2], 
-            //        COUNT(1) AS [A1]
-            //        FROM [Production].[Product] AS [Extent1]
-            //        GROUP BY [Extent1].[ListPrice], [Extent1].[ProductSubcategoryID]
-            //    )  AS [GroupBy1]
-#else
             // SELECT [product].[ProductID], [product].[ListPrice], [product].[Name], [product].[ProductSubcategoryID]
             // FROM [Production].[Product] AS [product]
             // ORDER BY [product].[ProductSubcategoryID], [product].[ListPrice]
-#endif
         }
 
         #endregion
@@ -428,19 +327,10 @@
             //    from subcategory in category.Subcategories
             //    select new { Category = category.Category.Name, Subcategory = subcategory.Name };
             categorySubcategories.WriteLines(); // Execute query.
-#if EF
-            // SELECT 
-            //    [Extent1].[ProductCategoryID] AS [ProductCategoryID], 
-            //    [Extent1].[Name] AS [Name], 
-            //    [Extent2].[Name] AS [Name1]
-            //    FROM  [Production].[ProductCategory] AS [Extent1]
-            //    INNER JOIN [Production].[ProductSubcategory] AS [Extent2] ON [Extent1].[ProductCategoryID] = [Extent2].[ProductCategoryID]
-#else
             // SELECT [category].[Name], [subcategory].[Name]
             // FROM [Production].[ProductCategory] AS [category]
             // CROSS JOIN [Production].[ProductSubcategory] AS [subcategory]
             // WHERE [category].[ProductCategoryID] = [subcategory].[ProductCategoryID]
-#endif
         }
 
         internal static void InnerJoinWithSelectMany(AdventureWorks adventureWorks)
@@ -467,19 +357,10 @@
             //    where category.ProductCategoryID == subcategory.ProductCategoryID
             //    select new { Category = category.Name, Subcategory = subcategory.Name };
             categorySubcategories.WriteLines(); // Execute query.
-#if EF
-            // SELECT 
-            //    [Extent1].[ProductCategoryID] AS [ProductCategoryID], 
-            //    [Extent1].[Name] AS [Name], 
-            //    [Extent2].[Name] AS [Name1]
-            //    FROM  [Production].[ProductCategory] AS [Extent1]
-            //    INNER JOIN [Production].[ProductSubcategory] AS [Extent2] ON [Extent1].[ProductCategoryID] = [Extent2].[ProductCategoryID]
-#else
             // SELECT [category].[Name], [subcategory].[Name]
             // FROM [Production].[ProductCategory] AS [category]
             // CROSS JOIN [Production].[ProductSubcategory] AS [subcategory]
             // WHERE [category].[ProductCategoryID] = [subcategory].[ProductCategoryID]
-#endif
         }
 
         internal static void InnerJoinWithSelectAndRelationship(AdventureWorks adventureWorks)
@@ -677,14 +558,6 @@
             //    from subcategory in category.Subcategories.DefaultIfEmpty()
             //    select new { Category = category.Category.Name, Subcategory = subcategory.Name };
             categorySubcategories.WriteLines(); // Execute query.
-#if EF
-            // SELECT 
-            //    [Extent1].[ProductCategoryID] AS [ProductCategoryID], 
-            //    [Extent1].[Name] AS [Name], 
-            //    [Extent2].[Name] AS [Name1]
-            //    FROM  [Production].[ProductCategory] AS [Extent1]
-            //    LEFT OUTER JOIN [Production].[ProductSubcategory] AS [Extent2] ON [Extent1].[ProductCategoryID] = [Extent2].[ProductCategoryID]
-#else
             // SELECT [category].[Name], [t1].[Name]
             // FROM [Production].[ProductCategory] AS [category]
             // CROSS APPLY (
@@ -698,7 +571,6 @@
             //        WHERE [category].[ProductCategoryID] = [subcategory0].[ProductCategoryID]
             //    ) AS [t0] ON 1 = 1
             // ) AS [t1]
-#endif
         }
 
         internal static void LeftOuterJoinWithSelectMany(AdventureWorks adventureWorks)
@@ -719,14 +591,6 @@
             //                         select subcategory).DefaultIfEmpty()
             //    select new { Category = category.Name, Subcategory = subcategory.Name };
             categorySubcategories.WriteLines(); // Execute query.
-#if EF
-            // SELECT 
-            //    [Extent1].[ProductCategoryID] AS [ProductCategoryID], 
-            //    [Extent1].[Name] AS [Name], 
-            //    [Extent2].[Name] AS [Name1]
-            //    FROM  [Production].[ProductCategory] AS [Extent1]
-            //    LEFT OUTER JOIN [Production].[ProductSubcategory] AS [Extent2] ON [Extent1].[ProductCategoryID] = [Extent2].[ProductCategoryID]
-#else
             // SELECT [category].[Name], [t1].[Name]
             // FROM [Production].[ProductCategory] AS [category]
             // CROSS APPLY (
@@ -740,7 +604,6 @@
             //        WHERE [category].[ProductCategoryID] = [subcategory0].[ProductCategoryID]
             //    ) AS [t0] ON 1 = 1
             // ) AS [t1]
-#endif
         }
 
         internal static void LeftOuterJoinWithSelectAndRelationship(AdventureWorks adventureWorks)
@@ -759,18 +622,9 @@
             //    from subcategory in category.Subcategories.DefaultIfEmpty()
             //    select new { Category = category.Category.Name, Subcategory = subcategory.Name };
             categorySubcategories.WriteLines(); // Execute query.
-#if EF
-            // SELECT 
-            //    [Extent1].[ProductCategoryID] AS [ProductCategoryID], 
-            //    [Extent1].[Name] AS [Name], 
-            //    [Extent2].[Name] AS [Name1]
-            //    FROM  [Production].[ProductCategory] AS [Extent1]
-            //    LEFT OUTER JOIN [Production].[ProductSubcategory] AS [Extent2] ON [Extent1].[ProductCategoryID] = [Extent2].[ProductCategoryID]
-#else
             // SELECT [category].[Name] AS [Category], [category.ProductSubcategories].[Name] AS [Subcategory]
             // FROM [Production].[ProductCategory] AS [category]
             // LEFT JOIN [Production].[ProductSubcategory] AS [category.ProductSubcategories] ON [category].[ProductCategoryID] = [category.ProductSubcategories].[ProductCategoryID]
-#endif
         }
 
         internal static void LeftOuterJoinWithSelectManyAndRelationship(AdventureWorks adventureWorks)
@@ -786,18 +640,9 @@
             //    from subcategory in category.ProductSubcategories.DefaultIfEmpty()
             //    select new { Category = category.Name, Subcategory = subcategory.Name };
             categorySubcategories.WriteLines(); // Execute query.
-#if EF
-            // SELECT 
-            //    [Extent1].[ProductCategoryID] AS [ProductCategoryID], 
-            //    [Extent1].[Name] AS [Name], 
-            //    [Extent2].[Name] AS [Name1]
-            //    FROM  [Production].[ProductCategory] AS [Extent1]
-            //    LEFT OUTER JOIN [Production].[ProductSubcategory] AS [Extent2] ON [Extent1].[ProductCategoryID] = [Extent2].[ProductCategoryID]
-#else
             // SELECT [category].[Name] AS [Category], [category.ProductSubcategories].[Name] AS [Subcategory]
             // FROM [Production].[ProductCategory] AS [category]
             // LEFT JOIN [Production].[ProductSubcategory] AS [category.ProductSubcategories] ON [category].[ProductCategoryID] = [category.ProductSubcategories].[ProductCategoryID]
-#endif
         }
 
         internal static void CrossJoinWithSelectMany(AdventureWorks adventureWorks)
@@ -980,19 +825,6 @@
                 .Select(product => product.Name);
             IQueryable<string> concat = first.Concat(second); // Define query.
             concat.WriteLines(); // Execute query.
-#if EF
-            // SELECT 
-            //    [UnionAll1].[Name] AS [C1]
-            //    FROM  (SELECT 
-            //        [Extent1].[Name] AS [Name]
-            //        FROM [Production].[Product] AS [Extent1]
-            //        WHERE [Extent1].[ListPrice] < cast(100 as decimal(18))
-            //    UNION ALL
-            //        SELECT 
-            //        [Extent2].[Name] AS [Name]
-            //        FROM [Production].[Product] AS [Extent2]
-            //        WHERE [Extent2].[ListPrice] > cast(2000 as decimal(18))) AS [UnionAll1]
-#else
             // SELECT [product].[Name]
             // FROM [Production].[Product] AS [product]
             // WHERE [product].[ListPrice] < 100.0
@@ -1000,7 +832,6 @@
             // SELECT [product0].[Name]
             // FROM [Production].[Product] AS [product0]
             // WHERE [product0].[ListPrice] > 2000.0
-#endif
         }
 
         internal static void ConcatEntity(AdventureWorks adventureWorks)
@@ -1011,21 +842,7 @@
                 .Concat(second)
                 .Select(product => product.Name); // Define query.
             concat.WriteLines(); // Execute query.
-#if EF
-            // SELECT 
-            //    [UnionAll1].[Name] AS [C1]
-            //    FROM  (SELECT 
-            //        [Extent1].[Name] AS [Name]
-            //        FROM [Production].[Product] AS [Extent1]
-            //        WHERE [Extent1].[ListPrice] < cast(100 as decimal(18))
-            //    UNION ALL
-            //        SELECT 
-            //        [Extent2].[Name] AS [Name]
-            //        FROM [Production].[Product] AS [Extent2]
-            //        WHERE [Extent2].[ListPrice] > cast(2000 as decimal(18))) AS [UnionAll1]
-#else
             // ArgumentException: Expression of type 'System.Collections.Generic.IEnumerable`1[Product]' cannot be used for parameter of type 'System.Collections.Generic.IEnumerable`1[Microsoft.EntityFrameworkCore.Storage.ValueBuffer]' of method 'System.Collections.Generic.IEnumerable`1[Microsoft.EntityFrameworkCore.Storage.ValueBuffer] Concat[ValueBuffer](System.Collections.Generic.IEnumerable`1[Microsoft.EntityFrameworkCore.Storage.ValueBuffer], System.Collections.Generic.IEnumerable`1[Microsoft.EntityFrameworkCore.Storage.ValueBuffer])' Parameter name: arg1
-#endif
         }
 
         #endregion
@@ -1074,18 +891,9 @@
                 keySelector: subcategory => subcategory.ProductCategory,
                 resultSelector: (key, group) => key); // Define query.
             distinct.WriteLines(); // Execute query.
-#if EF
-            // SELECT 
-            //    [Distinct1].[ProductCategoryID] AS [ProductCategoryID]
-            //    FROM ( SELECT DISTINCT 
-            //        [Extent1].[ProductCategoryID] AS [ProductCategoryID]
-            //        FROM [Production].[ProductSubcategory] AS [Extent1]
-            //    )  AS [Distinct1]
-#else
             // SELECT [subcategory].[ProductSubcategoryID], [subcategory].[Name], [subcategory].[ProductCategoryID]
             // FROM [Production].[ProductSubcategory] AS [subcategory]
             // ORDER BY [subcategory].[ProductCategoryID]
-#endif
         }
 
         internal static void DistinctWithGroupBy(AdventureWorks adventureWorks)
@@ -1095,18 +903,9 @@
                 keySelector: subcategory => subcategory.ProductCategoryID,
                 resultSelector: (key, group) => key); // Define query.
             distinct.WriteLines(); // Execute query.
-#if EF
-            // SELECT 
-            //    [Distinct1].[ProductCategoryID] AS [ProductCategoryID]
-            //    FROM ( SELECT DISTINCT 
-            //        [Extent1].[ProductCategoryID] AS [ProductCategoryID]
-            //        FROM [Production].[ProductSubcategory] AS [Extent1]
-            //    )  AS [Distinct1]
-#else
             // SELECT [subcategory].[ProductSubcategoryID], [subcategory].[Name], [subcategory].[ProductCategoryID]
             // FROM [Production].[ProductSubcategory] AS [subcategory]
             // ORDER BY [subcategory].[ProductCategoryID]
-#endif
         }
 
         internal static void DistinctMultipleKeysWithGroupBy(AdventureWorks adventureWorks)
@@ -1116,22 +915,9 @@
                 keySelector: subcategory => new { ProductCategoryID = subcategory.ProductCategoryID, Name = subcategory.Name },
                 resultSelector: (key, group) => key); // Define query.
             distinct.WriteLines(); // Execute query.
-#if EF
-            // SELECT 
-            //    [Distinct1].[C1] AS [C1], 
-            //    [Distinct1].[ProductCategoryID] AS [ProductCategoryID], 
-            //    [Distinct1].[Name] AS [Name]
-            //    FROM ( SELECT DISTINCT 
-            //        [Extent1].[Name] AS [Name], 
-            //        [Extent1].[ProductCategoryID] AS [ProductCategoryID], 
-            //        1 AS [C1]
-            //        FROM [Production].[ProductSubcategory] AS [Extent1]
-            //    )  AS [Distinct1]
-#else
             // SELECT [subcategory].[ProductSubcategoryID], [subcategory].[Name], [subcategory].[ProductCategoryID]
             // FROM [Production].[ProductSubcategory] AS [subcategory]
             // ORDER BY [subcategory].[ProductCategoryID], [subcategory].[Name]
-#endif
         }
 
         internal static void DistinctWithGroupByAndFirstOrDefault(AdventureWorks adventureWorks)
@@ -1141,27 +927,9 @@
                 keySelector: product => product.ListPrice,
                 resultSelector: (key, group) => group.FirstOrDefault()); // Define query.
             distinct.WriteLines(); // Execute query.
-#if EF
-            // SELECT 
-            //    [Limit1].[ProductID] AS [ProductID], 
-            //    [Limit1].[Name] AS [Name], 
-            //    [Limit1].[ListPrice] AS [ListPrice], 
-            //    [Limit1].[ProductSubcategoryID] AS [ProductSubcategoryID]
-            //    FROM   (SELECT DISTINCT 
-            //        [Extent1].[ListPrice] AS [ListPrice]
-            //        FROM [Production].[Product] AS [Extent1] ) AS [Distinct1]
-            //    OUTER APPLY  (SELECT TOP (1) 
-            //        [Extent2].[ProductID] AS [ProductID], 
-            //        [Extent2].[Name] AS [Name], 
-            //        [Extent2].[ListPrice] AS [ListPrice], 
-            //        [Extent2].[ProductSubcategoryID] AS [ProductSubcategoryID]
-            //        FROM [Production].[Product] AS [Extent2]
-            //        WHERE [Distinct1].[ListPrice] = [Extent2].[ListPrice] ) AS [Limit1]
-#else
             // SELECT [product].[ProductID], [product].[ListPrice], [product].[Name], [product].[ProductSubcategoryID]
             // FROM [Production].[Product] AS [product]
             // ORDER BY [product].[ListPrice]
-#endif
         }
 
         internal static void UnionEntity(AdventureWorks adventureWorks)
@@ -1172,35 +940,6 @@
                 .Where(product => product.ProductSubcategoryID == 1);
             IQueryable<Product> union = first.Union(second); // Define query.
             union.WriteLines(); // Execute query.
-#if EF
-            // SELECT 
-            //    [Distinct1].[C1] AS [C1], 
-            //    [Distinct1].[C2] AS [C2], 
-            //    [Distinct1].[C3] AS [C3], 
-            //    [Distinct1].[C4] AS [C4], 
-            //    [Distinct1].[C5] AS [C5]
-            //    FROM ( SELECT DISTINCT 
-            //        [UnionAll1].[ProductID] AS [C1], 
-            //        [UnionAll1].[Name] AS [C2], 
-            //        [UnionAll1].[ListPrice] AS [C3], 
-            //        [UnionAll1].[ProductSubcategoryID] AS [C4]
-            //        FROM  (SELECT 
-            //            [Extent1].[ProductID] AS [ProductID], 
-            //            [Extent1].[Name] AS [Name], 
-            //            [Extent1].[ListPrice] AS [ListPrice], 
-            //            [Extent1].[ProductSubcategoryID] AS [ProductSubcategoryID]
-            //            FROM [Production].[Product] AS [Extent1]
-            //            WHERE [Extent1].[ListPrice] > cast(100 as decimal(18))
-            //        UNION ALL
-            //            SELECT 
-            //            [Extent2].[ProductID] AS [ProductID], 
-            //            [Extent2].[Name] AS [Name], 
-            //            [Extent2].[ListPrice] AS [ListPrice], 
-            //            [Extent2].[ProductSubcategoryID] AS [ProductSubcategoryID]
-            //            FROM [Production].[Product] AS [Extent2]
-            //            WHERE 1 = [Extent2].[ProductSubcategoryID]) AS [UnionAll1]
-            //    )  AS [Distinct1]
-#else
             // SELECT [product].[ProductID], [product].[ListPrice], [product].[Name], [product].[ProductSubcategoryID]
             // FROM [Production].[Product] AS [product]
             // WHERE [product].[ListPrice] > 100.0
@@ -1208,7 +947,6 @@
             // SELECT [product].[ProductID], [product].[ListPrice], [product].[Name], [product].[ProductSubcategoryID]
             // FROM [Production].[Product] AS [product]
             // [product0].[ProductSubcategoryID] = 1
-#endif
         }
 
         internal static void UnionPrimitive(AdventureWorks adventureWorks)
@@ -1221,30 +959,6 @@
                 .Select(product => new { Name = product.Name, ListPrice = product.ListPrice });
             var union = first.Union(second); // Define query.
             union.WriteLines(); // Execute query.
-#if EF
-            // SELECT 
-            //    [Distinct1].[C1] AS [C1], 
-            //    [Distinct1].[C2] AS [C2], 
-            //    [Distinct1].[C3] AS [C3]
-            //    FROM ( SELECT DISTINCT 
-            //        [UnionAll1].[C1] AS [C1], 
-            //        [UnionAll1].[Name] AS [C2], 
-            //        [UnionAll1].[ListPrice] AS [C3]
-            //        FROM  (SELECT 
-            //            1 AS [C1], 
-            //            [Extent1].[Name] AS [Name], 
-            //            [Extent1].[ListPrice] AS [ListPrice]
-            //            FROM [Production].[Product] AS [Extent1]
-            //            WHERE [Extent1].[ListPrice] > cast(100 as decimal(18))
-            //        UNION ALL
-            //            SELECT 
-            //            1 AS [C1], 
-            //            [Extent2].[Name] AS [Name], 
-            //            [Extent2].[ListPrice] AS [ListPrice]
-            //            FROM [Production].[Product] AS [Extent2]
-            //            WHERE 1 = [Extent2].[ProductSubcategoryID]) AS [UnionAll1]
-            //    )  AS [Distinct1]
-#else
             // SELECT [product].[Name], [product].[ListPrice]
             // FROM [Production].[Product] AS [product]
             // WHERE [product].[ListPrice] > 100.0
@@ -1252,7 +966,6 @@
             // SELECT [product0].[Name], [product0].[ListPrice]
             // FROM [Production].[Product] AS [product0]
             // WHERE [product0].[ProductSubcategoryID] = 1
-#endif
         }
 
         internal static void IntersectEntity(AdventureWorks adventureWorks)
@@ -1263,27 +976,6 @@
                 .Where(product => product.ListPrice < 2000);
             IQueryable<Product> intersect = first.Intersect(second); // Define query.
             intersect.WriteLines(); // Execute query.
-#if EF
-            // SELECT 
-            //    [Intersect1].[ProductID] AS [C1], 
-            //    [Intersect1].[Name] AS [C2], 
-            //    [Intersect1].[ListPrice] AS [C3]
-            //    FROM  (SELECT 
-            //        [Extent1].[ProductID] AS [ProductID], 
-            //        [Extent1].[Name] AS [Name], 
-            //        [Extent1].[ListPrice] AS [ListPrice], 
-            //        [Extent1].[ProductSubcategoryID] AS [ProductSubcategoryID]
-            //        FROM [Production].[Product] AS [Extent1]
-            //        WHERE [Extent1].[ListPrice] > cast(100 as decimal(18))
-            //    INTERSECT
-            //        SELECT 
-            //        [Extent2].[ProductID] AS [ProductID], 
-            //        [Extent2].[Name] AS [Name], 
-            //        [Extent2].[ListPrice] AS [ListPrice], 
-            //        [Extent2].[ProductSubcategoryID] AS [ProductSubcategoryID]
-            //        FROM [Production].[Product] AS [Extent2]
-            //        WHERE [Extent2].[ListPrice] < cast(2000 as decimal(18))) AS [Intersect1]
-#else
             // SELECT [product0].[ProductID], [product0].[ListPrice], [product0].[Name], [product0].[ProductSubcategoryID]
             // FROM [Production].[Product] AS [product0]
             // WHERE [product0].[ListPrice] < 2000.0
@@ -1291,7 +983,6 @@
             // SELECT [product].[ProductID], [product].[ListPrice], [product].[Name], [product].[ProductSubcategoryID]
             // FROM [Production].[Product] AS [product]
             // WHERE [product].[ListPrice] > 100.0
-#endif
         }
 
         internal static void IntersectPrimitive(AdventureWorks adventureWorks)
@@ -1304,25 +995,6 @@
                 .Select(product => new { Name = product.Name, ListPrice = product.ListPrice });
             var intersect = first.Intersect(second); // Define query.
             intersect.WriteLines(); // Execute query.
-#if EF
-            // SELECT 
-            //    [Intersect1].[C1] AS [C1], 
-            //    [Intersect1].[Name] AS [C2], 
-            //    [Intersect1].[ListPrice] AS [C3]
-            //    FROM  (SELECT 
-            //        1 AS [C1], 
-            //        [Extent1].[Name] AS [Name], 
-            //        [Extent1].[ListPrice] AS [ListPrice]
-            //        FROM [Production].[Product] AS [Extent1]
-            //        WHERE [Extent1].[ListPrice] > cast(100 as decimal(18))
-            //    INTERSECT
-            //        SELECT 
-            //        1 AS [C1], 
-            //        [Extent2].[Name] AS [Name], 
-            //        [Extent2].[ListPrice] AS [ListPrice]
-            //        FROM [Production].[Product] AS [Extent2]
-            //        WHERE [Extent2].[ListPrice] < cast(2000 as decimal(18))) AS [Intersect1]
-#else
             // SELECT [product0].[Name], [product0].[ListPrice]
             // FROM [Production].[Product] AS [product0]
             // WHERE [product0].[ListPrice] < 2000.0
@@ -1330,7 +1002,6 @@
             // SELECT [product].[Name], [product].[ListPrice]
             // FROM [Production].[Product] AS [product]
             // WHERE [product].[ListPrice] > 100.0
-#endif
         }
 
         internal static void ExceptEntity(AdventureWorks adventureWorks)
@@ -1341,27 +1012,6 @@
                 .Where(product => product.ListPrice > 2000);
             IQueryable<Product> except = first.Except(second); // Define query.
             except.WriteLines(); // Execute query.
-#if EF
-            // SELECT 
-            //    [Except1].[ProductID] AS [C1], 
-            //    [Except1].[Name] AS [C2], 
-            //    [Except1].[ListPrice] AS [C3]
-            //    FROM  (SELECT 
-            //        [Extent1].[ProductID] AS [ProductID], 
-            //        [Extent1].[Name] AS [Name], 
-            //        [Extent1].[ListPrice] AS [ListPrice], 
-            //        [Extent1].[ProductSubcategoryID] AS [ProductSubcategoryID]
-            //        FROM [Production].[Product] AS [Extent1]
-            //        WHERE [Extent1].[ListPrice] > cast(100 as decimal(18))
-            //    EXCEPT
-            //        SELECT 
-            //        [Extent2].[ProductID] AS [ProductID], 
-            //        [Extent2].[Name] AS [Name], 
-            //        [Extent2].[ListPrice] AS [ListPrice], 
-            //        [Extent2].[ProductSubcategoryID] AS [ProductSubcategoryID]
-            //        FROM [Production].[Product] AS [Extent2]
-            //        WHERE [Extent2].[ListPrice] > cast(2000 as decimal(18))) AS [Except1]
-#else
             // SELECT [product0].[ProductID], [product0].[ListPrice], [product0].[Name], [product0].[ProductSubcategoryID]
             // FROM [Production].[Product] AS [product0]
             // WHERE [product0].[ListPrice] > 2000.0
@@ -1369,7 +1019,6 @@
             // SELECT [product].[ProductID], [product].[ListPrice], [product].[Name], [product].[ProductSubcategoryID]
             // FROM [Production].[Product] AS [product]
             // WHERE [product].[ListPrice] > 100.0
-#endif
         }
 
         internal static void ExceptPrimitive(AdventureWorks adventureWorks)
@@ -1382,25 +1031,6 @@
                 .Select(product => new { Name = product.Name, ListPrice = product.ListPrice });
             var except = first.Except(second); // Define query.
             except.WriteLines(); // Execute query.
-#if EF
-            // SELECT 
-            //    [Except1].[C1] AS [C1], 
-            //    [Except1].[Name] AS [C2], 
-            //    [Except1].[ListPrice] AS [C3]
-            //    FROM  (SELECT 
-            //        1 AS [C1], 
-            //        [Extent1].[Name] AS [Name], 
-            //        [Extent1].[ListPrice] AS [ListPrice]
-            //        FROM [Production].[Product] AS [Extent1]
-            //        WHERE [Extent1].[ListPrice] > cast(100 as decimal(18))
-            //    EXCEPT
-            //        SELECT 
-            //        1 AS [C1], 
-            //        [Extent2].[Name] AS [Name], 
-            //        [Extent2].[ListPrice] AS [ListPrice]
-            //        FROM [Production].[Product] AS [Extent2]
-            //        WHERE [Extent2].[ListPrice] > cast(2000 as decimal(18))) AS [Except1]
-#else
             // SELECT [product0].[Name], [product0].[ListPrice]
             // FROM [Production].[Product] AS [product0]
             // WHERE [product0].[ListPrice] > 2000.0
@@ -1408,7 +1038,6 @@
             // SELECT [product].[Name], [product].[ListPrice]
             // FROM [Production].[Product] AS [product]
             // WHERE [product].[ListPrice] > 100.0
-#endif
         }
 
         #endregion
@@ -1419,13 +1048,9 @@
         {
             IQueryable<Product> first = adventureWorks.Products.OrderBy(product => product.ListPrice);
             IQueryable<Product> second = adventureWorks.Products.OrderByDescending(product => product.ListPrice);
-            IQueryable<string> listProces = first.Zip(second, (firstProduct, secondProduct) => firstProduct.ListPrice + " " + secondProduct.ListPrice);
-            listProces.WriteLines(); // Execute query.
-#if EF
-            // NotSupportedException
-#else
+            IQueryable<string> listPrices = first.Zip(second, (firstProduct, secondProduct) => firstProduct.ListPrice + " " + secondProduct.ListPrice);
+            listPrices.WriteLines(); // Execute query.
             // NotImplementedException
-#endif
         }
 
         #endregion
@@ -1439,14 +1064,10 @@
                 .Select(product => product.Name)
                 .Skip(10); // Define query.
             names.WriteLines(); // Execute query.
-#if EF
-            // NotSupportedException: The method 'Skip' is only supported for sorted input in LINQ to Entities. The method 'OrderBy' must be called before the method 'Skip'.
-#else
             // exec sp_executesql N'SELECT [product].[Name]
             // FROM [Production].[Product] AS [product]
             // ORDER BY (SELECT 1)
             // OFFSET @__p_0 ROWS',N'@__p_0 int',@__p_0=10
-#endif
         }
 
         internal static void OrderByAndSkip(AdventureWorks adventureWorks)
@@ -1457,22 +1078,10 @@
                 .OrderBy(product => 1)
                 .Skip(10); // Define query.
             names.WriteLines(); // Execute query.
-#if EF
-            // SELECT 
-            //    [Project1].[Name] AS [Name]
-            //    FROM ( SELECT 
-            //        1 AS [C1], 
-            //        [Extent1].[Name] AS [Name]
-            //        FROM [Production].[Product] AS [Extent1]
-            //    )  AS [Project1]
-            //    ORDER BY [Project1].[C1] ASC
-            //    OFFSET 10 ROWS 
-#else
             // exec sp_executesql N'SELECT [product].[Name]
             // FROM [Production].[Product] AS [product]
             // ORDER BY [product].[Name]
             // OFFSET @__p_0 ROWS',N'@__p_0 int',@__p_0=10
-#endif
         }
 
         internal static void Take(AdventureWorks adventureWorks)
@@ -1571,23 +1180,9 @@
                 .OrderBy(product => new { ListPrice = product.ListPrice, Name = product.Name })
                 .Select(product => new { Name = product.Name, ListPrice = product.ListPrice }); // Define query.
             products.WriteLines(); // Execute query.
-#if EF
-            // SELECT 
-            //    [Project1].[C1] AS [C1], 
-            //    [Project1].[Name] AS [Name], 
-            //    [Project1].[ListPrice] AS [ListPrice]
-            //    FROM ( SELECT 
-            //        [Extent1].[Name] AS [Name], 
-            //        [Extent1].[ListPrice] AS [ListPrice], 
-            //        1 AS [C1]
-            //        FROM [Production].[Product] AS [Extent1]
-            //    )  AS [Project1]
-            //    ORDER BY [Project1].[ListPrice] ASC, [Project1].[Name] ASC
-#else
             // SELECT [product].[Name], [product].[ListPrice]
             // FROM [Production].[Product] AS [product]
             // ORDER BY (SELECT 1)
-#endif
         }
 
         internal static void OrderByAndOrderBy(AdventureWorks adventureWorks)
@@ -1603,25 +1198,9 @@
                     Subcategory = product.ProductSubcategoryID
                 }); // Define query.
             products.WriteLines(); // Execute query.
-#if EF
-            // SELECT 
-            //    [Project1].[C1] AS [C1], 
-            //    [Project1].[Name] AS [Name], 
-            //    [Project1].[ListPrice] AS [ListPrice], 
-            //    [Project1].[ProductSubcategoryID] AS [ProductSubcategoryID]
-            //    FROM ( SELECT 
-            //        [Extent1].[Name] AS [Name], 
-            //        [Extent1].[ListPrice] AS [ListPrice], 
-            //        [Extent1].[ProductSubcategoryID] AS [ProductSubcategoryID], 
-            //        1 AS [C1]
-            //        FROM [Production].[Product] AS [Extent1]
-            //    )  AS [Project1]
-            //    ORDER BY [Project1].[ProductSubcategoryID] ASC
-#else
             // SELECT [product].[Name], [product].[ListPrice], [product].[ProductSubcategoryID]
             // FROM [Production].[Product] AS [product]
             // ORDER BY [product].[ProductSubcategoryID], [product].[ListPrice]
-#endif
         }
 
         internal static void Reverse(AdventureWorks adventureWorks)
@@ -1632,11 +1211,7 @@
                 .Reverse()
                 .Select(product => new { Name = product.Name, ListPrice = product.ListPrice }); // Define query.
             products.WriteLines(); // Execute query.
-#if EF
-            // NotSupportedException: LINQ to Entities does not recognize the method 'System.Linq.IQueryable`1[Product] Reverse[Product](System.Linq.IQueryable`1[Product])' method, and this method cannot be translated into a store expression.
-#else
             // NotImplementedException: Remotion.Linq.Clauses.ResultOperators.ReverseResultOperator
-#endif
         }
 
         #endregion
@@ -1651,13 +1226,9 @@
                 .Cast<SalesTransactionHistory>(); // Define query.
             transactions.WriteLines(transaction =>
                 $"{transaction.GetType().Name}: {transaction.TransactionDate}"); // Execute query.
-#if EF
-            // NotSupportedException: Unable to cast the type 'TransactionHistory' to type 'SalesTransactionHistory'. LINQ to Entities only supports casting EDM primitive or enumeration types.
-#else
             // SELECT [product].[TransactionID], [product].[ActualCost], [product].[ProductID], [product].[Quantity], [product].[TransactionDate], [product].[TransactionType]
             // FROM [Production].[TransactionHistory] AS [product]
             // WHERE [product].[TransactionType] IN (N'W', N'S', N'P') AND ([product].[ActualCost] > 500.0)
-#endif
         }
 
         internal static void CastPrimitive(AdventureWorks adventureWorks)
@@ -1667,13 +1238,7 @@
                 .Select(product => product.ListPrice)
                 .Cast<string>(); // Define query.
             listPrices.WriteLines(); // Execute query.
-#if EF
-            // SELECT 
-            //    CAST( [Extent1].[ListPrice] AS nvarchar(max)) AS [C1]
-            //    FROM [Production].[Product] AS [Extent1]
-#else
             // InvalidOperationException: No coercion operator is defined between types 'System.Decimal' and 'System.String'.
-#endif
         }
 
         internal static void AsEnumerableAsQueryable(AdventureWorks adventureWorks)
@@ -1750,12 +1315,8 @@
         {
             IQueryable<Product> source = adventureWorks.Products;
             Product last = source.Last(); // Execute query.
-#if EF
-            // NotSupportedException: LINQ to Entities does not recognize the method 'Product Last[Product](System.Linq.IQueryable`1[Product])' method, and this method cannot be translated into a store expression.
-#else
             // SELECT [p].[ProductID], [p].[ListPrice], [p].[Name], [p].[ProductSubcategoryID]
             // FROM [Production].[Product] AS [p]
-#endif
             $"{last.Name}: {last.ListPrice}".WriteLine();
         }
 
@@ -1765,13 +1326,9 @@
             var lastOrDefault = source
                 .Select(product => new { Name = product.Name, ListPrice = product.ListPrice })
                 .LastOrDefault(product => product.ListPrice <= 0); // Execute query.
-#if EF
-            // NotSupportedException: LINQ to Entities does not recognize the method 'Product LastOrDefault[Product](System.Linq.IQueryable`1[Product], System.Linq.Expressions.Expression`1[System.Func`2[roduct,System.Boolean]])' method, and this method cannot be translated into a store expression.
-#else
             // SELECT [product].[Name], [product].[ListPrice]
             // FROM [Production].[Product] AS [product]
             // WHERE [product].[ListPrice] <= 0.0
-#endif
             (lastOrDefault == null).WriteLine(); // True
         }
 
@@ -1863,17 +1420,8 @@
         {
             IQueryable<Product> source = adventureWorks.Products;
             decimal average = source.Select(product => product.ListPrice).Average().WriteLine(); // Execute query.
-#if EF
-            // SELECT 
-            //    [GroupBy1].[A1] AS [C1]
-            //    FROM ( SELECT 
-            //        AVG([Extent1].[ListPrice]) AS [A1]
-            //        FROM [Production].[Product] AS [Extent1]
-            //    )  AS [GroupBy1]
-#else
             // SELECT [product].[ListPrice]
             // FROM [Production].[Product] AS [product]
-#endif
         }
 
         #endregion
@@ -1890,15 +1438,10 @@
             bool contains = source
                 .Where(product => product.ProductSubcategoryID == 7)
                 .Contains(single).WriteLine(); // Execute query.
-#if EF
-            // NotSupportedException: Unable to create a constant value of type 'Product'. Only primitive types or enumeration types are supported in this context.
-#else
             // SELECT [product].[ProductID], [product].[ListPrice], [product].[Name], [product].[ProductSubcategoryID]
             // FROM [Production].[Product] AS [product]
             // WHERE [product].[ProductSubcategoryID] = 7
             // ArgumentException: Expression of type 'Tutorial.LinqToEntities.Product' cannot be used for parameter of type 'Microsoft.EntityFrameworkCore.Storage.ValueBuffer' of method 'Boolean Contains[ValueBuffer](System.Collections.Generic.IEnumerable`1[Microsoft.EntityFrameworkCore.Storage.ValueBuffer], Microsoft.EntityFrameworkCore.Storage.ValueBuffer)' Parameter name: arg1
-
-#endif
         }
 
         internal static void ContainsPrimitive(AdventureWorks adventureWorks)

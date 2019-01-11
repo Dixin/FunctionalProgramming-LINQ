@@ -1,8 +1,8 @@
 ﻿namespace Tutorial.Tests.LinqToEntities
 {
-    using Tutorial.LinqToEntities;
-
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+    using Tutorial.LinqToEntities;
 
     [TestClass]
     public class TransactionTests
@@ -13,9 +13,7 @@
             Transactions.Default(new AdventureWorks());
             Transactions.DbContextTransaction(new AdventureWorks());
             Transactions.DbTransaction();
-#if NETFX
-            Transactions.TransactionScope();
-#endif
+            Transactions.TransactionScope(new AdventureWorks());
         }
     }
 }

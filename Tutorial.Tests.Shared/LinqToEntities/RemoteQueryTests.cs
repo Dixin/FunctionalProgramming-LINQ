@@ -2,11 +2,8 @@
 {
     using System;
     using System.Linq.Expressions;
-
-    using Tutorial;
-    using Tutorial.LinqToEntities;
-
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Tutorial.LinqToEntities;
 
     [TestClass]
     public class BinaryArithmeticTranslatorTests

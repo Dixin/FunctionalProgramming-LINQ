@@ -1,20 +1,11 @@
 ﻿namespace Tutorial.LinqToEntities
 {
-#if EF
-    using System;
-    using System.Collections.Generic;
-    using System.Data.Entity;
-    using System.Linq;
-
-    using EntityEntry = System.Data.Entity.Infrastructure.DbEntityEntry;
-#else
     using System;
     using System.Collections.Generic;
     using System.Linq;
 
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.ChangeTracking;
-#endif
 
     internal static partial class Changes
     {
@@ -201,9 +192,7 @@
             using (AdventureWorks adventureWorks = new AdventureWorks())
             {
                 ProductCategory category = adventureWorks.ProductCategories
-#if !EF
                     .Include(entity => entity.ProductSubcategories)
-#endif
                     .Single(entity => entity.ProductCategoryID == categoryId);
                 ProductSubcategory subcategory = category.ProductSubcategories.Single();
                 adventureWorks.ChangeTracker.Entries().Count().WriteLine(); // 2
@@ -237,12 +226,8 @@
                     .Single(category => category.Name == "Bikes");
                 adventureWorks.ProductCategories.Remove(untracked); // Track no deletion.
                 adventureWorks.SaveChanges().WriteLine();
-#if EF
-                // InvalidOperationException: The object cannot be deleted because it was not found in the ObjectStateManager.
-#else
                 // DbUpdateException: An error occurred while updating the entries.
-                // ---> SqlException: The DELETE statement conflicted with the REFERENCE constraint "FK_ProductSubcategory_ProductCategory_ProductCategoryID". The conflict occurred in database "C:\DATA\GITHUB\DATA\ADVENTUREWORKS_DATA.MDF", table "Production.ProductSubcategory", column 'ProductCategoryID'. The statement has been terminated.
-#endif
+                // ---> SqlException: The DELETE statement conflicted with the REFERENCE constraint "FK_ProductSubcategory_ProductCategory_ProductCategoryID". The conflict occurred in database "ADVENTUREWORKS_DATA.MDF", table "Production.ProductSubcategory", column 'ProductCategoryID'. The statement has been terminated.
             } // Unit of work.
         }
     }

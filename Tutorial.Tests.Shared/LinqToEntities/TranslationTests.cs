@@ -1,17 +1,8 @@
 ﻿namespace Tutorial.Tests.LinqToEntities
 {
-#if NETFX
-    using System;
-    using System.Diagnostics;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using Tutorial.LinqToEntities;
-
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-#else
-    using Tutorial.LinqToEntities;
-
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-#endif
 
     [TestClass]
     public class TranslationTests
@@ -39,26 +30,8 @@
         [TestMethod]
         public void ApiTranslationTest()
         {
-#if NETFX
-            try
-            {
-                Translation.WhereAndSelectWithCustomPredicate(new AdventureWorks());
-                Assert.Fail();
-            }
-            catch (NotSupportedException exception)
-            {
-                Trace.WriteLine(exception);
-            }
-#else
             Translation.WhereAndSelectWithCustomPredicate(new AdventureWorks());
-#endif
             Translation.WhereAndSelectWithLocalPredicate(new AdventureWorks());
-#if NETFX
-            Translation.DbFunction(new AdventureWorks());
-            Translation.SqlFunction(new AdventureWorks());
-            Translation.DbFunctionSql(new AdventureWorks());
-            Translation.SqlFunctionSql(new AdventureWorks());
-#endif
         }
     }
 }

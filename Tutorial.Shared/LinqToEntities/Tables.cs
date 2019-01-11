@@ -1,15 +1,9 @@
 ﻿namespace Tutorial.LinqToEntities
 {
-#if EF
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
-    using System.Data.Entity;
-#else
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
 
     using Microsoft.EntityFrameworkCore;
-#endif
 
     public partial class AdventureWorks
     {
