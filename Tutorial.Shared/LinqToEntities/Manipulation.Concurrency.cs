@@ -477,16 +477,4 @@ namespace Tutorial.LinqToEntities
         public DateTime ModifiedDate { get; set; }
     }
 }
-
-namespace System.Data.Entity.Infrastructure
-{
-    using System.Collections.Generic;
-
-    public class DbUpdateException : DataException
-    {
-        public IEnumerable<DbEntityEntry> Entries { get; }
-    }
-
-    public class DbUpdateConcurrencyException : DbUpdateException { }
-}
 #endif

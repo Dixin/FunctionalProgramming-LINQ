@@ -17,50 +17,7 @@
     using Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling;
 
     using IsolationLevel = System.Data.IsolationLevel;
-
-    internal static partial class Performance
-    {
-        internal static void Initialize()
-        {
-            using (AdventureWorks adventureWorks = new AdventureWorks())
-            {
-                IQueryable<ProductCategory> categories = adventureWorks.ProductCategories;
-                categories.Load();
-                // select cast(serverproperty('EngineEdition') as int)
-
-                // SELECT Count(*)
-                // FROM INFORMATION_SCHEMA.TABLES AS t
-                // WHERE t.TABLE_SCHEMA + '.' + t.TABLE_NAME IN ('HumanResources.Employee','Person.Person','Production.ProductCategory','Production.ProductSubcategory','Production.Product','Production.ProductProductPhoto','Production.ProductPhoto','Production.TransactionHistory','HumanResources.vEmployee')
-                //    OR t.TABLE_NAME = 'EdmMetadata'
-
-                // exec sp_executesql N'SELECT
-                //    [GroupBy1].[A1] AS [C1]
-                //    FROM ( SELECT
-                //        COUNT(1) AS [A1]
-                //        FROM [dbo].[__MigrationHistory] AS [Extent1]
-                //        WHERE [Extent1].[ContextKey] = @p__linq__0
-                //    )  AS [GroupBy1]',N'@p__linq__0 nvarchar(4000)',@p__linq__0=N'Tutorial.LinqToEntities.AdventureWorks'
-
-                // SELECT
-                //    [GroupBy1].[A1] AS [C1]
-                //    FROM ( SELECT
-                //        COUNT(1) AS [A1]
-                //        FROM [dbo].[__MigrationHistory] AS [Extent1]
-                //    )  AS [GroupBy1]
-
-                // SELECT TOP (1)
-                //    [Extent1].[Id] AS [Id],
-                //    [Extent1].[ModelHash] AS [ModelHash]
-                //    FROM [dbo].[EdmMetadata] AS [Extent1]
-                //    ORDER BY [Extent1].[Id] DESC
-
-                // SELECT
-                //    [Extent1].[ProductCategoryID] AS [ProductCategoryID],
-                //    [Extent1].[Name] AS [Name]
-                //    FROM [Production].[ProductCategory] AS [Extent1]
-            }
-        }
-    }
+    using RefreshConflict = Concurrency.RefreshConflict;
 
     internal static partial class Performance
     {
@@ -285,10 +242,7 @@
                 .OrderBy(product => product.ProductID).Skip(skip).Take(take);
             skipTakeWithVariable2.Load();
         }
-    }
 
-    internal static partial class Performance
-    {
         internal static async Task Async(AdventureWorks adventureWorks)
         {
             IQueryable<ProductCategory> categories = adventureWorks.ProductCategories;
@@ -306,11 +260,8 @@
             adventureWorks.Products.RemoveRange(products);
             (await adventureWorks.SaveChangesAsync()).WriteLine(); // Async version of SaveChanges.
         }
-    }
 
-    public static partial class DbEntityEntryExtensions
-    {
-        public static async Task<EntityEntry> RefreshAsync(this EntityEntry tracking, RefreshConflict refreshMode)
+        internal static async Task<EntityEntry> RefreshAsync(this EntityEntry tracking, RefreshConflict refreshMode)
         {
             switch (refreshMode)
             {
@@ -352,10 +303,7 @@
             }
             return tracking;
         }
-    }
 
-    public static partial class DbContextExtensions
-    {
         public static async Task<int> SaveChangesAsync(
             this DbContext context, Func<IEnumerable<EntityEntry>, Task> resolveConflictsAsync, int retryCount = 3)
         {
@@ -382,16 +330,13 @@
             this DbContext context, Func<IEnumerable<EntityEntry>, Task> resolveConflictsAsync, RetryStrategy retryStrategy)
         {
             RetryPolicy retryPolicy = new RetryPolicy(
-                new TransientDetection<DbUpdateConcurrencyException>(), retryStrategy);
+                new Concurrency.TransientDetection<DbUpdateConcurrencyException>(), retryStrategy);
             retryPolicy.Retrying += (sender, e) =>
                 resolveConflictsAsync(((DbUpdateConcurrencyException)e.LastException).Entries).Wait();
             return await retryPolicy.ExecuteAsync(async () => await context.SaveChangesAsync());
         }
-    }
 
-    public static partial class DbContextExtensions
-    {
-        public static async Task<int> SaveChangesAsync(
+        internal static async Task<int> SaveChangesAsync(
             this DbContext context, RefreshConflict refreshMode, int retryCount = 3)
         {
             if (retryCount <= 0)
@@ -405,16 +350,13 @@
                 retryCount);
         }
 
-        public static async Task<int> SaveChangesAsync(
+        internal static async Task<int> SaveChangesAsync(
             this DbContext context, RefreshConflict refreshMode, RetryStrategy retryStrategy) =>
                 await context.SaveChangesAsync(
                     async conflicts => await Task.WhenAll(conflicts.Select(async tracking =>
                         await tracking.RefreshAsync(refreshMode))),
                     retryStrategy);
-    }
 
-    internal static partial class Performance
-    {
         internal static async Task SaveChangesAsync()
         {
             using (AdventureWorks adventureWorks1 = new AdventureWorks())
@@ -507,18 +449,3 @@
         }
     }
 }
-
-#if DEMO
-namespace System.Data.Entity
-{
-    using System.Linq;
-    using System.Linq.Expressions;
-
-    public static class QueryableExtensions
-    {
-        public static IQueryable<TSource> Skip<TSource>(this IQueryable<TSource> source, Expression<Func<int>> countAccessor);
-
-        public static IQueryable<TSource> Take<TSource>(this IQueryable<TSource> source, Expression<Func<int>> countAccessor);
-    }
-}
-#endif

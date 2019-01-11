@@ -9,12 +9,6 @@
     public class QueryMethodsTests
     {
         [TestMethod]
-        public void QueryTableTests()
-        {
-            Performance.Initialize();
-        }
-
-        [TestMethod]
         public void FilteringTest()
         {
             QueryMethods.Where(new AdventureWorks());

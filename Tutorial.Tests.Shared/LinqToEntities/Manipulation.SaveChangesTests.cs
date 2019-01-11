@@ -6,6 +6,7 @@ namespace Tutorial.Tests.LinqToEntities
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Tutorial.LinqToEntities;
     using static TransactionHelper;
+    using RefreshConflict = Tutorial.LinqToEntities.Concurrency.RefreshConflict;
 
     [TestClass]
     public class SaveChangesTests

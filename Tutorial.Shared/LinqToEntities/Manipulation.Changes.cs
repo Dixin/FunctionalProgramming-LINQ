@@ -332,42 +332,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     }
 }
 
-namespace System.Data.Entity
-{
-    using System.Collections.Generic;
-    using System.Data.Entity.Infrastructure;
-    using System.Linq;
-
-    public class DbSet<TEntity> : DbQuery<TEntity>, IQueryable<TEntity> // Other interfaces.
-        where TEntity : class
-    {
-        public virtual TEntity Find(params object[] keyValues);
-
-        public virtual TEntity Add(TEntity entity);
-
-        public virtual IEnumerable<TEntity> AddRange(IEnumerable<TEntity> entities);
-
-        public virtual TEntity Remove(TEntity entity);
-
-        public virtual IEnumerable<TEntity> RemoveRange(IEnumerable<TEntity> entities);
-
-        // Other members.
-    }
-
-    public class DbContext : IDisposable // Other interfaces.
-    {
-        public virtual DbSet<TEntity> Set<TEntity>() where TEntity : class;
-
-        public DbChangeTracker ChangeTracker { get; }
-
-        public virtual int SaveChanges();
-
-        public void Dispose();
-
-        // Other members.
-    }
-}
-
 namespace System.Data.SqlClient
 {
     internal static class TdsEnums

@@ -8,6 +8,7 @@
     using Tutorial.LinqToEntities;
 
     using static TransactionHelper;
+    using DbReaderWriter = Tutorial.LinqToEntities.Concurrency.DbReaderWriter;
 
     [TestClass]
     public class ConcurrencyTests
