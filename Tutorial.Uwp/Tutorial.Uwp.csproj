@@ -157,10 +157,10 @@
       <Version>1.9.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies">
-      <Version>2.2.0</Version>
+      <Version>2.2.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer">
-      <Version>2.2.0</Version>
+      <Version>2.2.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration.Json">
       <Version>2.1.1</Version>
