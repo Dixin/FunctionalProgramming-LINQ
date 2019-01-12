@@ -21,21 +21,21 @@
         }
 
         [TestMethod]
-        public void GenerationTest()
-        {
-            QueryMethods.DefaultIfEmptyEntity(new AdventureWorks());
-            QueryMethods.DefaultIfEmptyPrimitive(new AdventureWorks());
-            QueryMethods.DefaultIfEmptyWithDefaultEntity(new AdventureWorks());
-            QueryMethods.DefaultIfEmptyWithDefaultPrimitive(new AdventureWorks());
-        }
-
-        [TestMethod]
         public void MappingTest()
         {
             QueryMethods.Select(new AdventureWorks());
             QueryMethods.SelectWithStringConcat(new AdventureWorks());
             QueryMethods.SelectEntity(new AdventureWorks());
             QueryMethods.SelectAnonymousType(new AdventureWorks());
+        }
+
+        [TestMethod]
+        public void GenerationTest()
+        {
+            QueryMethods.DefaultIfEmptyEntity(new AdventureWorks());
+            QueryMethods.DefaultIfEmptyPrimitive(new AdventureWorks());
+            QueryMethods.DefaultIfEmptyWithDefaultEntity(new AdventureWorks());
+            QueryMethods.DefaultIfEmptyWithDefaultPrimitive(new AdventureWorks());
         }
 
         [TestMethod]
@@ -71,17 +71,6 @@
         }
 
         [TestMethod]
-        public void ApplyTest()
-        {
-            QueryMethods.CrossApplyWithGroupByAndTake(new AdventureWorks());
-            QueryMethods.CrossApplyWithGroupJoinAndTake(new AdventureWorks());
-            QueryMethods.CrossApplyWithRelationshipAndTake(new AdventureWorks());
-            QueryMethods.OuterApplyWithGroupByAndFirstOrDefault(new AdventureWorks());
-            QueryMethods.OuterApplyWithGroupJoinAndFirstOrDefault(new AdventureWorks());
-            QueryMethods.OuterApplyWithRelationshipAndFirstOrDefault(new AdventureWorks());
-        }
-
-        [TestMethod]
         public void ConcatenationTest()
         {
             QueryMethods.ConcatPrimitive(new AdventureWorks());
@@ -93,9 +82,9 @@
         {
             QueryMethods.DistinctEntity(new AdventureWorks());
             QueryMethods.DistinctPrimitive(new AdventureWorks());
-            QueryMethods.DistinctEntityWithGroupBy(new AdventureWorks());
-            QueryMethods.DistinctWithGroupBy(new AdventureWorks());
             QueryMethods.DistinctMultipleKeys(new AdventureWorks());
+            QueryMethods.DistinctWithGroupBy(new AdventureWorks());
+            QueryMethods.DistinctEntityWithGroupBy(new AdventureWorks());
             QueryMethods.DistinctMultipleKeysWithGroupBy(new AdventureWorks());
             QueryMethods.DistinctWithGroupByAndFirstOrDefault(new AdventureWorks());
             QueryMethods.UnionEntity(new AdventureWorks());
@@ -126,10 +115,10 @@
             QueryMethods.Skip(new AdventureWorks());
             QueryMethods.OrderByAndSkip(new AdventureWorks());
             QueryMethods.Take(new AdventureWorks());
-            QueryMethods.OrderByAndSkipAndTake(new AdventureWorks());
+            QueryMethods.SkipAndTake(new AdventureWorks());
             try
             {
-                QueryMethods.SkipWhile(new AdventureWorks());
+                QueryMethods.TakeWhile(new AdventureWorks());
                 Assert.Fail();
             }
             catch (NotSupportedException exception)
@@ -138,7 +127,7 @@
             }
             try
             {
-                QueryMethods.TakeWhile(new AdventureWorks());
+                QueryMethods.SkipWhile(new AdventureWorks());
                 Assert.Fail();
             }
             catch (NotSupportedException exception)
@@ -158,7 +147,7 @@
                 QueryMethods.OrderByMultipleKeys(new AdventureWorks());
                 Assert.Fail();
             }
-            catch (ArgumentException exception)
+            catch (InvalidOperationException exception)
             {
                 Trace.WriteLine(exception);
             }
@@ -177,6 +166,7 @@
         [TestMethod]
         public void ConversionTest()
         {
+            QueryMethods.CastEntity(new AdventureWorks());
             try
             {
                 QueryMethods.CastPrimitive(new AdventureWorks());
@@ -186,7 +176,6 @@
             {
                 Trace.WriteLine(exception);
             }
-            QueryMethods.CastEntity(new AdventureWorks());
             QueryMethods.AsEnumerableAsQueryable(new AdventureWorks());
             QueryMethods.SelectLocalEntity(new AdventureWorks());
         }
@@ -227,18 +216,18 @@
             QueryMethods.LongCount(new AdventureWorks());
             QueryMethods.Max(new AdventureWorks());
             QueryMethods.Min(new AdventureWorks());
-            QueryMethods.Average(new AdventureWorks());
             QueryMethods.Sum(new AdventureWorks());
+            QueryMethods.Average(new AdventureWorks());
         }
 
         [TestMethod]
         public void QuantifiersTest()
         {
+            QueryMethods.ContainsEntity(new AdventureWorks());
+            QueryMethods.ContainsPrimitive(new AdventureWorks());
             QueryMethods.Any(new AdventureWorks());
             QueryMethods.AnyWithPredicate(new AdventureWorks());
             QueryMethods.AllWithPredicate(new AdventureWorks());
-            QueryMethods.ContainsPrimitive(new AdventureWorks());
-            QueryMethods.ContainsEntity(new AdventureWorks());
             QueryMethods.AllNot(new AdventureWorks());
             QueryMethods.NotAny(new AdventureWorks());
         }

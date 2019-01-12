@@ -100,10 +100,10 @@
         internal static void SelectWithStringConcat(AdventureWorks adventureWorks)
         {
             IQueryable<Person> source = adventureWorks.People;
-            IQueryable<string> categories = source.Select(category =>
-                string.Concat(category.FirstName, " ", category.LastName)); // Define query.
-            categories.WriteLines(); // Execute query.
-            // SELECT [category].[FirstName], [category].[LastName]
+            IQueryable<string> persons = source.Select(person =>
+                string.Concat(person.FirstName, " ", person.LastName)); // Define query.
+            persons.WriteLines(); // Execute query.
+            // SELECT [person].[FirstName], [person].[LastName]
             // FROM [Person].[Person] AS [category]
         }
 
@@ -434,6 +434,7 @@
             // SELECT [product].[Name], [transaction].[Quantity]
             // FROM [Production].[Product] AS [product]
             // INNER JOIN [Production].[TransactionHistory] AS [transaction] ON ([product].[ProductID] = [transaction].[ProductID]) AND ([product].[ListPrice] = ([transaction].[ActualCost] / [transaction].[Quantity]))
+            // WHERE [transaction].[TransactionType] IN (N'W', N'S', N'P')
         }
 
         internal static void MultipleInnerJoinsWithRelationship(AdventureWorks adventureWorks)
@@ -537,7 +538,6 @@
             // SELECT [category].[ProductCategoryID], [category].[Name], [subcategory].[ProductSubcategoryID], [subcategory].[Name], [subcategory].[ProductCategoryID]
             // FROM [Production].[ProductCategory] AS [category]
             // LEFT JOIN [Production].[ProductSubcategory] AS [subcategory] ON [category].[ProductCategoryID] = [subcategory].[ProductCategoryID]
-            // ORDER BY [category].[ProductCategoryID]
         }
 
         internal static void LeftOuterJoinWithSelect(AdventureWorks adventureWorks)
@@ -568,19 +568,19 @@
             //    from subcategory in category.Subcategories.DefaultIfEmpty()
             //    select new { Category = category.Category.Name, Subcategory = subcategory.Name };
             categorySubcategories.WriteLines(); // Execute query.
-            // SELECT [category].[Name], [t1].[Name]
+            // SELECT [category].[Name] AS [Category], [t0].[Name] AS [Subcategory]
             // FROM [Production].[ProductCategory] AS [category]
             // CROSS APPLY (
-            //    SELECT [t0].*
+            //    SELECT [t].*
             //    FROM (
             //        SELECT NULL AS [empty]
-            //    ) AS [empty0]
+            //    ) AS [empty]
             //    LEFT JOIN (
-            //        SELECT [subcategory0].*
-            //        FROM [Production].[ProductSubcategory] AS [subcategory0]
-            //        WHERE [category].[ProductCategoryID] = [subcategory0].[ProductCategoryID]
-            //    ) AS [t0] ON 1 = 1
-            // ) AS [t1]
+            //        SELECT [subcategory].*
+            //        FROM [Production].[ProductSubcategory] AS [subcategory]
+            //        WHERE [category].[ProductCategoryID] = [subcategory].[ProductCategoryID]
+            //    ) AS [t] ON 1 = 1
+            // ) AS [t0]
         }
 
         internal static void LeftOuterJoinWithSelectMany(AdventureWorks adventureWorks)
@@ -601,19 +601,19 @@
             //                         select subcategory).DefaultIfEmpty()
             //    select new { Category = category.Name, Subcategory = subcategory.Name };
             categorySubcategories.WriteLines(); // Execute query.
-            // SELECT [category].[Name], [t1].[Name]
+            // SELECT [category].[Name] AS [Category], [t0].[Name] AS [Subcategory]
             // FROM [Production].[ProductCategory] AS [category]
             // CROSS APPLY (
-            //    SELECT [t0].*
+            //    SELECT [t].*
             //    FROM (
             //        SELECT NULL AS [empty]
-            //    ) AS [empty0]
+            //    ) AS [empty]
             //    LEFT JOIN (
-            //        SELECT [subcategory0].*
-            //        FROM [Production].[ProductSubcategory] AS [subcategory0]
-            //        WHERE [category].[ProductCategoryID] = [subcategory0].[ProductCategoryID]
-            //    ) AS [t0] ON 1 = 1
-            // ) AS [t1]
+            //        SELECT [subcategory].*
+            //        FROM [Production].[ProductSubcategory] AS [subcategory]
+            //        WHERE [category].[ProductCategoryID] = [subcategory].[ProductCategoryID]
+            //    ) AS [t] ON 1 = 1
+            // ) AS [t0]
         }
 
         internal static void LeftOuterJoinWithSelectAndRelationship(AdventureWorks adventureWorks)
@@ -734,91 +734,10 @@
             // FROM [Production].[Product] AS [product]
             // LEFT JOIN [Production].[Product] AS [product0] ON [product].[ListPrice] = [product0].[ListPrice]
             // ORDER BY [product].[ListPrice]
-        }
-
-        #endregion
-
-        #region Apply
-
-        internal static void CrossApplyWithGroupByAndTake(AdventureWorks adventureWorks)
-        {
-            IQueryable<ProductSubcategory> source = adventureWorks.ProductSubcategories;
-            var categories = source
-                .GroupBy(subcategory => subcategory.ProductCategoryID)
-                .SelectMany(
-                    group => group.Take(1),
-                    (group, subcategory) =>
-                        new { ProductCategoryID = group.Key, FirstSubcategory = subcategory }); // Define query.
-            categories.WriteLines(category =>
-                $"{category.ProductCategoryID}: {category.FirstSubcategory?.Name}"); // Execute query.
-        }
-
-        internal static void CrossApplyWithGroupJoinAndTake(AdventureWorks adventureWorks)
-        {
-            IQueryable<ProductCategory> outer = adventureWorks.ProductCategories;
-            IQueryable<ProductSubcategory> inner = adventureWorks.ProductSubcategories;
-            var categories = outer
-                .GroupJoin(
-                    inner,
-                    category => category.ProductCategoryID,
-                    subcategory => subcategory.ProductCategoryID,
-                    (category, subcategories) => new { Category = category, Subcategories = subcategories })
-                .SelectMany(
-                    category => category.Subcategories.Take(1),
-                    (category, subcategory) =>
-                        new { Category = category.Category, FirstSubcategory = subcategory }); // Define query.
-            categories.WriteLines(category =>
-                $"{category.Category.Name}: {category.FirstSubcategory?.Name}"); // Execute query.
-        }
-
-        internal static void CrossApplyWithRelationshipAndTake(AdventureWorks adventureWorks)
-        {
-            IQueryable<ProductCategory> source = adventureWorks.ProductCategories;
-            var categories = source
-                .Select(category => new { Category = category, Subcategories = category.ProductSubcategories })
-                .SelectMany(
-                    collectionSelector: category => category.Subcategories.Take(1),
-                    resultSelector: (category, subcategory) =>
-                        new { Category = category.Category, FirstSubcategory = subcategory }); // Define query.
-            categories.WriteLines(category =>
-                $"{category.Category.Name}: {category.FirstSubcategory?.Name}"); // Execute query.
-        }
-
-        internal static void OuterApplyWithGroupByAndFirstOrDefault(AdventureWorks adventureWorks)
-        {
-            IQueryable<ProductSubcategory> source = adventureWorks.ProductSubcategories;
-            var categories = source.GroupBy(
-                subcategory => subcategory.ProductCategoryID,
-                (key, group) =>
-                    new { ProductCategoryID = key, FirstSubcategory = group.FirstOrDefault() }); // Define query.
-            categories.WriteLines(category =>
-                $"{category.ProductCategoryID}: {category.FirstSubcategory?.Name}"); // Execute query.
-        }
-
-        internal static void OuterApplyWithGroupJoinAndFirstOrDefault(AdventureWorks adventureWorks)
-        {
-            IQueryable<ProductCategory> outer = adventureWorks.ProductCategories;
-            IQueryable<ProductSubcategory> inner = adventureWorks.ProductSubcategories;
-            var categories = outer.GroupJoin(
-                inner,
-                category => category.ProductCategoryID,
-                subcategory => subcategory.ProductCategoryID,
-                (category, subcategories) =>
-                    new { Category = category, FirstSubcategory = subcategories.FirstOrDefault() }); // Define query.
-            categories.WriteLines(category =>
-                $"{category.Category.Name}: {category.FirstSubcategory?.Name}"); // Execute query.
-        }
-
-        internal static void OuterApplyWithRelationshipAndFirstOrDefault(AdventureWorks adventureWorks)
-        {
-            IQueryable<ProductCategory> source = adventureWorks.ProductCategories;
-            var categories = source.Select(category => new
-            {
-                Category = category,
-                FirstSubcategory = category.ProductSubcategories.FirstOrDefault()
-            }); // Define query.
-            categories.WriteLines(category =>
-                $"{category.Category.Name}: {category.FirstSubcategory?.Name}"); // Execute query.
+            // https://github.com/aspnet/EntityFrameworkCore/issues/14395
+            // SELECT [product].[ProductID], [product].[ListPrice] AS [ListPrice0], [product].[Name] AS [Name0], [product].[ProductSubcategoryID], [product].[RowVersion], [product].[ProductID], [product].[ListPrice], [product].[Name], [product].[ProductSubcategoryID], [product].[RowVersion]
+            // FROM [Production].[Product] AS [product]
+            // ORDER BY [ListPrice0]
         }
 
         #endregion
@@ -852,7 +771,13 @@
                 .Concat(second)
                 .Select(product => product.Name); // Define query.
             concat.WriteLines(); // Execute query.
-            // ArgumentException: Expression of type 'System.Collections.Generic.IEnumerable`1[Product]' cannot be used for parameter of type 'System.Collections.Generic.IEnumerable`1[Microsoft.EntityFrameworkCore.Storage.ValueBuffer]' of method 'System.Collections.Generic.IEnumerable`1[Microsoft.EntityFrameworkCore.Storage.ValueBuffer] Concat[ValueBuffer](System.Collections.Generic.IEnumerable`1[Microsoft.EntityFrameworkCore.Storage.ValueBuffer], System.Collections.Generic.IEnumerable`1[Microsoft.EntityFrameworkCore.Storage.ValueBuffer])' Parameter name: arg1
+            // SELECT [product1].[ProductID], [product1].[ListPrice], [product1].[Name], [product1].[ProductSubcategoryID], [product1].[RowVersion]
+            // FROM [Production].[Product] AS [product1]
+            // WHERE [product1].[ListPrice] < 100.0
+
+            // SELECT [product2].[ProductID], [product2].[ListPrice], [product2].[Name], [product2].[ProductSubcategoryID], [product2].[RowVersion]
+            // FROM [Production].[Product] AS [product2]
+            // WHERE [product2].[ListPrice] > 2000.0
         }
 
         #endregion
@@ -894,18 +819,6 @@
             // FROM [Production].[Product] AS [product]
         }
 
-        internal static void DistinctEntityWithGroupBy(AdventureWorks adventureWorks)
-        {
-            IQueryable<ProductSubcategory> source = adventureWorks.ProductSubcategories;
-            IQueryable<ProductCategory> distinct = source.GroupBy(
-                keySelector: subcategory => subcategory.ProductCategory,
-                resultSelector: (key, group) => key); // Define query.
-            distinct.WriteLines(); // Execute query.
-            // SELECT [subcategory].[ProductSubcategoryID], [subcategory].[Name], [subcategory].[ProductCategoryID]
-            // FROM [Production].[ProductSubcategory] AS [subcategory]
-            // ORDER BY [subcategory].[ProductCategoryID]
-        }
-
         internal static void DistinctWithGroupBy(AdventureWorks adventureWorks)
         {
             IQueryable<ProductSubcategory> source = adventureWorks.ProductSubcategories;
@@ -913,9 +826,22 @@
                 keySelector: subcategory => subcategory.ProductCategoryID,
                 resultSelector: (key, group) => key); // Define query.
             distinct.WriteLines(); // Execute query.
-            // SELECT [subcategory].[ProductSubcategoryID], [subcategory].[Name], [subcategory].[ProductCategoryID]
+            // SELECT [subcategory].[ProductCategoryID] AS [Key]
             // FROM [Production].[ProductSubcategory] AS [subcategory]
-            // ORDER BY [subcategory].[ProductCategoryID]
+            // GROUP BY [subcategory].[ProductCategoryID]
+        }
+
+        internal static void DistinctEntityWithGroupBy(AdventureWorks adventureWorks)
+        {
+            IQueryable<ProductSubcategory> source = adventureWorks.ProductSubcategories;
+            IQueryable<ProductCategory> distinct = source.GroupBy(
+                keySelector: subcategory => subcategory.ProductCategory,
+                resultSelector: (key, group) => key); // Define query.
+            distinct.WriteLines(); // Execute query.
+            // SELECT [subcategory.ProductCategory].[ProductCategoryID], [subcategory.ProductCategory].[Name]
+            // FROM [Production].[ProductSubcategory] AS [subcategory]
+            // INNER JOIN [Production].[ProductCategory] AS [subcategory.ProductCategory] ON [subcategory].[ProductCategoryID] = [subcategory.ProductCategory].[ProductCategoryID]
+            // ORDER BY [subcategory.ProductCategory].[ProductCategoryID]
         }
 
         internal static void DistinctMultipleKeysWithGroupBy(AdventureWorks adventureWorks)
@@ -925,9 +851,9 @@
                 keySelector: subcategory => new { ProductCategoryID = subcategory.ProductCategoryID, Name = subcategory.Name },
                 resultSelector: (key, group) => key); // Define query.
             distinct.WriteLines(); // Execute query.
-            // SELECT [subcategory].[ProductSubcategoryID], [subcategory].[Name], [subcategory].[ProductCategoryID]
+            // SELECT [subcategory].[ProductCategoryID], [subcategory].[Name]
             // FROM [Production].[ProductSubcategory] AS [subcategory]
-            // ORDER BY [subcategory].[ProductCategoryID], [subcategory].[Name]
+            // GROUP BY [subcategory].[ProductCategoryID], [subcategory].[Name]
         }
 
         internal static void DistinctWithGroupByAndFirstOrDefault(AdventureWorks adventureWorks)
@@ -1060,7 +986,7 @@
             IQueryable<Product> second = adventureWorks.Products.OrderByDescending(product => product.ListPrice);
             IQueryable<string> listPrices = first.Zip(second, (firstProduct, secondProduct) => firstProduct.ListPrice + " " + secondProduct.ListPrice);
             listPrices.WriteLines(); // Execute query.
-            // NotImplementedException
+            // NotSupportedException
         }
 
         #endregion
@@ -1101,29 +1027,22 @@
                 .Take(10)
                 .Select(product => product.Name); // Define query.
             products.WriteLines(); // Execute query.
-            // exec sp_executesql N'SELECT [t].[Name]
-            // FROM (
-            //    SELECT TOP(@__p_0) [p0].*
-            //    FROM [Production].[Product] AS [p0]
-            // ) AS [t]',N'@__p_0 int',@__p_0=10
+            // exec sp_executesql N'SELECT TOP(@__p_0) [product].[Name]
+            // FROM [Production].[Product] AS [product]',N'@__p_0 int',@__p_0=10
         }
 
-        internal static void OrderByAndSkipAndTake(AdventureWorks adventureWorks)
+        internal static void SkipAndTake(AdventureWorks adventureWorks)
         {
             IQueryable<Product> source = adventureWorks.Products;
             IQueryable<string> products = source
-                .OrderBy(product => product.Name)
                 .Skip(20)
                 .Take(10)
                 .Select(product => product.Name); // Define query.
             products.WriteLines(); // Execute query.
-            // exec sp_executesql N'SELECT [t].[Name]
-            // FROM (
-            //    SELECT [product0].*
-            //    FROM [Production].[Product] AS [product0]
-            //    ORDER BY [product0].[Name]
-            //    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
-            // ) AS [t]',N'@__p_0 int,@__p_1 int',@__p_0=20,@__p_1=10
+            // exec sp_executesql N'SELECT [product].[Name]
+            // FROM [Production].[Product] AS [product]
+            // ORDER BY (SELECT 1)
+            // OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY',N'@__p_0 int,@__p_1 int',@__p_0=20,@__p_1=10
         }
 
         internal static void TakeWhile(AdventureWorks adventureWorks)
@@ -1190,9 +1109,9 @@
                 .OrderBy(product => new { ListPrice = product.ListPrice, Name = product.Name })
                 .Select(product => new { Name = product.Name, ListPrice = product.ListPrice }); // Define query.
             products.WriteLines(); // Execute query.
-            // SELECT [product].[Name], [product].[ListPrice]
+            // SELECT [product].[ListPrice], [product].[Name]
             // FROM [Production].[Product] AS [product]
-            // ORDER BY (SELECT 1)
+            // InvalidOperationException
         }
 
         internal static void OrderByAndOrderBy(AdventureWorks adventureWorks)
@@ -1208,9 +1127,9 @@
                     Subcategory = product.ProductSubcategoryID
                 }); // Define query.
             products.WriteLines(); // Execute query.
-            // SELECT [product].[Name], [product].[ListPrice], [product].[ProductSubcategoryID]
+            // SELECT [product].[Name], [product].[ListPrice], [product].[ProductSubcategoryID] AS [Subcategory]
             // FROM [Production].[Product] AS [product]
-            // ORDER BY [product].[ProductSubcategoryID], [product].[ListPrice]
+            // ORDER BY [Subcategory], [product].[ListPrice]
         }
 
         internal static void Reverse(AdventureWorks adventureWorks)
@@ -1423,14 +1342,14 @@
             decimal sum = source.Sum(transaction => transaction.ActualCost).WriteLine(); // Execute query.
             // SELECT SUM([transaction].[ActualCost])
             // FROM [Production].[TransactionHistory] AS [transaction]
-            // WHERE ([transaction].[TransactionType] = N'W') OR (([transaction].[TransactionType] = N'S') OR ([transaction].[TransactionType] = N'P'))
+            // WHERE [transaction].[TransactionType] IN (N'W', N'S', N'P')
         }
 
         internal static void Average(AdventureWorks adventureWorks)
         {
             IQueryable<Product> source = adventureWorks.Products;
             decimal average = source.Select(product => product.ListPrice).Average().WriteLine(); // Execute query.
-            // SELECT [product].[ListPrice]
+            // SELECT AVG([product].[ListPrice])
             // FROM [Production].[Product] AS [product]
         }
 
@@ -1448,10 +1367,14 @@
             bool contains = source
                 .Where(product => product.ProductSubcategoryID == 7)
                 .Contains(single).WriteLine(); // Execute query.
-            // SELECT [product].[ProductID], [product].[ListPrice], [product].[Name], [product].[ProductSubcategoryID]
-            // FROM [Production].[Product] AS [product]
-            // WHERE [product].[ProductSubcategoryID] = 7
-            // ArgumentException: Expression of type 'Tutorial.LinqToEntities.Product' cannot be used for parameter of type 'Microsoft.EntityFrameworkCore.Storage.ValueBuffer' of method 'Boolean Contains[ValueBuffer](System.Collections.Generic.IEnumerable`1[Microsoft.EntityFrameworkCore.Storage.ValueBuffer], Microsoft.EntityFrameworkCore.Storage.ValueBuffer)' Parameter name: arg1
+            // exec sp_executesql N'SELECT CASE
+            //    WHEN @__p_0_ProductID IN (
+            //        SELECT [product].[ProductID]
+            //        FROM [Production].[Product] AS [product]
+            //        WHERE [product].[ProductSubcategoryID] = 7
+            //    )
+            //    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+            // END',N'@__p_0_ProductID int',@__p_0_ProductID=952
         }
 
         internal static void ContainsPrimitive(AdventureWorks adventureWorks)
@@ -1460,13 +1383,13 @@
             bool contains = source
                 .Select(product => product.ListPrice).Contains(100)
                 .WriteLine(); // Execute query.
-            // SELECT CASE
-            //    WHEN EXISTS (
-            //        SELECT 1
+            // exec sp_executesql N'SELECT CASE
+            //    WHEN @__p_0 IN (
+            //        SELECT [product].[ListPrice]
             //        FROM [Production].[Product] AS [product]
-            //        WHERE [product].[ListPrice] = 100.0)
+            //    )
             //    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-            // END
+            // END',N'@__p_0 decimal(3,0)',@__p_0=100
         }
 
         internal static void Any(AdventureWorks adventureWorks)
