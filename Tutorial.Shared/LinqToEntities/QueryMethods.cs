@@ -1196,23 +1196,6 @@
             // ORDER BY [product].[Name]
         }
 
-        internal static void SelectLocalEntity(AdventureWorks adventureWorks)
-        {
-            IQueryable<Product> source = adventureWorks.Products;
-            IEnumerable<Product> products = source
-                .Where(product => product.ListPrice > 1_000) // LINQ to Entities.
-                .AsEnumerable() // Do nothing.
-                .Select(product => new Product()
-                {
-                    ProductID = product.ProductID,
-                    Name = product.Name
-                }); // LINQ to Objects: Enumerable.Select>. Return a generator.
-            products.WriteLines(product => $"{product.ProductID}: {product.Name}"); // Execute query.
-            // SELECT [product].[ProductID], [product].[ListPrice], [product].[Name], [product].[ProductSubcategoryID]
-            // FROM [Production].[Product] AS [product]
-            // WHERE [product].[ListPrice] > 1000.0
-        }
-
         #endregion
 
         #region Element

@@ -177,7 +177,6 @@
                 Trace.WriteLine(exception);
             }
             QueryMethods.AsEnumerableAsQueryable(new AdventureWorks());
-            QueryMethods.SelectLocalEntity(new AdventureWorks());
         }
 
         [TestMethod]

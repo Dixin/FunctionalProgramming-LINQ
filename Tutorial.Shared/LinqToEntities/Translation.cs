@@ -348,6 +348,29 @@
             products.WriteLines(); // Execute query.
         }
 
+        internal static void DatabaseFunction(AdventureWorks adventureWorks)
+        {
+            var photos = adventureWorks.ProductPhotos.Select(photo => new
+                {
+                    LargePhotoFileName = photo.LargePhotoFileName,
+                    UnmodifiedDays = EF.Functions.DateDiffDay(photo.ModifiedDate, DateTime.UtcNow)
+                }); // Define query.
+            photos.WriteLines(); // Execute query.
+            // SELECT [photo].[LargePhotoFileName], DATEDIFF(DAY, [photo].[ModifiedDate], GETUTCDATE()) AS [UnmodifiedDays]
+            // FROM [Production].[ProductPhoto] AS [photo]
+        }
+
+        internal static void DatabaseOperator(AdventureWorks adventureWorks)
+        {
+            IQueryable<string> products = adventureWorks.Products
+                .Select(product => product.Name)
+                .Where(name => EF.Functions.Like(name, "%Touring%50%")); // Define query.
+            products.WriteLines(); // Execute query.
+            // SELECT [product].[Name]
+            // FROM [Production].[Product] AS [product]
+            // WHERE [product].[Name] LIKE N'%Touring%50%'
+        }
+
         internal static void WhereAndSelectSql(AdventureWorks adventureWorks)
         {
             SelectExpression databaseExpression = WhereAndSelectDatabaseExpressions(adventureWorks);
@@ -555,6 +578,40 @@ namespace System.Linq
                 arg0: source.Expression);
             return source.Provider.Execute<TSource>(firstCallExpression);
         }
+
+        // Other members.
+    }
+}
+
+namespace Microsoft.EntityFrameworkCore
+{
+    public static class EF
+    {
+        public static DbFunctions Functions { get; }
+        
+        // Other members.
+    }
+}
+
+// Microsoft.EntityFrameworkCore.dll
+namespace Microsoft.EntityFrameworkCore
+{
+    public static class DbFunctionsExtensions
+    {
+        public static bool Like(this DbFunctions _, string matchExpression, string pattern);
+        
+        // Other members.
+    }
+}
+
+// Microsoft.EntityFrameworkCore.SqlServer.dll
+namespace Microsoft.EntityFrameworkCore
+{
+    public static class SqlServerDbFunctionsExtensions
+    {
+        public static bool Contains(this DbFunctions _, string propertyReference, string searchCondition);
+
+        public static int DateDiffDay(this DbFunctions _, DateTime startDate, DateTime endDate);
 
         // Other members.
     }

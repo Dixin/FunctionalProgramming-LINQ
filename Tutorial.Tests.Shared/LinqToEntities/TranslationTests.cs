@@ -32,6 +32,8 @@
         {
             Translation.WhereAndSelectWithCustomPredicate(new AdventureWorks());
             Translation.WhereAndSelectWithLocalPredicate(new AdventureWorks());
+            Translation.DatabaseFunction(new AdventureWorks());
+            Translation.DatabaseOperator(new AdventureWorks());
         }
     }
 }
