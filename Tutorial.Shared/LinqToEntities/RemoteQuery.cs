@@ -68,6 +68,8 @@
         }
 
 #if !__IOS__
+        // https://docs.microsoft.com/en-us/xamarin/ios/internals/limitations#System.Reflection.Emit
+        // Emitting and DynamicMethod are not allowed by iOS, so not supported in Xamarin.iOS.
         public static TDelegate TranslateToSql<TDelegate>(this Expression<TDelegate> expression, string connection)
         {
             DynamicMethod dynamicMethod = new DynamicMethod(
@@ -115,12 +117,12 @@
 
         internal static void TranslateAndExecute()
         {
-            Expression<Func<double, double, double, double, double, double>> expression2 =
+            Expression<Func<double, double, double, double, double, double>> expression =
                 (a, b, c, d, e) => a + b - c * d / 2D + e * 3D;
-            Func<double, double, double, double, double, double> local = expression2.Compile();
+            Func<double, double, double, double, double, double> local = expression.Compile();
             local(1, 2, 3, 4, 5).WriteLine(); // 12
 #if !__IOS__
-            Func<double, double, double, double, double, double> remote = expression2.TranslateToSql(ConnectionStrings.AdventureWorks);
+            Func<double, double, double, double, double, double> remote = expression.TranslateToSql(ConnectionStrings.AdventureWorks);
             remote(1, 2, 3, 4, 5).WriteLine(); // 12
 #endif
         }
