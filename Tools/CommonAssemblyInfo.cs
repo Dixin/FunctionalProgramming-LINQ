@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("Code examples for https://weblogs.asp.net/dixin/linq-via-csharp.")]
 [assembly: AssemblyCopyright("Dixin Yan https://weblogs.asp.net/dixin")]
 
-#if !NETSTANDARD2_0 && !NETCOREAPP2_0
+#if !NETSTANDARD && !NETCOREAPP
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 [assembly: AssemblyCompany("Dixin Yan")]
@@ -21,4 +21,3 @@ using System.Runtime.InteropServices;
 #if NETFX || WINDOWS_UWP
 [assembly: ComVisible(false)]
 #endif
-

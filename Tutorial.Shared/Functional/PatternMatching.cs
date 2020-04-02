@@ -222,6 +222,19 @@
             throw new ArgumentOutOfRangeException("object");
 #pragma warning restore CA1507 // Use nameof to express symbol names
         }
+
+        internal static DateTime ToDateTime2(object @object) =>
+            @object switch
+            {
+                null => throw new ArgumentNullException(nameof(@object)),
+                DateTime dateTIme => dateTIme,
+                long ticks when ticks >= 0 => new DateTime(ticks),
+                string @string when DateTime.TryParse(@string, out DateTime dateTime) => dateTime,
+                int[] date when date.Length == 3 && date[0] > 0 && date[1] > 0 && date[2] > 0 => new DateTime(
+                    year: date[0], month: date[1], day: date[2]),
+                IConvertible convertible => convertible.ToDateTime(provider: null),
+                _ => throw new ArgumentOutOfRangeException(nameof(@object))
+            };
     }
 }
 

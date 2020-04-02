@@ -3,17 +3,16 @@
     using System;
     using System.Collections.Generic;
     using System.Data.Common;
-    using System.Data.SqlClient;
     using System.Diagnostics;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
 
+    using Microsoft.Data.SqlClient;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.ChangeTracking;
     using Microsoft.EntityFrameworkCore.Storage;
-
     using Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling;
 
     using IsolationLevel = System.Data.IsolationLevel;
@@ -91,7 +90,7 @@
             object.ReferenceEquals(categoryCopy1, categoryCopy2).WriteLine(); // True
 
             ProductCategory categoryCopy3 = adventureWorks.ProductCategories
-                .FromSql(
+                .FromSqlRaw(
                     @"SELECT TOP (1) [ProductCategory].[ProductCategoryID], [ProductCategory].[Name]
                     FROM [Production].[ProductCategory]
                     ORDER BY [ProductCategory].[ProductCategoryID]")
@@ -111,7 +110,7 @@
             object.ReferenceEquals(categoryCopy1, categoryCopy2).WriteLine(); // False
 
             ProductCategory categoryCopy3 = adventureWorks.ProductCategories
-                .FromSql(
+                .FromSqlRaw(
                     @"SELECT TOP (1) [ProductCategory].[ProductCategoryID], [ProductCategory].[Name]
                     FROM [Production].[ProductCategory]
                     ORDER BY [ProductCategory].[ProductCategoryID]")

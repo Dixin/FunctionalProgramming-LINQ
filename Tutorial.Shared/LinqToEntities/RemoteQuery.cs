@@ -2,13 +2,14 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Data.SqlClient;
     using System.Linq;
     using System.Linq.Expressions;
 #if !__IOS__
     using System.Reflection;
     using System.Reflection.Emit;
 #endif
+
+    using Microsoft.Data.SqlClient;
 
     internal static partial class RemoteQueries
     {

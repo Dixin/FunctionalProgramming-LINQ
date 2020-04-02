@@ -5,15 +5,17 @@
     using System.Collections.ObjectModel;
     using System.Collections.Specialized;
     using System.Data.Common;
-    using System.Data.SqlClient;
     using System.Diagnostics;
     using System.IO;
+    using System.Net;
     using System.Net.Http;
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
+
+    using Microsoft.Data.SqlClient;
 
     internal static partial class AsyncFunctions
     {
@@ -700,6 +702,31 @@
             Task task2 = Task.Run(async () => await WriteAsync(writePath, contents)); // Automatically unwrapped.
             await task2; // Hot task.
         }
+
+        internal static async IAsyncEnumerable<string> DownloadAsync(IEnumerable<Uri> uris)
+        {
+            using WebClient webClient = new WebClient();
+            foreach (Uri uri in uris)
+            {
+                string webPage = await webClient.DownloadStringTaskAsync(uri);
+                yield return webPage;
+            }
+        }
+
+        internal static async void PrintDownloadAsync(IEnumerable<Uri> uris)
+        {
+            IAsyncEnumerable<string> webPages = DownloadAsync(uris);
+            await foreach (string webPage in webPages)
+            {
+                Trace.WriteLine(webPage);
+            }
+        }
+
+        internal static async void AsyncUsing(string file)
+        {
+            await using FileStream fileStream = File.OpenRead(file);
+            Trace.WriteLine(fileStream.Length);
+        }
     }
 }
 
@@ -882,6 +909,29 @@ namespace System.Threading.Tasks
         public ValueTaskAwaiter<TResult> GetAwaiter();
 
         // Other members.
+    }
+}
+
+namespace System.Collections.Generic
+{
+    public interface IAsyncEnumerable<out T>
+    {
+        IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default);
+    }
+
+    public interface IAsyncEnumerator<out T> : IAsyncDisposable
+    {
+        T Current { get; }
+
+        ValueTask<bool> MoveNextAsync();
+    }
+}
+
+namespace System
+{
+    public interface IAsyncDisposable
+    {
+        ValueTask DisposeAsync();
     }
 }
 #endif

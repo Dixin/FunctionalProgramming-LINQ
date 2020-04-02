@@ -3,12 +3,13 @@
     using System;
     using System.Collections.Generic;
     using System.Data.Common;
-    using System.Data.SqlClient;
     using System.Diagnostics;
     using System.Diagnostics.Contracts;
     using System.IO;
     using System.Reflection;
     using System.Xml.XPath;
+
+    using Microsoft.Data.SqlClient;
 
     internal static partial class Overview
     {

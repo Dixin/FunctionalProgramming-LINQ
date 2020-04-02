@@ -241,10 +241,11 @@ namespace Tutorial.GettingStarted
     using System.Collections;
     using System.Data;
     using System.Data.Common;
-    using System.Data.SqlClient;
     using System.Diagnostics;
     using System.Net;
     using System.Runtime.CompilerServices;
+
+    using Microsoft.Data.SqlClient;
 
     internal static partial class Basics
     {

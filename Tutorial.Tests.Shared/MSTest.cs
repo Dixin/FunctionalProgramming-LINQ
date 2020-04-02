@@ -8,9 +8,9 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Tutorial.Tests.Introduction;
 
-    internal static class MSTest
+    public static class MSTest
     {
-        internal static void Run(bool stopWhenFail = false)
+        public static void Run(bool stopWhenFail = false)
         {
             new OverviewTests().EmailValidationTest();
             List<(MethodInfo, Exception, double)> failed = new List<(MethodInfo, Exception, double)>();

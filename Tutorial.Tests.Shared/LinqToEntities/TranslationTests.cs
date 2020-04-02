@@ -1,5 +1,7 @@
 ﻿namespace Tutorial.Tests.LinqToEntities
 {
+    using System;
+    using System.Diagnostics;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using Tutorial.LinqToEntities;
@@ -30,7 +32,15 @@
         [TestMethod]
         public void ApiTranslationTest()
         {
-            Translation.WhereAndSelectWithCustomPredicate(new AdventureWorks());
+            try
+            {
+                Translation.WhereAndSelectWithCustomPredicate(new AdventureWorks());
+                Assert.Fail();
+            }
+            catch (InvalidOperationException exception)
+            {
+                Trace.WriteLine(exception);
+            }
             Translation.WhereAndSelectWithLocalPredicate(new AdventureWorks());
             Translation.DatabaseFunction(new AdventureWorks());
             Translation.DatabaseOperator(new AdventureWorks());

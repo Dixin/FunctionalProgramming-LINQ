@@ -714,7 +714,7 @@
             result = TryExtensions.Factorial("-1");
             Assert.IsFalse(result.HasException);
             Assert.IsNull(result.Exception);
-            StringAssert.Contains(result.Value, "Parameter name");
+            StringAssert.Contains(result.Value, "(Parameter '");
         }
     }
 }

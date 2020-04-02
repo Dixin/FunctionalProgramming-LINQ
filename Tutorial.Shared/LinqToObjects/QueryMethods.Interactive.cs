@@ -633,8 +633,8 @@
                     onNext: value => $"{nameof(Enumerable.Where)} yields {value}.".WriteLine(),
                     onCompleted: () => $"{nameof(Enumerable.Where)} completes.".WriteLine())
                 .TakeLast(2).Do(
-                    onNext: value => $"{nameof(EnumerableEx.TakeLast)} yields {value}.".WriteLine(),
-                    onCompleted: () => $"{nameof(EnumerableEx.TakeLast)} completes.".WriteLine())
+                    onNext: value => $"{nameof(Enumerable.TakeLast)} yields {value}.".WriteLine(),
+                    onCompleted: () => $"{nameof(Enumerable.TakeLast)} completes.".WriteLine())
                 .WriteLines(value => $"Composited query yields result {value}.");
             // Range yields -5.
             // Range yields -4.

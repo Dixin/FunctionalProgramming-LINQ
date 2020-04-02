@@ -2,8 +2,8 @@ namespace Tutorial.LinqToEntities
 {
     using System;
     using System.Data.Common;
-    using System.Data.SqlClient;
     using System.Linq;
+    using Microsoft.Data.SqlClient;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Storage;
 
@@ -144,9 +144,9 @@ namespace Tutorial.LinqToEntities
 namespace Tutorial.LinqToEntities
 {
     using System.Data.Common;
-    using System.Data.SqlClient;
     using System.Linq;
     using System.Transactions;
+    using Microsoft.Data.SqlClient;
     using Microsoft.EntityFrameworkCore;
 
     internal static partial class Transactions

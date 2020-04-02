@@ -3,11 +3,11 @@
     using System;
     using System.Collections.Generic;
     using System.Data.Common;
-    using System.Data.SqlClient;
     using System.Linq;
 
+    using Microsoft.Data.SqlClient;
     using Microsoft.EntityFrameworkCore;
-    using Microsoft.EntityFrameworkCore.Query.Expressions;
+    using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
     using Microsoft.EntityFrameworkCore.Storage;
 
     internal static partial class Loading
@@ -24,9 +24,8 @@
                 start: () =>
                 {
                     "| |_Generate SQL from database expression tree.".WriteLine();
-                    IRelationalCommand sql = dbContext.Generate(
-                        compilation.DatabaseExpression, compilation.Parameters);
-                    IEnumerable<TEntity> sqlQuery = dbContext.Set<TEntity>().FromSql(
+                    IRelationalCommand sql = dbContext.Generate(compilation.DatabaseExpression);
+                    IEnumerable<TEntity> sqlQuery = dbContext.Set<TEntity>().FromSqlRaw(
                         sql: sql.CommandText,
                         parameters: compilation.Parameters
                             .Select(parameter => new SqlParameter(parameter.Key, parameter.Value)).ToArray());

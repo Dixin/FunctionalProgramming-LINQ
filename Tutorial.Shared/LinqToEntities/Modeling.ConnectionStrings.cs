@@ -5,9 +5,9 @@
     using System.Data.SqlClient;
     using System.IO;
 #else
-    using System.Data.SqlClient;
     using System.IO;
 
+    using Microsoft.Data.SqlClient;
     using Microsoft.Extensions.Configuration;
 #endif
 

@@ -46,7 +46,7 @@
     public partial class DotNetCategory : ICategory<Type, Delegate>
     {
         public IEnumerable<Type> Objects => AppDomain.CurrentDomain.GetAssemblies()
-            .SelectMany(assembly => assembly.GetTypes());
+            .SelectMany(assembly => assembly.ExportedTypes);
 
         public Delegate Compose(Delegate morphism2, Delegate morphism1) =>
             // return (Func<TSource, TResult>)Functions.Compose<TSource, TMiddle, TResult>(

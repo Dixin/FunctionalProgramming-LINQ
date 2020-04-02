@@ -1,7 +1,7 @@
 ﻿namespace Tutorial.Tests.CategoryTheory
 {
     using System;
-
+    using System.Collections.Generic;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using Tutorial.CategoryTheory;
@@ -14,7 +14,7 @@
         public void DotNetCategoryObjectsTest()
         {
             DotNetCategory category = new DotNetCategory();
-            Type[] types = category.Objects.ToArray();
+            IEnumerable<Type> types = category.Objects;
             EnumerableAssert.Multiple(types);
         }
 
