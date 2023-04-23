@@ -113,7 +113,7 @@
         }
     }
 
-    public static partial class EnumerableExtensions
+    public partial class EnumerableExtensions
     {
         internal static void Selector1Arity(IEnumerable<int> xs)
         {
@@ -160,7 +160,7 @@
         }
     }
 
-    public static partial class EnumerableExtensions // IEnumerable<T> : IApplicativeFunctor<IEnumerable<>>
+    public partial class EnumerableExtensions // IEnumerable<T> : IApplicativeFunctor<IEnumerable<>>
     {
         // Apply: (IEnumerable<TSource -> TResult>, IEnumerable<TSource>) -> IEnumerable<TResult>
         public static IEnumerable<TResult> Apply<TSource, TResult>(
@@ -207,7 +207,7 @@
     }
 #endif
 
-    public static partial class EnumerableExtensions
+    public partial class EnumerableExtensions
     {
         // using static Tutorial.CategoryTheory.DotNetCategory;
         internal static void MonoidalFunctorLaws()

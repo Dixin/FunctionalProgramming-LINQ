@@ -8,9 +8,9 @@
 
     public partial class DotNetCategory : IMonoidalCategory<Type, Delegate>
     {
-        public Type Multiply(Type value1, Type value2) => typeof(ValueTuple<,>).MakeGenericType(value1, value2);
+        public static Type Multiply(Type value1, Type value2) => typeof(ValueTuple<,>).MakeGenericType(value1, value2);
 
-        public Type Unit() => typeof(Unit);
+        public static Type Unit => typeof(Unit);
     }
 
     public partial class DotNetCategory

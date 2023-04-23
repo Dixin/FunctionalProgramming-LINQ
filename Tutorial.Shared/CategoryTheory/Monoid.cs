@@ -3,99 +3,99 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-
+    using System.Numerics;
     using Microsoft.FSharp.Core;
 
     public interface IMonoid<T>
     {
-        T Multiply(T value1, T value2);
+        static abstract T Multiply(T value1, T value2);
 
-        T Unit();
+        static abstract T Unit { get; }
     }
 
     public class Int32SumMonoid : IMonoid<int>
     {
-        public int Multiply(int value1, int value2) => value1 + value2;
+        public static int Multiply(int value1, int value2) => value1 + value2;
 
-        public int Unit() => 0;
+        public static int Unit => GenericIndirection.AdditiveUnit<int>(); // 0.
     }
 
     public class Int32ProductMonoid : IMonoid<int>
     {
-        public int Multiply(int value1, int value2) => value1 * value2;
+        public static int Multiply(int value1, int value2) => value1 * value2;
 
-        public int Unit() => 1;
+        public static int Unit => GenericIndirection.MultiplicativeUnit<int>(); // 1.
+    }
+
+    public static class GenericIndirection
+    {
+        public static T AdditiveUnit<T>() where T : IAdditiveIdentity<T, T> => T.AdditiveIdentity;
+
+        public static T MultiplicativeUnit<T>() where T : IMultiplicativeIdentity<T, T> => T.MultiplicativeIdentity;
     }
 
     public class ClockMonoid : IMonoid<uint>
     {
-        public uint Multiply(uint value1, uint value2)
+        public static uint Multiply(uint value1, uint value2)
         {
-            uint result = (value1 + value2) % this.Unit();
-            return result != 0 ? result : this.Unit();
+            uint result = (value1 + value2) % Unit;
+            return result != 0 ? result : Unit;
         }
 
-        public uint Unit() => 12U;
+        public static uint Unit => 12U;
     }
 
     public class StringConcatMonoid : IMonoid<string>
     {
-        public string Multiply(string value1, string value2) => string.Concat(value1, value2);
+        public static string Multiply(string value1, string value2) => string.Concat(value1, value2);
 
-        public string Unit() => string.Empty;
+        public static string Unit => string.Empty;
     }
 
     public class EnumerableConcatMonoid<T> : IMonoid<IEnumerable<T>>
     {
-        public IEnumerable<T> Multiply(IEnumerable<T> value1, IEnumerable<T> value2) => value1.Concat(value2);
+        public static IEnumerable<T> Multiply(IEnumerable<T> value1, IEnumerable<T> value2) => value1.Concat(value2);
 
-        public IEnumerable<T> Unit() => Enumerable.Empty<T>();
+        public static IEnumerable<T> Unit => Enumerable.Empty<T>();
     }
 
     public class BooleanAndMonoid : IMonoid<bool>
     {
-        public bool Multiply(bool value1, bool value2) => value1 && value2;
+        public static bool Multiply(bool value1, bool value2) => value1 && value2;
 
-        public bool Unit() => true;
+        public static bool Unit => true;
     }
 
     public class BooleanOrMonoid : IMonoid<bool>
     {
-        public bool Multiply(bool value1, bool value2) => value1 || value2;
+        public static bool Multiply(bool value1, bool value2) => value1 || value2;
 
-        public bool Unit() => false;
+        public static bool Unit => false;
     }
 
 #if DEMO
     public class VoidMonoid : IMonoid<void>
     {
-        public void Multiply(void value1, void value2) => default;
+        public static void Multiply(void value1, void value2) => default;
 
-        public void Unit() => default;
+        public static void Unit() => default;
     }
 #endif
 
     public class UnitMonoid : IMonoid<Unit>
     {
-        public Unit Multiply(Unit value1, Unit value2) => null;
+        public static Unit Multiply(Unit value1, Unit value2) => null;
 
-        public Unit Unit() => null;
+        public static Unit Unit => null;
     }
 
-    public class MonoidCategory<T> : ICategory<Type, T>
+    public class MonoidCategory<T, TMonoid> : ICategory<Type, T> where TMonoid : IMonoid<T>
     {
-        private readonly IMonoid<T> monoid;
+        public static IEnumerable<Type> Objects { get { yield return typeof(TMonoid); } }
 
-        public MonoidCategory(IMonoid<T> monoid)
-        {
-            this.monoid = monoid;
-        }
+        public static T Compose(T morphism2, T morphism1) => TMonoid.Multiply(morphism1, morphism2);
 
-        public IEnumerable<Type> Objects { get { yield return typeof(T); } }
-
-        public T Compose(T morphism2, T morphism1) => this.monoid.Multiply(morphism1, morphism2);
-
-        public T Id(Type @object) => this.monoid.Unit();
+        public static T Id(Type @object) => TMonoid.Unit;
     }
 }
 

@@ -5,31 +5,29 @@
     using System.IO;
     using System.Text;
 
-    public abstract class WriterBase<TContent, T>
+    public abstract class WriterBase<TContent, T, TContentMonoid> : IMonoid<TContent> where TContentMonoid : IMonoid<TContent>
     {
         private readonly Lazy<(TContent, T)> lazy;
 
-        protected WriterBase(Func<(TContent, T)> writer, IMonoid<TContent> monoid)
+        protected WriterBase(Func<(TContent, T)> writer)
         {
             this.lazy = new Lazy<(TContent, T)>(writer);
-            this.Monoid = monoid;
         }
 
         public TContent Content => this.lazy.Value.Item1;
 
         public T Value => this.lazy.Value.Item2;
 
-        public IMonoid<TContent> Monoid { get; }
+        public static TContent Multiply(TContent value1, TContent value2) => TContentMonoid.Multiply(value1, value2);
+
+        public static TContent Unit => TContentMonoid.Unit;
     }
 
-    public class Writer<TEntry, T> : WriterBase<IEnumerable<TEntry>, T>
+    public class Writer<TEntry, T> : WriterBase<IEnumerable<TEntry>, T, EnumerableConcatMonoid<TEntry>>
     {
-        private static readonly IMonoid<IEnumerable<TEntry>> ContentMonoid =
-            new EnumerableConcatMonoid<TEntry>();
+        public Writer(Func<(IEnumerable<TEntry>, T)> writer) : base(writer) { }
 
-        public Writer(Func<(IEnumerable<TEntry>, T)> writer) : base(writer, ContentMonoid) { }
-
-        public Writer(T value) : base(() => (ContentMonoid.Unit(), value), ContentMonoid) { }
+        public Writer(T value) : base(() => (Unit, value)) { }
     }
 
     public static partial class WriterExtensions
@@ -42,7 +40,7 @@
                 new Writer<TEntry, TResult>(() =>
                 {
                     Writer<TEntry, TSelector> result = selector(source.Value);
-                    return (source.Monoid.Multiply(source.Content, result.Content),
+                    return (Tutorial.CategoryTheory.Writer<TEntry, TSource>.Multiply(source.Content, result.Content),
                         resultSelector(source.Value, result.Value));
                 });
 

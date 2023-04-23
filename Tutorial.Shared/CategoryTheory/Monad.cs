@@ -154,7 +154,7 @@
         }
     }
 
-    public static partial class EnumerableExtensions // IEnumerable<T> : IMonad<IEnumerable<>>
+    public partial class EnumerableExtensions // IEnumerable<T> : IMonad<IEnumerable<>>
     {
         // SelectMany: (IEnumerable<TSource>, TSource -> IEnumerable<TSelector>, (TSource, TSelector) -> TResult) -> IEnumerable<TResult>
         public static IEnumerable<TResult> SelectMany<TSource, TSelector, TResult>(
@@ -283,7 +283,7 @@
     }
 #endif
 
-    public static partial class EnumerableExtensions
+    public partial class EnumerableExtensions
     {
         internal static void MonoidLaws()
         {

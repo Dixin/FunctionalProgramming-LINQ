@@ -7,16 +7,16 @@
 
     public interface ICategory<TObject, TMorphism>
     {
-        IEnumerable<TObject> Objects { get; }
+        static abstract IEnumerable<TObject> Objects { get; }
 
-        TMorphism Compose(TMorphism morphism2, TMorphism morphism1);
+        static abstract TMorphism Compose(TMorphism morphism2, TMorphism morphism1);
 
-        TMorphism Id(TObject @object);
+        static abstract TMorphism Id(TObject @object);
     }
 
     public class Int32Category : ICategory<int, BinaryExpression>
     {
-        public IEnumerable<int> Objects
+        public static IEnumerable<int> Objects
         {
             get
             {
@@ -27,10 +27,10 @@
             }
         }
 
-        public BinaryExpression Compose(BinaryExpression morphism2, BinaryExpression morphism1) =>
+        public static BinaryExpression Compose(BinaryExpression morphism2, BinaryExpression morphism1) =>
             Expression.LessThanOrEqual(morphism2.Left, morphism1.Right); // (Y <= Z) ∘ (X <= Y) => X <= Z.
 
-        public BinaryExpression Id(int @object) =>
+        public static BinaryExpression Id(int @object) =>
             Expression.GreaterThanOrEqual(Expression.Constant(@object), Expression.Constant(@object)); // X <= X.
     }
 
@@ -45,10 +45,10 @@
 
     public partial class DotNetCategory : ICategory<Type, Delegate>
     {
-        public IEnumerable<Type> Objects => AppDomain.CurrentDomain.GetAssemblies()
+        public static IEnumerable<Type> Objects => AppDomain.CurrentDomain.GetAssemblies()
             .SelectMany(assembly => assembly.ExportedTypes);
 
-        public Delegate Compose(Delegate morphism2, Delegate morphism1) =>
+        public static Delegate Compose(Delegate morphism2, Delegate morphism1) =>
             // return (Func<TSource, TResult>)Functions.Compose<TSource, TMiddle, TResult>(
             //    (Func<TMiddle, TResult>)morphism2, (Func<TSource, TMiddle>)morphism1);
             (Delegate)typeof(Tutorial.FuncExtensions).GetMethod(nameof(Tutorial.FuncExtensions.o))
@@ -58,7 +58,7 @@
                     morphism2.Method.ReturnType)
                 .Invoke(null, new object[] { morphism2, morphism1 });
 
-        public Delegate Id(Type @object) => // Functions.Id<TSource>
+        public static Delegate Id(Type @object) => // Functions.Id<TSource>
             typeof(Functions).GetMethod(nameof(Functions.Id)).MakeGenericMethod(@object)
                 .CreateDelegate(typeof(Func<,>).MakeGenericType(@object, @object));
     }
